@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ranking TV</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            opacity: 0.1;
+            background-image:
+                radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.2) 0%, transparent 50%);
+        }
+
+        body.conversion {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%);
+        }
+
+        body.retencion {
+            background: linear-gradient(135deg, #10b981 0%, #14b8a6 50%, #06b6d4 100%);
+        }
+
+        body.recovery {
+            background: linear-gradient(135deg, #f59e0b 0%, #ef4444 50%, #ec4899 100%);
+        }
+
+        .container {
+            padding: 25px 60px;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .logo {
+            font-size: 40px;
+            filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.3));
+        }
+
+        .fecha-hora {
+            color: white;
+            font-size: 18px;
+            opacity: 0.95;
+            font-weight: 600;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            padding: 8px 20px;
+            border-radius: 12px;
+        }
+
+        .header h1 {
+            font-size: 48px;
+            font-weight: 900;
+            text-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            margin-bottom: 8px;
+            letter-spacing: -2px;
+        }
+
+        .header .subtitle {
+            font-size: 24px;
+            opacity: 0.95;
+            font-weight: 700;
+            text-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            padding: 6px 24px;
+            border-radius: 16px;
+            display: inline-block;
+        }
+
+        .ranking-container {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .ranking-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .ranking-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 25px 35px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 3px solid rgba(255, 255, 255, 0.5);
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .ranking-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
+        }
+
+        .ranking-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 8px;
+            background: linear-gradient(180deg, #e5e7eb, #e5e7eb);
+        }
+
+        .ranking-card.top-1::before {
+            background: linear-gradient(90deg, #f59e0b, #fbbf24, #f59e0b);
+        }
+
+        .ranking-card.top-2::before {
+            background: linear-gradient(90deg, #9ca3af, #d1d5db, #9ca3af);
+        }
+
+        .ranking-card.top-3::before {
+            background: linear-gradient(90deg, #ef4444, #f87171, #ef4444);
+        }
+
+        .ranking-card.nuevo-deposito {
+            animation: pulso-celebracion 2s ease-in-out;
+            border-color: #10b981;
+            box-shadow: 0 30px 80px rgba(16, 185, 129, 0.5);
+        }
+
+        @keyframes pulso-celebracion {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            25% {
+                transform: scale(1.05);
+            }
+
+            50% {
+                transform: scale(1.02);
+            }
+
+            75% {
+                transform: scale(1.05);
+            }
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-shrink: 0;
+        }
+
+        .posicion-badge {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            font-weight: 900;
+            color: white;
+            flex-shrink: 0;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        }
+
+        .top-1 .posicion-badge {
+            background: linear-gradient(135deg, #f59e0b, #fbbf24);
+            box-shadow: 0 8px 24px rgba(245, 158, 11, 0.5);
+        }
+
+        .top-2 .posicion-badge {
+            background: linear-gradient(135deg, #9ca3af, #d1d5db);
+            box-shadow: 0 8px 24px rgba(156, 163, 175, 0.5);
+        }
+
+        .top-3 .posicion-badge {
+            background: linear-gradient(135deg, #ef4444, #f87171);
+            box-shadow: 0 8px 24px rgba(239, 68, 68, 0.5);
+        }
+
+        .posicion-badge.other {
+            background: linear-gradient(135deg, #64748b, #94a3b8);
+        }
+
+        .avatar {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: 900;
+            color: white;
+            flex-shrink: 0;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            border: 4px solid white;
+        }
+
+        .top-1 .avatar {
+            background: linear-gradient(135deg, #f59e0b, #fbbf24);
+            border-color: #fef3c7;
+        }
+
+        .top-2 .avatar {
+            background: linear-gradient(135deg, #64748b, #94a3b8);
+            border-color: #f1f5f9;
+        }
+
+        .top-3 .avatar {
+            background: linear-gradient(135deg, #ef4444, #f87171);
+            border-color: #fee2e2;
+        }
+
+        .agente-info {
+            flex-shrink: 0;
+            min-width: 200px;
+        }
+
+        .agente-nombre {
+            font-size: 28px;
+            font-weight: 900;
+            color: #0f172a;
+            margin-bottom: 5px;
+            letter-spacing: -1px;
+        }
+
+        .agente-stats {
+            display: flex;
+            gap: 15px;
+            font-size: 14px;
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        .medal {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 40px;
+            filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
+        }
+
+        .stats-grid {
+            display: flex;
+            gap: 15px;
+            flex: 1;
+            margin: 0;
+        }
+
+        .stat-box {
+            background: #f8fafc;
+            padding: 15px 20px;
+            border-radius: 14px;
+            text-align: center;
+            flex: 1;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: #64748b;
+            font-weight: 600;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 900;
+            color: #0f172a;
+        }
+
+        .progress-section {
+            flex-shrink: 0;
+            width: 250px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .progress-label {
+            font-size: 14px;
+            font-weight: 700;
+            color: #475569;
+        }
+
+        .progress-percentage {
+            font-size: 32px;
+            font-weight: 900;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .progress-percentage.excelente {
+            color: #10b981;
+        }
+
+        .progress-percentage.bueno {
+            color: #f59e0b;
+        }
+
+        .progress-percentage.bajo {
+            color: #ef4444;
+        }
+
+        .progress-bar {
+            height: 20px;
+            background: #e2e8f0;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 12px;
+            transition: width 1s ease-out;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                transform: translateX(-100%);
+            }
+
+            100% {
+                transform: translateX(100%);
+            }
+        }
+
+        .progress-fill.excelente {
+            background: linear-gradient(90deg, #10b981, #34d399);
+        }
+
+        .progress-fill.bueno {
+            background: linear-gradient(90deg, #f59e0b, #fbbf24);
+        }
+
+        .progress-fill.bajo {
+            background: linear-gradient(90deg, #ef4444, #f87171);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 100px 20px;
+            color: white;
+            font-size: 38px;
+            font-weight: 700;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 100px 20px;
+            color: white;
+            font-size: 42px;
+            font-weight: 700;
+        }
+
+        .actualizacion {
+            text-align: center;
+            color: white;
+            font-size: 16px;
+            margin-top: 15px;
+            font-weight: 600;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            padding: 10px 24px;
+            border-radius: 16px;
+            display: inline-block;
+            position: relative;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .live-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            background: #ef4444;
+            border-radius: 50%;
+            margin-right: 10px;
+            animation: pulse 2s infinite;
+            box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+            }
+
+            50% {
+                box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+            }
+        }
+
+        .ranking-container::-webkit-scrollbar {
+            width: 12px;
+        }
+
+        .ranking-container::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+        }
+
+        .ranking-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 6px;
+            transition: background 0.3s;
+        }
+
+        .ranking-container::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Notificación de depósito */
+        .notificacion-deposito {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 80px 100px;
+            border-radius: 40px;
+            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+            text-align: center;
+            opacity: 0;
+            animation: aparecer-notificacion 3.5s ease-in-out;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+        }
+
+        @keyframes aparecer-notificacion {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.5) rotate(-5deg);
+            }
+
+            15% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1.15) rotate(2deg);
+            }
+
+            20% {
+                transform: translate(-50%, -50%) scale(1) rotate(0deg);
+            }
+
+            85% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1) rotate(0deg);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.8) rotate(5deg);
+            }
+        }
+
+        .notificacion-deposito .emoji {
+            font-size: 140px;
+            margin-bottom: 25px;
+            animation: rotar-emoji 1.5s ease-in-out infinite;
+        }
+
+        @keyframes rotar-emoji {
+
+            0%,
+            100% {
+                transform: rotate(-15deg) scale(1);
+            }
+
+            25% {
+                transform: rotate(15deg) scale(1.1);
+            }
+
+            50% {
+                transform: rotate(-10deg) scale(1.05);
+            }
+
+            75% {
+                transform: rotate(10deg) scale(1.1);
+            }
+        }
+
+        .notificacion-deposito h2 {
+            font-size: 56px;
+            margin-bottom: 25px;
+            text-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            font-weight: 900;
+            letter-spacing: -1px;
+        }
+
+        .notificacion-deposito p {
+            font-size: 42px;
+            opacity: 0.95;
+            font-weight: 700;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .notificacion-deposito .monto {
+            font-size: 72px;
+            font-weight: 900;
+            margin: 25px 0;
+            text-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+            letter-spacing: -2px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-top">
+                <div class="logo">🏆</div>
+                <div class="fecha-hora" id="fechaHora"></div>
+            </div>
+            <h1 id="areaTitle">RANKING</h1>
+            <div class="subtitle" id="mesActual"></div>
+        </div>
+
+        <div class="ranking-container" id="rankingContainer">
+            <div class="loading">⏳ Cargando ranking...</div>
+        </div>
+
+        <div class="actualizacion">
+            <span class="live-indicator"></span>EN VIVO • Última actualización: <span id="ultimaActualizacion"></span>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="../config/config.js"></script>
+    <script src="js/tv-ranking.js"></script>
+</body>
+
+</html>
