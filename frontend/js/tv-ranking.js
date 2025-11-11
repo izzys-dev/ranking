@@ -3,7 +3,7 @@ let supabaseClient;
 let areaActual;
 let mesActual, anioActual;
 let agentesMap = {};
-let liderId = null; // ID del líder para filtrar agentes
+let liderId = null;
 
 window.addEventListener('DOMContentLoaded', async () => {
     console.log('🚀 Iniciando TV Ranking...');
@@ -13,45 +13,21 @@ window.addEventListener('DOMContentLoaded', async () => {
         window.SUPABASE_CONFIG.anonKey
     );
     
-    // Obtener área y lider_id de la URL
     const urlParams = new URLSearchParams(window.location.search);
     areaActual = urlParams.get('area') || 'conversion';
-    liderId = urlParams.get('lider_id'); // Obtener ID del líder
+    liderId = urlParams.get('lider_id');
     
     console.log('📍 Área:', areaActual);
     console.log('👤 Líder ID:', liderId || 'Todos los líderes');
     
-    // Validar área
     if (!['conversion', 'retencion', 'recovery'].includes(areaActual)) {
         areaActual = 'conversion';
     }
     
-    // Configurar colores según área
     document.body.classList.add(areaActual);
     
-    // Configurar título según área
-    const titulos = {
-        'conversion': '🎯 RANKING CONVERSIÓN',
-        'retencion': '🔄 RANKING RETENCIÓN',
-        'recovery': '💰 RANKING RECOVERY'
-    };
-    
-    let tituloBase = titulos[areaActual];
-    
-    // Si es el ranking de un líder específico, personalizar el título
-    if (liderId) {
-        const { data: lider } = await supabaseClient
-            .from('usuarios')
-            .select('nombre')
-            .eq('id', liderId)
-            .single();
-        
-        if (lider) {
-            tituloBase = `${tituloBase} - ${lider.nombre}`;
-        }
-    }
-    
-    document.getElementById('areaTitle').textContent = tituloBase;
+    // Aplicar traducciones
+    applyTranslations();
     
     // Configurar mes actual
     const now = new Date();
@@ -60,38 +36,36 @@ window.addEventListener('DOMContentLoaded', async () => {
     
     console.log('📅 Mes:', mesActual, 'Año:', anioActual);
     
-    const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
-                   'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+    const meses = i18n.getMonths();
     document.getElementById('mesActual').textContent = `${meses[mesActual - 1]} ${anioActual}`;
     
-    // Actualizar fecha y hora
     actualizarFechaHora();
     setInterval(actualizarFechaHora, 1000);
     
-    // Cargar agentes map
     await cargarAgentesMap();
-    
-    // Cargar ranking inicial
     await cargarRanking();
-    
-    // Suscribirse a cambios en tiempo real
     suscribirseACambios();
     
     console.log('✅ TV Ranking inicializado correctamente');
 });
 
+function applyTranslations() {
+    const titulos = {
+        'conversion': `🎯 ${i18n.t('ranking_conversion')}`,
+        'retencion': `🔄 ${i18n.t('ranking_retention')}`,
+        'recovery': `💰 ${i18n.t('ranking_recovery')}`
+    };
+    
+    let tituloBase = titulos[areaActual];
+    document.getElementById('areaTitle').textContent = tituloBase;
+    
+    document.getElementById('liveText').textContent = i18n.t('live');
+    document.getElementById('lastUpdateLabel').textContent = i18n.t('last_update');
+}
+
 function actualizarFechaHora() {
     const ahora = new Date();
-    const opciones = { 
-        weekday: 'long', 
-        year: 'numeric', 
-        month: 'long', 
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit'
-    };
-    document.getElementById('fechaHora').textContent = ahora.toLocaleDateString('es-ES', opciones);
+    document.getElementById('fechaHora').textContent = i18n.formatDate(ahora);
 }
 
 async function cargarAgentesMap() {
@@ -102,7 +76,6 @@ async function cargarAgentesMap() {
             .eq('area', areaActual)
             .eq('activo', true);
         
-        // Si hay lider_id, filtrar solo sus agentes
         if (liderId) {
             query = query.eq('lider_id', liderId);
         }
@@ -122,10 +95,8 @@ async function cargarAgentesMap() {
 function suscribirseACambios() {
     console.log('🔌 Suscribiéndose a cambios en tiempo real...');
     
-    // Canal único para todo
     const canal = supabaseClient.channel('cambios-ranking');
     
-    // Suscribirse a cambios en depósitos
     canal.on(
         'postgres_changes',
         {
@@ -138,18 +109,15 @@ function suscribirseACambios() {
             
             const nuevoDeposito = payload.new;
             
-            // Verificar que es del mes actual
             if (nuevoDeposito.mes === mesActual && nuevoDeposito.anio === anioActual) {
                 console.log('✅ Depósito del mes actual');
                 
-                // Obtener info del agente
                 let queryAgente = supabaseClient
                     .from('agentes')
                     .select('*')
                     .eq('id', nuevoDeposito.agente_id)
                     .eq('area', areaActual);
                 
-                // Si hay lider_id, verificar que el agente pertenece a este líder
                 if (liderId) {
                     queryAgente = queryAgente.eq('lider_id', liderId);
                 }
@@ -158,11 +126,8 @@ function suscribirseACambios() {
                 
                 if (agente) {
                     console.log('🎉 Mostrando celebración para:', agente.nombre);
-                    
-                    // Mostrar celebración
                     mostrarCelebracion(agente.nombre, nuevoDeposito.monto);
                     
-                    // Recargar ranking después de la animación
                     setTimeout(() => {
                         console.log('🔄 Recargando ranking...');
                         cargarRanking(nuevoDeposito.agente_id);
@@ -176,7 +141,6 @@ function suscribirseACambios() {
         }
     );
     
-    // Suscribirse a cambios en registros (para conversión)
     if (areaActual === 'conversion') {
         canal.on(
             'postgres_changes',
@@ -197,7 +161,6 @@ function suscribirseACambios() {
                         .eq('id', nuevoRegistro.agente_id)
                         .eq('area', areaActual);
                     
-                    // Si hay lider_id, verificar que el agente pertenece a este líder
                     if (liderId) {
                         queryAgente = queryAgente.eq('lider_id', liderId);
                     }
@@ -216,7 +179,6 @@ function suscribirseACambios() {
         );
     }
     
-    // Suscribirse a cambios en targets
     canal.on(
         'postgres_changes',
         {
@@ -230,7 +192,6 @@ function suscribirseACambios() {
         }
     );
     
-    // Suscribir el canal
     canal.subscribe((status) => {
         console.log('📡 Estado de suscripción:', status);
         
@@ -247,24 +208,19 @@ function suscribirseACambios() {
 function mostrarCelebracion(nombreAgente, monto) {
     console.log('🎊 Lanzando celebración...');
     
-    // Crear notificación
     const notificacion = document.createElement('div');
     notificacion.className = 'notificacion-deposito';
     notificacion.innerHTML = `
         <div class="emoji">🎉</div>
-        <h2>¡NUEVO DEPÓSITO!</h2>
+        <h2>${i18n.t('new_deposit')}</h2>
         <p>${nombreAgente}</p>
         <div class="monto">$${parseFloat(monto).toFixed(2)}</div>
     `;
     document.body.appendChild(notificacion);
     
-    // Reproducir sonido de celebración desde archivo
     reproducirSonidoCelebracion();
-    
-    // Confetti
     lanzarConfetti();
     
-    // Eliminar después de la animación
     setTimeout(() => {
         notificacion.remove();
     }, 3000);
@@ -277,15 +233,13 @@ function mostrarCelebracionRegistro(nombreAgente) {
     notificacion.className = 'notificacion-deposito';
     notificacion.innerHTML = `
         <div class="emoji">📝</div>
-        <h2>¡NUEVO REGISTRO!</h2>
+        <h2>${i18n.t('new_registration')}</h2>
         <p>${nombreAgente}</p>
-        <div class="monto">+1 Lead</div>
+        <div class="monto">+1 ${i18n.t('lead')}</div>
     `;
     document.body.appendChild(notificacion);
     
-    // Reproducir sonido de celebración desde archivo
     reproducirSonidoCelebracion();
-    
     lanzarConfetti();
     
     setTimeout(() => {
@@ -293,20 +247,12 @@ function mostrarCelebracionRegistro(nombreAgente) {
     }, 3000);
 }
 
-// Función para reproducir sonido desde archivo MP3
 function reproducirSonidoCelebracion() {
     try {
-        // Crear nuevo objeto de audio
         const audio = new Audio('assets/sounds/celebration.mp3');
-        
-        // Configurar volumen (0.0 a 1.0)
-        audio.volume = 0.6; // 60% del volumen
-        
-        // Reproducir el audio
+        audio.volume = 0.6;
         audio.play().catch(error => {
             console.warn('⚠️ No se pudo reproducir el sonido:', error);
-            // Algunos navegadores bloquean la reproducción automática de audio
-            // hasta que el usuario interactúe con la página
         });
         
         console.log('🔊 Sonido de celebración reproducido desde archivo MP3');
@@ -345,7 +291,6 @@ function lanzarConfetti() {
         });
     }, 50);
     
-    // Explosión central
     confetti({
         particleCount: 100,
         spread: 70,
@@ -359,14 +304,12 @@ async function cargarRanking(agenteIdNuevo = null) {
         console.log('📊 Cargando ranking...');
         console.log('🔍 Filtrar por líder:', liderId || 'No (todos los líderes)');
         
-        // Cargar agentes del área (filtrar por líder si viene en la URL)
         let query = supabaseClient
             .from('agentes')
             .select('*')
             .eq('area', areaActual)
             .eq('activo', true);
         
-        // Si hay lider_id, filtrar solo sus agentes
         if (liderId) {
             query = query.eq('lider_id', liderId);
         }
@@ -377,7 +320,6 @@ async function cargarRanking(agenteIdNuevo = null) {
         
         console.log('👥 Agentes encontrados:', agentes?.length || 0);
         
-        // Cargar targets
         const { data: targets, error: targetsError } = await supabaseClient
             .from('targets_mensuales')
             .select('*')
@@ -386,7 +328,6 @@ async function cargarRanking(agenteIdNuevo = null) {
         
         if (targetsError) throw targetsError;
         
-        // Cargar depósitos
         const { data: depositos, error: depositosError } = await supabaseClient
             .from('depositos')
             .select('*')
@@ -397,7 +338,6 @@ async function cargarRanking(agenteIdNuevo = null) {
         
         console.log('💰 Depósitos encontrados:', depositos?.length || 0);
         
-        // Cargar registros (solo para conversión)
         let registros = [];
         if (areaActual === 'conversion') {
             const { data: registrosData, error: registrosError } = await supabaseClient
@@ -412,7 +352,6 @@ async function cargarRanking(agenteIdNuevo = null) {
             console.log('📝 Registros encontrados:', registros.length);
         }
         
-        // Procesar datos
         const ranking = agentes.map(agente => {
             const target = targets?.find(t => t.agente_id === agente.id);
             const depositosAgente = depositos?.filter(d => d.agente_id === agente.id) || [];
@@ -452,14 +391,12 @@ async function cargarRanking(agenteIdNuevo = null) {
             };
         });
         
-        // Ordenar por total ingresado/cantidad (del más alto al más bajo)
         ranking.sort((a, b) => b.actual - a.actual);
         
         console.log('✅ Ranking procesado:', ranking.length, 'agentes');
         
         mostrarRanking(ranking, agenteIdNuevo);
         
-        // Actualizar última actualización
         const ahora = new Date();
         document.getElementById('ultimaActualizacion').textContent = 
             ahora.toLocaleTimeString('es-ES');
@@ -467,7 +404,7 @@ async function cargarRanking(agenteIdNuevo = null) {
     } catch (error) {
         console.error('❌ Error al cargar ranking:', error);
         document.getElementById('rankingContainer').innerHTML = 
-            '<div class="empty-state">❌ Error al cargar ranking</div>';
+            `<div class="empty-state">❌ ${i18n.t('error_loading')}</div>`;
     }
 }
 
@@ -475,7 +412,7 @@ function mostrarRanking(ranking, agenteIdNuevo = null) {
     const container = document.getElementById('rankingContainer');
     
     if (!ranking || ranking.length === 0) {
-        container.innerHTML = '<div class="empty-state">📭 No hay agentes en esta área</div>';
+        container.innerHTML = `<div class="empty-state">📭 ${i18n.t('no_agents')}</div>`;
         return;
     }
     
@@ -497,7 +434,6 @@ function mostrarRanking(ranking, agenteIdNuevo = null) {
             medal = '🥉';
         }
         
-        // Agregar clase de nuevo depósito si es el agente que acaba de depositar
         if (agenteIdNuevo && agente.id === agenteIdNuevo) {
             claseTop += ' nuevo-deposito';
         }
@@ -506,7 +442,6 @@ function mostrarRanking(ranking, agenteIdNuevo = null) {
         if (agente.porcentaje >= 100) clasePorcentaje = 'excelente';
         else if (agente.porcentaje >= 70) clasePorcentaje = 'bueno';
         
-        // Iniciales del nombre
         const iniciales = agente.nombre.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
         
         let targetTexto = '';
@@ -520,7 +455,6 @@ function mostrarRanking(ranking, agenteIdNuevo = null) {
             actualTexto = `$${agente.actual.toFixed(0)}`;
         }
         
-        // Limitar el ancho de la barra de progreso
         const progressWidth = Math.min(agente.porcentaje, 100);
         
         html += `
@@ -534,9 +468,9 @@ function mostrarRanking(ranking, agenteIdNuevo = null) {
                         <div class="agente-nombre">${agente.nombre}</div>
                         <div class="agente-stats">
                             ${areaActual === 'conversion' ? 
-                                `<span>💰 ${agente.cantidadDepositos} depósitos</span>
+                                `<span>💰 ${agente.cantidadDepositos} ${i18n.t('deposits').toLowerCase()}</span>
                                  <span>📝 ${agente.cantidadRegistros} leads</span>` : 
-                                `<span>💰 ${agente.cantidadDepositos} depósitos</span>`
+                                `<span>💰 ${agente.cantidadDepositos} ${i18n.t('deposits').toLowerCase()}</span>`
                             }
                         </div>
                     </div>
@@ -544,15 +478,15 @@ function mostrarRanking(ranking, agenteIdNuevo = null) {
 
                 <div class="stats-grid">
                     <div class="stat-box">
-                        <div class="stat-label">Target</div>
+                        <div class="stat-label">${i18n.t('target')}</div>
                         <div class="stat-value">${targetTexto}</div>
                     </div>
                     <div class="stat-box">
-                        <div class="stat-label">Actual</div>
+                        <div class="stat-label">${i18n.t('current')}</div>
                         <div class="stat-value">${actualTexto}</div>
                     </div>
                     <div class="stat-box">
-                        <div class="stat-label">Progreso</div>
+                        <div class="stat-label">${i18n.t('progress')}</div>
                         <div class="stat-value progress-percentage ${clasePorcentaje}">${agente.porcentaje}%</div>
                     </div>
                 </div>

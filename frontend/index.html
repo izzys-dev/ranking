@@ -9,33 +9,69 @@
 </head>
 
 <body>
+    <!-- Selector de idioma pequeño -->
+    <div style="position: fixed; top: 15px; right: 15px; z-index: 9999;">
+        <select id="languageSelector" onchange="changeLanguage(this.value)" style="
+            padding: 6px 10px;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
+            background: white;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+            transition: all 0.2s;
+        " onmouseover="this.style.boxShadow='0 4px 8px rgba(0,0,0,0.12)'"
+            onmouseout="this.style.boxShadow='0 2px 4px rgba(0,0,0,0.08)'">
+            <option value="es">🇪🇸 ES</option>
+            <option value="en">🇺🇸 EN</option>
+        </select>
+    </div>
+
     <div class="login-container">
         <div class="login-card">
             <div class="logo">🏆</div>
-            <h1>Sistema de Ranking</h1>
-            <p class="subtitle">Accede con tu correo electrónico</p>
+            <h1 id="loginTitle"></h1>
+            <p class="subtitle" id="loginSubtitle"></p>
 
             <form id="loginForm">
                 <div class="form-group">
-                    <label for="email">Email</label>
+                    <label for="email" id="emailLabel"></label>
                     <input type="email" id="email" required autofocus placeholder="tu@email.com">
                 </div>
 
                 <div class="form-group">
-                    <label for="password">Contraseña</label>
+                    <label for="password" id="passwordLabel"></label>
                     <input type="password" id="password" required>
                 </div>
 
                 <div id="errorMessage" class="error-message" style="display: none;"></div>
 
-                <button type="submit" class="btn-primary">Iniciar Sesión</button>
+                <button type="submit" class="btn-primary" id="loginButton"></button>
             </form>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../config/config.js"></script>
+    <script src="js/i18n.js"></script>
     <script src="js/login.js"></script>
+    <script>
+        function changeLanguage(lang) {
+            i18n.setLanguage(lang);
+        }
+
+        function applyTranslations() {
+            document.getElementById('languageSelector').value = i18n.getLanguage();
+            document.getElementById('loginTitle').textContent = i18n.t('login_title');
+            document.getElementById('loginSubtitle').textContent = i18n.t('login_subtitle');
+            document.getElementById('emailLabel').textContent = i18n.t('email');
+            document.getElementById('passwordLabel').textContent = i18n.t('password');
+            document.getElementById('loginButton').textContent = i18n.t('login_button');
+        }
+
+        document.addEventListener('DOMContentLoaded', applyTranslations);
+    </script>
 </body>
 
 </html>

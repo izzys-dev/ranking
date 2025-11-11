@@ -7,7 +7,6 @@ window.addEventListener('DOMContentLoaded', () => {
         window.SUPABASE_CONFIG.anonKey
     );
     
-    // Limpiar cualquier sesión anterior
     localStorage.removeItem('user');
     
     const loginForm = document.getElementById('loginForm');
@@ -26,7 +25,6 @@ async function handleLogin(e) {
     console.log('Intentando login con:', email);
     
     try {
-        // Buscar usuario
         const { data, error } = await supabaseClient
             .from('usuarios')
             .select('*')
@@ -38,16 +36,14 @@ async function handleLogin(e) {
         console.log('Respuesta de Supabase:', { data, error });
         
         if (error || !data) {
-            errorMessage.textContent = 'Email o contraseña incorrectos';
+            errorMessage.textContent = i18n.t('login_error');
             errorMessage.style.display = 'block';
             return;
         }
         
-        // IMPORTANTE: Guardar usuario en localStorage ANTES de redirigir
         localStorage.setItem('user', JSON.stringify(data));
         console.log('Usuario guardado en localStorage:', data);
         
-        // Redirigir según el rol
         if (data.rol === 'super') {
             console.log('Redirigiendo a dashboard-super...');
             window.location.href = 'pages/dashboard-super.html';
@@ -58,13 +54,13 @@ async function handleLogin(e) {
             console.log('Redirigiendo a dashboard-lider...');
             window.location.href = 'pages/dashboard-lider.html';
         } else {
-            errorMessage.textContent = 'Rol de usuario no válido';
+            errorMessage.textContent = 'Invalid user role';
             errorMessage.style.display = 'block';
         }
         
     } catch (error) {
         console.error('Error en login:', error);
-        errorMessage.textContent = 'Error al iniciar sesión. Intenta de nuevo.';
+        errorMessage.textContent = i18n.t('error_loading');
         errorMessage.style.display = 'block';
     }
 }

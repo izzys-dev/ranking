@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="../css/styles.css">
     <style>
         .dashboard {
-            max-width: 1400px;
+            max-width: 1600px;
             margin: 0 auto;
             padding: 20px;
         }
@@ -30,9 +30,9 @@
         }
 
         .header .area-badge {
-            padding: 6px 16px;
+            padding: 8px 20px;
             border-radius: 20px;
-            font-size: 14px;
+            font-size: 16px;
             font-weight: 600;
             margin-top: 8px;
         }
@@ -52,20 +52,6 @@
             color: #92400e;
         }
 
-        .btn-tv {
-            background: #8b5cf6;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-        }
-
-        .btn-tv:hover {
-            background: #7c3aed;
-        }
-
         .btn-logout {
             background: #ef4444;
             color: white;
@@ -78,6 +64,21 @@
 
         .btn-logout:hover {
             background: #dc2626;
+        }
+
+        .btn-tv {
+            background: #8b5cf6;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-right: 10px;
+        }
+
+        .btn-tv:hover {
+            background: #7c3aed;
         }
 
         .card {
@@ -94,6 +95,32 @@
             font-size: 20px;
         }
 
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card h3 {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+
+        .stat-card .value {
+            font-size: 36px;
+            font-weight: 900;
+        }
+
         .btn-add {
             background: #10b981;
             color: white;
@@ -103,6 +130,7 @@
             cursor: pointer;
             font-weight: 600;
             margin-bottom: 20px;
+            margin-right: 10px;
         }
 
         .btn-add:hover {
@@ -111,7 +139,6 @@
 
         .btn-deposito-rapido {
             background: #f59e0b;
-            margin-left: 10px;
         }
 
         .btn-deposito-rapido:hover {
@@ -120,7 +147,6 @@
 
         .btn-registro-rapido {
             background: #06b6d4;
-            margin-left: 10px;
         }
 
         .btn-registro-rapido:hover {
@@ -174,26 +200,14 @@
             color: white;
         }
 
-        .btn-target:hover {
-            background: #7c3aed;
-        }
-
         .btn-depositos {
             background: #14b8a6;
             color: white;
         }
 
-        .btn-depositos:hover {
-            background: #0d9488;
-        }
-
         .btn-registros {
             background: #06b6d4;
             color: white;
-        }
-
-        .btn-registros:hover {
-            background: #0891b2;
         }
 
         .target-info {
@@ -254,11 +268,13 @@
             font-weight: 600;
         }
 
-        .depositos-list {
+        .depositos-list,
+        .registros-list {
             margin-top: 20px;
         }
 
-        .deposito-item {
+        .deposito-item,
+        .registro-item {
             background: #f8fafc;
             padding: 12px;
             border-radius: 8px;
@@ -268,7 +284,12 @@
             align-items: center;
         }
 
-        .deposito-info {
+        .registro-item {
+            background: #f0fdfa;
+        }
+
+        .deposito-info,
+        .registro-info {
             flex: 1;
         }
 
@@ -278,246 +299,195 @@
             color: #0f172a;
         }
 
-        .deposito-fecha {
+        .deposito-fecha,
+        .registro-fecha {
             font-size: 14px;
             color: #64748b;
         }
 
-        .deposito-actions {
+        .deposito-actions,
+        .registro-actions {
             display: flex;
             gap: 5px;
-        }
-
-        .registro-item {
-            background: #f0fdfa;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
         }
     </style>
 </head>
 
 <body style="background: #f1f5f9;">
+    <!-- Selector de idioma -->
+    <div style="position: fixed; top: 20px; right: 20px; z-index: 9999;">
+        <select id="languageSelector" onchange="changeLanguage(this.value)"
+            style="padding: 8px 12px; border-radius: 8px; border: 2px solid #e2e8f0; background: white; cursor: pointer; font-weight: 600; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <option value="es">🇪🇸 Español</option>
+            <option value="en">🇺🇸 English</option>
+        </select>
+    </div>
+
     <div class="dashboard">
         <div class="header">
             <div>
-                <h1>👥 Panel de Líder</h1>
+                <h1 id="panelTitle">⚡</h1>
                 <p id="welcomeText" style="color: #64748b; margin-top: 5px;"></p>
                 <div id="areaBadge" class="area-badge"></div>
             </div>
             <div style="display: flex; gap: 10px;">
-                <button class="btn-tv" onclick="abrirRankingTV()">📺 Mostrar Ranking</button>
-                <button class="btn-logout" onclick="logout()">Cerrar Sesión</button>
+                <button class="btn-tv" onclick="abrirRankingTV()" id="showRankingBtn">📺</button>
+                <button class="btn-logout" onclick="logout()" id="logoutBtn"></button>
             </div>
         </div>
 
+        <div class="stats-grid" id="statsGrid"></div>
+
         <div class="card">
-            <h2>Mis Agentes</h2>
+            <h2 id="myAgentsTitle"></h2>
             <div class="mes-actual" id="mesActual"></div>
-            <button class="btn-add" onclick="openModal()">+ Agregar Agente</button>
-            <button class="btn-add btn-deposito-rapido" onclick="openDepositoRapido()">⚡ Depósito Rápido</button>
-            <button class="btn-add btn-registro-rapido" onclick="openRegistroRapido()" id="btnRegistroRapido"
-                style="display: none;">📝 Registro Rápido</button>
+            <button class="btn-add" onclick="openModal()" id="addAgentBtn">+</button>
+            <button class="btn-add btn-deposito-rapido" onclick="openDepositoRapido()" id="quickDepositBtn">⚡</button>
+            <button class="btn-add btn-registro-rapido" onclick="openRegistroRapido()" id="quickRegistrationBtn"
+                style="display: none;">📝</button>
 
             <div id="agentesContainer">
-                <div class="empty-state">Cargando agentes...</div>
+                <div class="empty-state" id="loadingAgents"></div>
             </div>
         </div>
     </div>
 
-    <!-- Modal para agregar/editar agente -->
+    <!-- Modal Agregar/Editar Agente -->
     <div id="agenteModal" class="modal">
         <div class="modal-content">
-            <h3 id="modalTitle">Agregar Agente</h3>
+            <h3 id="modalTitle"></h3>
             <form id="agenteForm">
                 <div class="form-group">
-                    <label for="agenteNombre">Nombre completo</label>
+                    <label for="agenteNombre" id="agentNameLabel"></label>
                     <input type="text" id="agenteNombre" required>
                 </div>
 
                 <div id="modalError" class="error-message" style="display: none;"></div>
 
                 <div style="margin-top: 20px;">
-                    <button type="button" class="btn-cancel" onclick="closeModal()">Cancelar</button>
-                    <button type="submit" class="btn-primary">Guardar</button>
+                    <button type="button" class="btn-cancel" onclick="closeModal()" id="cancelBtn"></button>
+                    <button type="submit" class="btn-primary" id="saveBtn"></button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Modal para asignar target -->
+    <!-- Modal Target -->
     <div id="targetModal" class="modal">
         <div class="modal-content">
-            <h3 id="targetModalTitle">Asignar Target</h3>
+            <h3 id="targetModalTitle"></h3>
             <form id="targetForm">
                 <div class="form-group">
-                    <label for="targetAgente">Agente</label>
-                    <input type="text" id="targetAgente" readonly style="background: #f1f5f9;">
+                    <label for="targetCantidad" id="targetAmountLabel"></label>
+                    <input type="number" id="targetCantidad" min="0" step="1">
                 </div>
 
                 <div class="form-group">
-                    <label for="targetMes">Mes</label>
-                    <input type="text" id="targetMes" readonly style="background: #f1f5f9;">
-                </div>
-
-                <div class="form-group" id="targetCantidadGroup" style="display: none;">
-                    <label for="targetCantidad">Target (Cantidad de depósitos)</label>
-                    <input type="number" id="targetCantidad" min="1" placeholder="Ejemplo: 10">
-                </div>
-
-                <div class="form-group" id="targetMontoGroup" style="display: none;">
-                    <label for="targetMonto">Target (Monto en $)</label>
-                    <input type="number" id="targetMonto" min="1" step="0.01" placeholder="Ejemplo: 5000.00">
+                    <label for="targetMonto" id="targetMoneyLabel"></label>
+                    <input type="number" id="targetMonto" min="0" step="0.01">
                 </div>
 
                 <div id="targetModalError" class="error-message" style="display: none;"></div>
 
                 <div style="margin-top: 20px;">
-                    <button type="button" class="btn-cancel" onclick="closeTargetModal()">Cancelar</button>
-                    <button type="submit" class="btn-primary">Guardar Target</button>
+                    <button type="button" class="btn-cancel" onclick="closeTargetModal()" id="cancelTargetBtn"></button>
+                    <button type="submit" class="btn-primary" id="saveTargetBtn"></button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Modal para depósito rápido -->
+    <!-- Modal Depósitos -->
+    <div id="depositosModal" class="modal">
+        <div class="modal-content">
+            <h3 id="depositosModalTitle"></h3>
+
+            <form id="depositoForm">
+                <div class="form-group">
+                    <label for="depositoMonto" id="depositAmountLabel"></label>
+                    <input type="number" id="depositoMonto" min="0" step="0.01" required>
+                </div>
+
+                <div id="depositoModalError" class="error-message" style="display: none;"></div>
+
+                <div style="margin-top: 20px;">
+                    <button type="submit" class="btn-primary" id="addDepositBtn"></button>
+                </div>
+            </form>
+
+            <div class="depositos-list" id="depositosList"></div>
+
+            <div style="margin-top: 30px; text-align: center;">
+                <button class="btn-cancel" onclick="closeDepositosModal()" id="closeDepositsBtn"></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Registros -->
+    <div id="registrosModal" class="modal">
+        <div class="modal-content">
+            <h3 id="registrosModalTitle"></h3>
+
+            <form id="registroForm">
+                <div style="margin-top: 20px;">
+                    <button type="submit" class="btn-primary" id="addRegistrationBtn"></button>
+                </div>
+            </form>
+
+            <div class="registros-list" id="registrosList"></div>
+
+            <div style="margin-top: 30px; text-align: center;">
+                <button class="btn-cancel" onclick="closeRegistrosModal()" id="closeRegistrationsBtn"></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Depósito Rápido -->
     <div id="depositoRapidoModal" class="modal">
         <div class="modal-content">
-            <h3>⚡ Depósito Rápido</h3>
+            <h3 id="quickDepositModalTitle"></h3>
             <form id="depositoRapidoForm">
                 <div class="form-group">
-                    <label for="depositoAgente">Seleccionar Agente</label>
-                    <select id="depositoAgente" required>
-                        <option value="">-- Selecciona un agente --</option>
+                    <label for="agenteSelectDeposito" id="selectAgentDepositLabel"></label>
+                    <select id="agenteSelectDeposito" required>
+                        <option value="" id="selectAgentOption"></option>
                     </select>
                 </div>
 
                 <div class="form-group">
-                    <label for="depositoMonto">Monto ($)</label>
-                    <input type="number" id="depositoMonto" min="0.01" step="0.01" required placeholder="0.00">
-                </div>
-
-                <div class="form-group">
-                    <label for="depositoFecha">Fecha del depósito</label>
-                    <input type="date" id="depositoFecha" required>
+                    <label for="montoRapido" id="amountLabel"></label>
+                    <input type="number" id="montoRapido" min="0" step="0.01" required>
                 </div>
 
                 <div id="depositoRapidoError" class="error-message" style="display: none;"></div>
 
                 <div style="margin-top: 20px;">
-                    <button type="button" class="btn-cancel" onclick="closeDepositoRapido()">Cancelar</button>
-                    <button type="submit" class="btn-primary">Registrar Depósito</button>
+                    <button type="button" class="btn-cancel" onclick="closeDepositoRapido()"
+                        id="cancelQuickDepositBtn"></button>
+                    <button type="submit" class="btn-primary" id="saveQuickDepositBtn"></button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Modal para registro rápido (leads) -->
+    <!-- Modal Registro Rápido -->
     <div id="registroRapidoModal" class="modal">
         <div class="modal-content">
-            <h3>📝 Registro Rápido de Lead</h3>
+            <h3 id="quickRegistrationModalTitle"></h3>
             <form id="registroRapidoForm">
                 <div class="form-group">
-                    <label for="registroAgente">Seleccionar Agente</label>
-                    <select id="registroAgente" required>
-                        <option value="">-- Selecciona un agente --</option>
+                    <label for="agenteSelectRegistro" id="selectAgentRegistrationLabel"></label>
+                    <select id="agenteSelectRegistro" required>
+                        <option value="" id="selectAgentRegistrationOption"></option>
                     </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="registroFecha">Fecha del registro</label>
-                    <input type="date" id="registroFecha" required>
                 </div>
 
                 <div id="registroRapidoError" class="error-message" style="display: none;"></div>
 
                 <div style="margin-top: 20px;">
-                    <button type="button" class="btn-cancel" onclick="closeRegistroRapido()">Cancelar</button>
-                    <button type="submit" class="btn-primary">Registrar Lead</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Modal para ver/gestionar depósitos de un agente -->
-    <div id="depositosModal" class="modal">
-        <div class="modal-content">
-            <h3 id="depositosModalTitle">Depósitos del Agente</h3>
-            <p id="depositosAgenteNombre" style="color: #64748b; margin-bottom: 20px;"></p>
-
-            <button class="btn-add" onclick="agregarDepositoAgente()">+ Agregar Depósito</button>
-
-            <div id="depositosContainer" class="depositos-list">
-                <div class="empty-state">Cargando depósitos...</div>
-            </div>
-
-            <div style="margin-top: 20px;">
-                <button class="btn-cancel" onclick="closeDepositosModal()">Cerrar</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal para agregar/editar depósito individual -->
-    <div id="depositoEditModal" class="modal">
-        <div class="modal-content">
-            <h3 id="depositoEditTitle">Agregar Depósito</h3>
-            <form id="depositoEditForm">
-                <div class="form-group">
-                    <label for="depositoEditMonto">Monto ($)</label>
-                    <input type="number" id="depositoEditMonto" min="0.01" step="0.01" required placeholder="0.00">
-                </div>
-
-                <div class="form-group">
-                    <label for="depositoEditFecha">Fecha del depósito</label>
-                    <input type="date" id="depositoEditFecha" required>
-                </div>
-
-                <div id="depositoEditError" class="error-message" style="display: none;"></div>
-
-                <div style="margin-top: 20px;">
-                    <button type="button" class="btn-cancel" onclick="closeDepositoEditModal()">Cancelar</button>
-                    <button type="submit" class="btn-primary">Guardar</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Modal para ver/gestionar registros de un agente -->
-    <div id="registrosModal" class="modal">
-        <div class="modal-content">
-            <h3 id="registrosModalTitle">Registros (Leads) del Agente</h3>
-            <p id="registrosAgenteNombre" style="color: #64748b; margin-bottom: 20px;"></p>
-
-            <button class="btn-add btn-registro-rapido" onclick="agregarRegistroAgente()">+ Agregar Registro</button>
-
-            <div id="registrosContainer" class="depositos-list">
-                <div class="empty-state">Cargando registros...</div>
-            </div>
-
-            <div style="margin-top: 20px;">
-                <button class="btn-cancel" onclick="closeRegistrosModal()">Cerrar</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal para agregar/editar registro individual -->
-    <div id="registroEditModal" class="modal">
-        <div class="modal-content">
-            <h3 id="registroEditTitle">Agregar Registro</h3>
-            <form id="registroEditForm">
-                <div class="form-group">
-                    <label for="registroEditFecha">Fecha del registro</label>
-                    <input type="date" id="registroEditFecha" required>
-                </div>
-
-                <div id="registroEditError" class="error-message" style="display: none;"></div>
-
-                <div style="margin-top: 20px;">
-                    <button type="button" class="btn-cancel" onclick="closeRegistroEditModal()">Cancelar</button>
-                    <button type="submit" class="btn-primary">Guardar</button>
+                    <button type="button" class="btn-cancel" onclick="closeRegistroRapido()"
+                        id="cancelQuickRegistrationBtn"></button>
+                    <button type="submit" class="btn-primary" id="saveQuickRegistrationBtn"></button>
                 </div>
             </form>
         </div>
@@ -525,7 +495,17 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../../config/config.js"></script>
+    <script src="../js/i18n.js"></script>
     <script src="../js/dashboard-lider.js"></script>
+    <script>
+        function changeLanguage(lang) {
+            i18n.setLanguage(lang);
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('languageSelector').value = i18n.getLanguage();
+        });
+    </script>
 </body>
 
 </html>

@@ -7,6 +7,7 @@
     <title>Dashboard - Super Usuario</title>
     <link rel="stylesheet" href="../css/styles.css">
     <style>
+        /* Todos los estilos igual que antes */
         .dashboard {
             max-width: 1200px;
             margin: 0 auto;
@@ -232,7 +233,6 @@
             color: #64748b;
         }
 
-        /* Estilos para rankings (copiados del código anterior) */
         .ranking-modal {
             display: none;
             position: fixed;
@@ -352,26 +352,35 @@
 </head>
 
 <body style="background: #f1f5f9;">
+    <!-- Selector de idioma -->
+    <div style="position: fixed; top: 20px; right: 20px; z-index: 9999;">
+        <select id="languageSelector" onchange="changeLanguage(this.value)"
+            style="padding: 8px 12px; border-radius: 8px; border: 2px solid #e2e8f0; background: white; cursor: pointer; font-weight: 600; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <option value="es">🇪🇸 Español</option>
+            <option value="en">🇺🇸 English</option>
+        </select>
+    </div>
+
     <div class="dashboard">
         <div class="header">
             <div>
-                <h1>👑 Panel de Super Usuario</h1>
+                <h1 id="panelTitle">👑</h1>
                 <p id="welcomeText" style="color: #64748b; margin-top: 5px;"></p>
             </div>
-            <button class="btn-logout" onclick="logout()">Cerrar Sesión</button>
+            <button class="btn-logout" onclick="logout()" id="logoutBtn"></button>
         </div>
 
         <div class="card">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
-                <h2 style="margin: 0;">Gestión de Usuarios</h2>
-                <button class="btn-ver-todos" onclick="verTodosLosRankings()">📊 Ver Todos los Rankings</button>
+                <h2 style="margin: 0;" id="userManagementTitle"></h2>
+                <button class="btn-ver-todos" onclick="verTodosLosRankings()" id="viewRankingsBtn"></button>
             </div>
 
-            <button class="btn-add" onclick="openModal('lider')">+ Agregar Líder</button>
-            <button class="btn-add btn-add-admin" onclick="openModal('admin_area')">⚡ Agregar Admin de Área</button>
+            <button class="btn-add" onclick="openModal('lider')" id="addLeaderBtn"></button>
+            <button class="btn-add btn-add-admin" onclick="openModal('admin_area')" id="addAdminBtn"></button>
 
             <div id="usuariosContainer">
-                <div class="empty-state">Cargando usuarios...</div>
+                <div class="empty-state" id="loadingUsers"></div>
             </div>
         </div>
     </div>
@@ -379,30 +388,30 @@
     <!-- Modal para agregar/editar usuario -->
     <div id="usuarioModal" class="modal">
         <div class="modal-content">
-            <h3 id="modalTitle">Agregar Usuario</h3>
+            <h3 id="modalTitle"></h3>
             <form id="usuarioForm">
                 <div class="form-group">
-                    <label for="usuarioNombre">Nombre completo</label>
+                    <label for="usuarioNombre" id="nameLabel"></label>
                     <input type="text" id="usuarioNombre" required>
                 </div>
 
                 <div class="form-group">
-                    <label for="usuarioEmail">Email</label>
+                    <label for="usuarioEmail" id="emailModalLabel"></label>
                     <input type="email" id="usuarioEmail" required>
                 </div>
 
                 <div class="form-group">
-                    <label for="usuarioPassword">Contraseña</label>
+                    <label for="usuarioPassword" id="passwordModalLabel"></label>
                     <input type="password" id="usuarioPassword" required>
                 </div>
 
                 <div class="form-group">
-                    <label for="usuarioArea">Área</label>
+                    <label for="usuarioArea" id="areaLabel"></label>
                     <select id="usuarioArea" required>
-                        <option value="">-- Selecciona un área --</option>
-                        <option value="conversion">Conversión</option>
-                        <option value="retencion">Retención</option>
-                        <option value="recovery">Recovery</option>
+                        <option value="" id="selectAreaOption"></option>
+                        <option value="conversion" id="conversionOption"></option>
+                        <option value="retencion" id="retentionOption"></option>
+                        <option value="recovery" id="recoveryOption"></option>
                     </select>
                 </div>
 
@@ -411,8 +420,8 @@
                 <div id="modalError" class="error-message" style="display: none;"></div>
 
                 <div style="margin-top: 20px;">
-                    <button type="button" class="btn-cancel" onclick="closeModal()">Cancelar</button>
-                    <button type="submit" class="btn-primary">Guardar</button>
+                    <button type="button" class="btn-cancel" onclick="closeModal()" id="cancelBtn"></button>
+                    <button type="submit" class="btn-primary" id="saveBtn"></button>
                 </div>
             </form>
         </div>
@@ -421,20 +430,21 @@
     <!-- Modal para ver todos los rankings -->
     <div id="rankingModal" class="ranking-modal">
         <div class="ranking-modal-content">
-            <h3>📊 Rankings por Área</h3>
+            <h3 id="rankingModalTitle"></h3>
 
             <div class="ranking-tabs">
-                <button class="ranking-tab active" onclick="cambiarAreaRanking('conversion')">🎯 Conversión</button>
-                <button class="ranking-tab" onclick="cambiarAreaRanking('retencion')">🔄 Retención</button>
-                <button class="ranking-tab" onclick="cambiarAreaRanking('recovery')">💰 Recovery</button>
+                <button class="ranking-tab active" onclick="cambiarAreaRanking('conversion')"
+                    id="conversionTab"></button>
+                <button class="ranking-tab" onclick="cambiarAreaRanking('retencion')" id="retentionTab"></button>
+                <button class="ranking-tab" onclick="cambiarAreaRanking('recovery')" id="recoveryTab"></button>
             </div>
 
             <div id="rankingContent">
-                <div class="empty-state">Cargando rankings...</div>
+                <div class="empty-state" id="loadingRanking"></div>
             </div>
 
             <div style="margin-top: 30px; text-align: center;">
-                <button class="btn-cancel" onclick="cerrarRankingModal()">Cerrar</button>
+                <button class="btn-cancel" onclick="cerrarRankingModal()" id="closeRankingBtn"></button>
             </div>
         </div>
     </div>
@@ -442,21 +452,31 @@
     <!-- Modal para ver agentes de un líder/admin -->
     <div id="agentesLiderModal" class="ranking-modal">
         <div class="ranking-modal-content">
-            <h3 id="agentesLiderTitle">👥 Agentes</h3>
+            <h3 id="agentesLiderTitle"></h3>
 
             <div id="agentesLiderContent">
-                <div class="empty-state">Cargando agentes...</div>
+                <div class="empty-state" id="loadingAgents"></div>
             </div>
 
             <div style="margin-top: 30px; text-align: center;">
-                <button class="btn-cancel" onclick="cerrarAgentesLiderModal()">Cerrar</button>
+                <button class="btn-cancel" onclick="cerrarAgentesLiderModal()" id="closeAgentsBtn"></button>
             </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../../config/config.js"></script>
+    <script src="../js/i18n.js"></script>
     <script src="../js/dashboard-super.js"></script>
+    <script>
+        function changeLanguage(lang) {
+            i18n.setLanguage(lang);
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('languageSelector').value = i18n.getLanguage();
+        });
+    </script>
 </body>
 
 </html>

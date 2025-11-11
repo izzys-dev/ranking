@@ -6,7 +6,6 @@ let editingUsuarioRol = null;
 let areaRankingActual = 'conversion';
 let mesActual, anioActual;
 
-// Inicializar mes y año actual
 const now = new Date();
 mesActual = now.getMonth() + 1;
 anioActual = now.getFullYear();
@@ -17,9 +16,44 @@ window.addEventListener('DOMContentLoaded', async () => {
         window.SUPABASE_CONFIG.anonKey
     );
     
+    applyTranslations();
     await verificarAcceso();
     await cargarUsuarios();
 });
+
+function applyTranslations() {
+    document.getElementById('panelTitle').textContent = `👑 ${i18n.t('super_panel')}`;
+    document.getElementById('logoutBtn').textContent = i18n.t('logout');
+    document.getElementById('userManagementTitle').textContent = i18n.t('user_management');
+    document.getElementById('viewRankingsBtn').textContent = `📊 ${i18n.t('view_all_rankings')}`;
+    document.getElementById('addLeaderBtn').textContent = `+ ${i18n.t('add_leader')}`;
+    document.getElementById('addAdminBtn').textContent = `⚡ ${i18n.t('add_admin_area')}`;
+    document.getElementById('loadingUsers').textContent = `${i18n.t('loading')}...`;
+    
+    // Modal labels
+    document.getElementById('nameLabel').textContent = i18n.t('full_name');
+    document.getElementById('emailModalLabel').textContent = i18n.t('email');
+    document.getElementById('passwordModalLabel').textContent = i18n.t('password');
+    document.getElementById('areaLabel').textContent = i18n.t('area');
+    document.getElementById('selectAreaOption').textContent = i18n.t('select_area');
+    document.getElementById('conversionOption').textContent = i18n.t('area_conversion');
+    document.getElementById('retentionOption').textContent = i18n.t('area_retention');
+    document.getElementById('recoveryOption').textContent = i18n.t('area_recovery');
+    document.getElementById('cancelBtn').textContent = i18n.t('cancel');
+    document.getElementById('saveBtn').textContent = i18n.t('save');
+    
+    // Ranking modal
+    document.getElementById('rankingModalTitle').textContent = `📊 ${i18n.t('rankings_by_area')}`;
+    document.getElementById('conversionTab').textContent = `🎯 ${i18n.t('area_conversion')}`;
+    document.getElementById('retentionTab').textContent = `🔄 ${i18n.t('area_retention')}`;
+    document.getElementById('recoveryTab').textContent = `💰 ${i18n.t('area_recovery')}`;
+    document.getElementById('loadingRanking').textContent = `${i18n.t('loading')}...`;
+    document.getElementById('closeRankingBtn').textContent = i18n.t('close');
+    
+    // Agents modal
+    document.getElementById('loadingAgents').textContent = `${i18n.t('loading')}...`;
+    document.getElementById('closeAgentsBtn').textContent = i18n.t('close');
+}
 
 async function verificarAcceso() {
     const userStr = localStorage.getItem('user');
@@ -36,12 +70,11 @@ async function verificarAcceso() {
         return;
     }
     
-    document.getElementById('welcomeText').textContent = `Bienvenido, ${currentUser.nombre}`;
+    document.getElementById('welcomeText').textContent = `${i18n.t('welcome')}, ${currentUser.nombre}`;
 }
 
 async function cargarUsuarios() {
     try {
-        // Cargar tanto líderes como admin_area
         const { data, error } = await supabaseClient
             .from('usuarios')
             .select('*')
@@ -57,7 +90,7 @@ async function cargarUsuarios() {
     } catch (error) {
         console.error('Error al cargar usuarios:', error);
         document.getElementById('usuariosContainer').innerHTML = 
-            '<div class="empty-state">Error al cargar usuarios</div>';
+            `<div class="empty-state">${i18n.t('error_loading')}</div>`;
     }
 }
 
@@ -65,7 +98,7 @@ function mostrarUsuarios(usuarios) {
     const container = document.getElementById('usuariosContainer');
     
     if (!usuarios || usuarios.length === 0) {
-        container.innerHTML = '<div class="empty-state">No hay usuarios registrados. Crea el primero.</div>';
+        container.innerHTML = `<div class="empty-state">${i18n.t('no_users')}</div>`;
         return;
     }
     
@@ -73,27 +106,27 @@ function mostrarUsuarios(usuarios) {
         <table class="usuarios-table">
             <thead>
                 <tr>
-                    <th>Nombre</th>
-                    <th>Email</th>
-                    <th>Rol</th>
-                    <th>Área</th>
-                    <th>Acciones</th>
+                    <th>${i18n.t('name')}</th>
+                    <th>${i18n.t('email')}</th>
+                    <th>${i18n.t('role')}</th>
+                    <th>${i18n.t('area')}</th>
+                    <th>${i18n.t('actions')}</th>
                 </tr>
             </thead>
             <tbody>
     `;
     
     usuarios.forEach(usuario => {
-        const areaTexto = usuario.area ? usuario.area.charAt(0).toUpperCase() + usuario.area.slice(1) : 'Sin área';
+        const areaTexto = usuario.area ? i18n.t(`area_${usuario.area}`) : i18n.t('area');
         
         let rolTexto = '';
         let rolBadgeClass = '';
         
         if (usuario.rol === 'lider') {
-            rolTexto = 'Líder';
+            rolTexto = i18n.t('role_leader');
             rolBadgeClass = 'rol-lider';
         } else if (usuario.rol === 'admin_area') {
-            rolTexto = 'Admin Área';
+            rolTexto = i18n.t('role_admin_area');
             rolBadgeClass = 'rol-admin-area';
         }
         
@@ -107,10 +140,10 @@ function mostrarUsuarios(usuarios) {
                 <td><span class="area-badge area-${usuario.area}">${areaTexto}</span></td>
                 <td>
                     ${usuario.rol === 'lider' || usuario.rol === 'admin_area' ? 
-                        `<button class="btn-ver-agentes" onclick="verAgentesUsuario('${usuario.id}', '${usuario.nombre}', '${usuario.area}', '${usuario.rol}')">👁️ Ver Agentes</button>` : ''
+                        `<button class="btn-ver-agentes" onclick="verAgentesUsuario('${usuario.id}', '${usuario.nombre}', '${usuario.area}', '${usuario.rol}')">👁️ ${i18n.t('view_agents')}</button>` : ''
                     }
-                    <button class="btn-edit" onclick="editarUsuario('${usuario.id}', '${usuario.rol}')">✏️ Editar</button>
-                    <button class="btn-delete" onclick="eliminarUsuario('${usuario.id}', '${usuario.nombre}', '${usuario.rol}')">🗑️ Eliminar</button>
+                    <button class="btn-edit" onclick="editarUsuario('${usuario.id}', '${usuario.rol}')">✏️ ${i18n.t('edit')}</button>
+                    <button class="btn-delete" onclick="eliminarUsuario('${usuario.id}', '${usuario.nombre}', '${usuario.rol}')">🗑️ ${i18n.t('delete')}</button>
                 </td>
             </tr>
         `;
@@ -127,9 +160,9 @@ function openModal(rol) {
     document.getElementById('usuarioRol').value = rol;
     
     if (rol === 'lider') {
-        document.getElementById('modalTitle').textContent = 'Agregar Líder';
+        document.getElementById('modalTitle').textContent = i18n.t('add_leader_title');
     } else if (rol === 'admin_area') {
-        document.getElementById('modalTitle').textContent = 'Agregar Administrador de Área';
+        document.getElementById('modalTitle').textContent = i18n.t('add_admin_title');
     }
     
     document.getElementById('usuarioForm').reset();
@@ -157,9 +190,9 @@ async function editarUsuario(id, rol) {
         document.getElementById('usuarioRol').value = rol;
         
         if (rol === 'lider') {
-            document.getElementById('modalTitle').textContent = 'Editar Líder';
+            document.getElementById('modalTitle').textContent = i18n.t('edit_leader_title');
         } else if (rol === 'admin_area') {
-            document.getElementById('modalTitle').textContent = 'Editar Administrador de Área';
+            document.getElementById('modalTitle').textContent = i18n.t('edit_admin_title');
         }
         
         document.getElementById('usuarioNombre').value = data.nombre;
@@ -171,7 +204,7 @@ async function editarUsuario(id, rol) {
         
     } catch (error) {
         console.error('Error:', error);
-        alert('Error al cargar datos del usuario');
+        alert(`${i18n.t('error_loading')}`);
     }
 }
 
@@ -189,7 +222,7 @@ document.getElementById('usuarioForm').addEventListener('submit', async (e) => {
     
     if (!area) {
         modalError.style.display = 'block';
-        modalError.textContent = 'Debes seleccionar un área';
+        modalError.textContent = i18n.t('select_area');
         return;
     }
     
@@ -201,7 +234,6 @@ document.getElementById('usuarioForm').addEventListener('submit', async (e) => {
     
     try {
         if (editingUsuarioId) {
-            // Actualizar
             const { error } = await supabaseClient
                 .from('usuarios')
                 .update({
@@ -215,10 +247,9 @@ document.getElementById('usuarioForm').addEventListener('submit', async (e) => {
             
             if (error) throw error;
             
-            alert('Usuario actualizado exitosamente');
+            alert(`${i18n.t('user_updated')} ✅`);
             
         } else {
-            // Crear nuevo
             const { data: existingUser } = await supabaseClient
                 .from('usuarios')
                 .select('*')
@@ -226,7 +257,7 @@ document.getElementById('usuarioForm').addEventListener('submit', async (e) => {
                 .maybeSingle();
             
             if (existingUser) {
-                throw new Error('El email ya existe');
+                throw new Error(i18n.t('email_exists'));
             }
             
             const { error: dbError } = await supabaseClient
@@ -242,8 +273,7 @@ document.getElementById('usuarioForm').addEventListener('submit', async (e) => {
             
             if (dbError) throw dbError;
             
-            const rolTexto = rol === 'lider' ? 'Líder' : 'Administrador de Área';
-            alert(`${rolTexto} creado exitosamente ✅`);
+            alert(`${i18n.t('user_created')} ✅`);
         }
         
         closeModal();
@@ -257,9 +287,9 @@ document.getElementById('usuarioForm').addEventListener('submit', async (e) => {
 });
 
 async function eliminarUsuario(id, nombre, rol) {
-    const rolTexto = rol === 'lider' ? 'líder' : 'administrador de área';
+    const rolTexto = rol === 'lider' ? i18n.t('role_leader').toLowerCase() : i18n.t('role_admin_area').toLowerCase();
     
-    if (!confirm(`¿Estás seguro de eliminar al ${rolTexto} ${nombre}?`)) {
+    if (!confirm(`${i18n.t('confirm_delete_user')} ${rolTexto} ${nombre}?`)) {
         return;
     }
     
@@ -271,18 +301,14 @@ async function eliminarUsuario(id, nombre, rol) {
         
         if (error) throw error;
         
-        alert('Usuario eliminado exitosamente');
+        alert(i18n.t('user_deleted'));
         await cargarUsuarios();
         
     } catch (error) {
         console.error('Error:', error);
-        alert('Error al eliminar usuario: ' + error.message);
+        alert(`${i18n.t('error_loading')}: ${error.message}`);
     }
 }
-
-// ============================================
-// FUNCIONES PARA RANKINGS
-// ============================================
 
 async function verTodosLosRankings() {
     document.getElementById('rankingModal').style.display = 'block';
@@ -308,7 +334,7 @@ async function cambiarAreaRanking(area) {
 
 async function cargarRankingPorArea(area) {
     const container = document.getElementById('rankingContent');
-    container.innerHTML = '<div class="empty-state">⏳ Cargando...</div>';
+    container.innerHTML = `<div class="empty-state">⏳ ${i18n.t('loading')}...</div>`;
     
     try {
         const { data: agentes, error: agentesError } = await supabaseClient
@@ -321,7 +347,7 @@ async function cargarRankingPorArea(area) {
         if (agentesError) throw agentesError;
         
         if (!agentes || agentes.length === 0) {
-            container.innerHTML = '<div class="empty-state">📭 No hay agentes en esta área</div>';
+            container.innerHTML = `<div class="empty-state">📭 ${i18n.t('no_agents')}</div>`;
             return;
         }
         
@@ -389,15 +415,14 @@ async function cargarRankingPorArea(area) {
         
     } catch (error) {
         console.error('Error al cargar ranking:', error);
-        container.innerHTML = '<div class="empty-state">❌ Error al cargar ranking</div>';
+        container.innerHTML = `<div class="empty-state">❌ ${i18n.t('error_loading')}</div>`;
     }
 }
 
 function mostrarTablaRanking(ranking, area) {
     const container = document.getElementById('rankingContent');
     
-    const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
-                   'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+    const meses = i18n.getMonths();
     
     let html = `<p style="text-align: center; color: #64748b; margin-bottom: 20px; font-weight: 600;">
                     ${meses[mesActual - 1]} ${anioActual}
@@ -405,11 +430,11 @@ function mostrarTablaRanking(ranking, area) {
     
     html += '<table class="ranking-table">';
     html += '<thead><tr>';
-    html += '<th style="width: 80px; text-align: center;">#</th>';
-    html += '<th>Agente</th>';
-    html += '<th style="text-align: center;">Target</th>';
-    html += '<th style="text-align: center;">Actual</th>';
-    html += '<th style="text-align: center;">% Cumplimiento</th>';
+    html += `<th style="width: 80px; text-align: center;">#</th>`;
+    html += `<th>${i18n.t('agent')}</th>`;
+    html += `<th style="text-align: center;">${i18n.t('target')}</th>`;
+    html += `<th style="text-align: center;">${i18n.t('current')}</th>`;
+    html += `<th style="text-align: center;">${i18n.t('compliance')}</th>`;
     html += '</tr></thead><tbody>';
     
     ranking.forEach((agente, index) => {
@@ -454,11 +479,11 @@ function cerrarRankingModal() {
 async function verAgentesUsuario(usuarioId, usuarioNombre, usuarioArea, usuarioRol) {
     document.getElementById('agentesLiderModal').style.display = 'block';
     
-    const tipoUsuario = usuarioRol === 'lider' ? 'Líder' : 'Administrador';
-    document.getElementById('agentesLiderTitle').textContent = `👥 Agentes de ${tipoUsuario}: ${usuarioNombre}`;
+    const tipoUsuario = usuarioRol === 'lider' ? i18n.t('leader_text') : i18n.t('admin_text');
+    document.getElementById('agentesLiderTitle').textContent = `👥 ${i18n.t('agents_of')} ${tipoUsuario}: ${usuarioNombre}`;
     
     const container = document.getElementById('agentesLiderContent');
-    container.innerHTML = '<div class="empty-state">⏳ Cargando...</div>';
+    container.innerHTML = `<div class="empty-state">⏳ ${i18n.t('loading')}...</div>`;
     
     try {
         let query = supabaseClient
@@ -466,8 +491,6 @@ async function verAgentesUsuario(usuarioId, usuarioNombre, usuarioArea, usuarioR
             .select('*')
             .eq('activo', true);
         
-        // Si es líder, filtrar por lider_id
-        // Si es admin_area, mostrar todos del área
         if (usuarioRol === 'lider') {
             query = query.eq('lider_id', usuarioId);
         } else if (usuarioRol === 'admin_area') {
@@ -479,7 +502,7 @@ async function verAgentesUsuario(usuarioId, usuarioNombre, usuarioArea, usuarioR
         if (agentesError) throw agentesError;
         
         if (!agentes || agentes.length === 0) {
-            container.innerHTML = '<div class="empty-state">📭 No hay agentes asignados</div>';
+            container.innerHTML = `<div class="empty-state">📭 ${i18n.t('no_agents_assigned')}</div>`;
             return;
         }
         
@@ -547,15 +570,14 @@ async function verAgentesUsuario(usuarioId, usuarioNombre, usuarioArea, usuarioR
         
     } catch (error) {
         console.error('Error al cargar agentes:', error);
-        container.innerHTML = '<div class="empty-state">❌ Error al cargar agentes</div>';
+        container.innerHTML = `<div class="empty-state">❌ ${i18n.t('error_loading')}</div>`;
     }
 }
 
 function mostrarTablaAgentesUsuario(ranking, area) {
     const container = document.getElementById('agentesLiderContent');
     
-    const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
-                   'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+    const meses = i18n.getMonths();
     
     let html = `<p style="text-align: center; color: #64748b; margin-bottom: 20px; font-weight: 600;">
                     ${meses[mesActual - 1]} ${anioActual}
@@ -563,11 +585,11 @@ function mostrarTablaAgentesUsuario(ranking, area) {
     
     html += '<table class="ranking-table">';
     html += '<thead><tr>';
-    html += '<th style="width: 80px; text-align: center;">#</th>';
-    html += '<th>Agente</th>';
-    html += '<th style="text-align: center;">Target</th>';
-    html += '<th style="text-align: center;">Actual</th>';
-    html += '<th style="text-align: center;">% Cumplimiento</th>';
+    html += `<th style="width: 80px; text-align: center;">#</th>`;
+    html += `<th>${i18n.t('agent')}</th>`;
+    html += `<th style="text-align: center;">${i18n.t('target')}</th>`;
+    html += `<th style="text-align: center;">${i18n.t('current')}</th>`;
+    html += `<th style="text-align: center;">${i18n.t('compliance')}</th>`;
     html += '</tr></thead><tbody>';
     
     ranking.forEach((agente, index) => {
