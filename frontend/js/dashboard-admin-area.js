@@ -259,13 +259,33 @@ let editingDepositoId = null;
 
 async function verDepositos(agenteId, agenteNombre) {
     depositoAgenteId = agenteId;
-    document.getElementById('depositoAgenteNombre').textContent = agenteNombre;
-    document.getElementById('depositoForm').reset();
-    document.getElementById('depositoError').style.display = 'none';
-    editingDepositoId = null;
-    document.getElementById('btnGuardarDeposito').textContent = 'Agregar';
     
-    document.getElementById('depositosModal').style.display = 'block';
+    const depositoAgenteEl = document.getElementById('depositoAgenteNombre');
+    if (depositoAgenteEl) {
+        depositoAgenteEl.textContent = agenteNombre;
+    }
+    
+    const depositoForm = document.getElementById('depositoForm');
+    if (depositoForm) {
+        depositoForm.reset();
+    }
+    
+    const depositoError = document.getElementById('depositoError');
+    if (depositoError) {
+        depositoError.style.display = 'none';
+    }
+    
+    editingDepositoId = null;
+    
+    const btnGuardar = document.getElementById('btnGuardarDeposito');
+    if (btnGuardar) {
+        btnGuardar.textContent = 'Agregar';
+    }
+    
+    const depositosModal = document.getElementById('depositosModal');
+    if (depositosModal) {
+        depositosModal.style.display = 'block';
+    }
     
     await cargarDepositosAgente();
 }
