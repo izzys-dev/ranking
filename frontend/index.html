@@ -46,19 +46,15 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../config/config.js"></script>
     <script src="js/i18n.js"></script>
+    <script src="js/login.js"></script>
 
     <script>
-        // Cargar traducciones e inicializar i18n ANTES de login.js
+        // Inicializar i18n tan pronto como sea posible
         (async () => {
             console.log('Iniciando carga de i18n...');
             await window.i18n.loadTranslations();
             await window.i18n.translatePage();
             console.log('✅ i18n inicializado y traducción aplicada');
-
-            // Ahora cargar login.js
-            const script = document.createElement('script');
-            script.src = 'js/login.js';
-            document.body.appendChild(script);
         })();
     </script>
 

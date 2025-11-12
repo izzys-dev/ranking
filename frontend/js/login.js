@@ -38,7 +38,7 @@ async function handleLogin(e) {
         console.log('Respuesta de Supabase:', { data, error });
         
         if (error || !data) {
-            errorMessage.textContent = 'Email o contraseña incorrectos';
+            errorMessage.textContent = window.i18n ? window.i18n.t('login.error') : 'Email o contraseña incorrectos';
             errorMessage.style.display = 'block';
             return;
         }
