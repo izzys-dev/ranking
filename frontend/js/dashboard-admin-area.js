@@ -579,6 +579,10 @@ document.getElementById('depositoForm').addEventListener('submit', async (e) => 
 
     modalError.style.display = 'none';
 
+    // Debug: mostrar el valor de fecha
+    console.log('Valor de fecha antes de insertar:', fecha);
+    alert('Valor de fecha antes de insertar: ' + fecha);
+
     if (monto <= 0) {
         modalError.style.display = 'block';
         modalError.textContent = 'Monto inválido';
