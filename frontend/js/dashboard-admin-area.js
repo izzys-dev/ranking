@@ -436,7 +436,136 @@ function abrirRankingTV() {
 }
 
 function openModal() {
-    // Implementar formulario
+    editingAgenteId = null;
+    document.getElementById('modalTitle').textContent = 'Agregar Agente';
+    document.getElementById('agenteForm').reset();
+    document.getElementById('modalError').style.display = 'none';
+    document.getElementById('agenteModal').style.display = 'block';
+}
+
+function closeModal() {
+    document.getElementById('agenteModal').style.display = 'none';
+}
+
+async function editarAgente(id) {
+    try {
+        const { data, error } = await supabaseClient
+            .from('agentes')
+            .select('*')
+            .eq('id', id)
+            .single();
+        
+        if (error) throw error;
+        
+        editingAgenteId = id;
+        document.getElementById('modalTitle').textContent = 'Editar Agente';
+        document.getElementById('agenteNombre').value = data.nombre;
+        document.getElementById('liderSelect').value = data.lider_id || '';
+        document.getElementById('modalError').style.display = 'none';
+        document.getElementById('agenteModal').style.display = 'block';
+        
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error al cargar el agente: ' + error.message);
+    }
+}
+
+document.getElementById('agenteForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const nombre = document.getElementById('agenteNombre').value.trim();
+    const liderID = document.getElementById('liderSelect').value;
+    const modalError = document.getElementById('modalError');
+    
+    modalError.style.display = 'none';
+    
+    if (!liderID) {
+        modalError.style.display = 'block';
+        modalError.textContent = 'Error: Debe seleccionar un líder';
+        return;
+    }
+    
+    try {
+        if (editingAgenteId) {
+            const { error } = await supabaseClient
+                .from('agentes')
+                .update({ 
+                    nombre: nombre,
+                    lider_id: liderID
+                })
+                .eq('id', editingAgenteId);
+            
+            if (error) throw error;
+            
+            alert('Agente actualizado exitosamente');
+            
+        } else {
+            const { data: existingAgente } = await supabaseClient
+                .from('agentes')
+                .select('*')
+                .eq('nombre', nombre)
+                .eq('lider_id', liderID)
+                .eq('area', currentUser.area)
+                .maybeSingle();
+            
+            if (existingAgente) {
+                if (!existingAgente.activo) {
+                    const { error: reactivateError } = await supabaseClient
+                        .from('agentes')
+                        .update({ activo: true })
+                        .eq('id', existingAgente.id);
+                    
+                    if (reactivateError) throw reactivateError;
+                    
+                    alert('Agente reactivado exitosamente ✅');
+                } else {
+                    throw new Error('Este agente ya existe y está activo');
+                }
+            } else {
+                const { error: dbError } = await supabaseClient
+                    .from('agentes')
+                    .insert({
+                        nombre: nombre,
+                        area: currentUser.area,
+                        lider_id: liderID
+                    });
+                
+                if (dbError) throw dbError;
+                
+                alert('Agente creado exitosamente ✅');
+            }
+        }
+        
+        closeModal();
+        await cargarAgentes();
+        
+    } catch (error) {
+        console.error('Error:', error);
+        modalError.style.display = 'block';
+        modalError.textContent = `Error: ${error.message}`;
+    }
+});
+
+async function eliminarAgente(id, nombre) {
+    if (!confirm(`¿Estás seguro de desactivar al agente ${nombre}?\n\nPodrás reactivarlo después si lo necesitas.`)) {
+        return;
+    }
+    
+    try {
+        const { error } = await supabaseClient
+            .from('agentes')
+            .update({ activo: false })
+            .eq('id', id);
+        
+        if (error) throw error;
+        
+        alert('Agente desactivado');
+        await cargarAgentes();
+        
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error: ' + error.message);
+    }
 }
 
 async function logout() {
