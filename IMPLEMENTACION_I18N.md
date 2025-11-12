@@ -3,6 +3,7 @@
 ## Estado Actual
 
 ✅ **Archivos creados:**
+
 - `frontend/js/i18n.js` - Sistema dinámico
 - `frontend/js/translations.json` - Diccionario (ES/EN/PT)
 - `GUIA_I18N.md` - Documentación completa
@@ -27,12 +28,20 @@ Reemplaza los textos en el HTML con atributos `data-i18n`:
 <!-- Cambiar esto: -->
 <button class="btn-tv" onclick="abrirRankingTV()">📺 Mostrar Ranking</button>
 <!-- Por esto: -->
-<button class="btn-tv" onclick="abrirRankingTV()" data-i18n="dashboard.show_ranking"></button>
+<button
+  class="btn-tv"
+  onclick="abrirRankingTV()"
+  data-i18n="dashboard.show_ranking"
+></button>
 
 <!-- Cambiar esto: -->
 <button class="btn-logout" onclick="logout()">Cerrar Sesión</button>
 <!-- Por esto: -->
-<button class="btn-logout" onclick="logout()" data-i18n="dashboard.logout"></button>
+<button
+  class="btn-logout"
+  onclick="logout()"
+  data-i18n="dashboard.logout"
+></button>
 
 <!-- Cambiar esto: -->
 <h2>Mis Agentes</h2>
@@ -42,15 +51,20 @@ Reemplaza los textos en el HTML con atributos `data-i18n`:
 <!-- Cambiar esto: -->
 <button class="btn-add" onclick="openModal()">+ Agregar Agente</button>
 <!-- Por esto: -->
-<button class="btn-add" onclick="openModal()" data-i18n="dashboard.add_agent"></button>
+<button
+  class="btn-add"
+  onclick="openModal()"
+  data-i18n="dashboard.add_agent"
+></button>
 
 <!-- Y TODOS LOS OTROS BOTONES Y TEXTOS... -->
 ```
 
 **Atributos específicos para inputs y placeholders:**
+
 ```html
 <!-- Para placeholders -->
-<input data-i18n-placeholder="form.name">
+<input data-i18n-placeholder="form.name" />
 
 <!-- Para labels -->
 <label data-i18n-label="form.name"></label>
@@ -62,12 +76,14 @@ Reemplaza los textos en el HTML con atributos `data-i18n`:
 ### 2. Actualizar `frontend/pages/dashboard-admin-area.html`
 
 Mismo proceso que dashboard-lider:
+
 - Reemplaza títulos
 - Reemplaza botones
 - Reemplaza labels
 - Reemplaza placeholders
 
 **Ejemplos de cambios:**
+
 ```html
 <h1>⚡ Panel Administrador de Área</h1>
 <!-- Cambiar a: -->
@@ -81,6 +97,7 @@ Mismo proceso que dashboard-lider:
 ### 3. Actualizar `frontend/pages/dashboard-super.html`
 
 Similar a los anteriores:
+
 ```html
 <h1>👑 Panel de Super Usuario</h1>
 <!-- Cambiar a: -->
@@ -130,17 +147,17 @@ Cuando necesites mostrar mensajes traducidos dinámicamente:
 ```javascript
 // En login.js
 if (error || !data) {
-    errorMessage.textContent = window.i18n.t('login.error');
-    errorMessage.style.display = 'block';
-    return;
+  errorMessage.textContent = window.i18n.t("login.error");
+  errorMessage.style.display = "block";
+  return;
 }
 
 // En dashboard-lider.js
-alert(window.i18n.t('messages.success'));
+alert(window.i18n.t("messages.success"));
 
 // Para confirmaciones
-if (confirm(window.i18n.t('messages.confirm_delete'))) {
-    // eliminar
+if (confirm(window.i18n.t("messages.confirm_delete"))) {
+  // eliminar
 }
 ```
 
@@ -149,6 +166,7 @@ if (confirm(window.i18n.t('messages.confirm_delete'))) {
 ## 🎯 Checklist de Implementación
 
 ### Para `dashboard-lider.html`:
+
 - [ ] Reemplazar `<h1>👥 Panel de Líder</h1>` → `data-i18n="dashboard.lider"`
 - [ ] Reemplazar todos los botones de acción
 - [ ] Reemplazar labels de inputs
@@ -157,16 +175,19 @@ if (confirm(window.i18n.t('messages.confirm_delete'))) {
 - [ ] Añadir `<script src="../js/i18n.js"></script>`
 
 ### Para `dashboard-admin-area.html`:
+
 - [ ] Reemplazar `<h1>⚡ Panel Administrador de Área</h1>` → `data-i18n="dashboard.admin_area"`
 - [ ] Reemplazar todos los textos
 - [ ] Añadir script i18n.js
 
 ### Para `dashboard-super.html`:
+
 - [ ] Reemplazar `<h1>👑 Panel de Super Usuario</h1>` → `data-i18n="dashboard.super"`
 - [ ] Reemplazar títulos y botones
 - [ ] Añadir script i18n.js
 
 ### En JavaScript:
+
 - [ ] Cambiar `alert()` por `window.i18n.t('message.key')`
 - [ ] Cambiar mensajes de error
 - [ ] Cambiar confirmaciones
@@ -176,11 +197,13 @@ if (confirm(window.i18n.t('messages.confirm_delete'))) {
 ## 🧪 Cómo Probar
 
 1. **Login a la app:**
+
    - Deberías ver selector de idiomas en la esquina superior derecha
    - Prueba cambiar idiomas
    - Los textos deben cambiar sin recargar la página
 
 2. **Verificar persistencia:**
+
    - Cambia a inglés
    - Recarga la página (F5)
    - Debería mantener el idioma inglés
@@ -198,45 +221,71 @@ Aquí está cómo debería verse un HTML completamente traducido:
 
 ```html
 <div class="dashboard">
-    <div class="header">
-        <div>
-            <h1 data-i18n="dashboard.lider"></h1>
-            <p id="welcomeText" style="color: #64748b; margin-top: 5px;"></p>
-            <div id="areaBadge" class="area-badge"></div>
-        </div>
-        <div style="display: flex; gap: 10px;">
-            <button class="btn-tv" onclick="abrirRankingTV()" data-i18n="dashboard.show_ranking"></button>
-            <button class="btn-logout" onclick="logout()" data-i18n="dashboard.logout"></button>
-        </div>
+  <div class="header">
+    <div>
+      <h1 data-i18n="dashboard.lider"></h1>
+      <p id="welcomeText" style="color: #64748b; margin-top: 5px;"></p>
+      <div id="areaBadge" class="area-badge"></div>
     </div>
+    <div style="display: flex; gap: 10px;">
+      <button
+        class="btn-tv"
+        onclick="abrirRankingTV()"
+        data-i18n="dashboard.show_ranking"
+      ></button>
+      <button
+        class="btn-logout"
+        onclick="logout()"
+        data-i18n="dashboard.logout"
+      ></button>
+    </div>
+  </div>
 
-    <div class="card">
-        <h2 data-i18n="dashboard.my_agents"></h2>
-        <div class="mes-actual" id="mesActual"></div>
-        <button class="btn-add" onclick="openModal()" data-i18n="dashboard.add_agent"></button>
-        
-        <div id="agentesContainer">
-            <div class="empty-state" data-i18n="dashboard.loading"></div>
-        </div>
+  <div class="card">
+    <h2 data-i18n="dashboard.my_agents"></h2>
+    <div class="mes-actual" id="mesActual"></div>
+    <button
+      class="btn-add"
+      onclick="openModal()"
+      data-i18n="dashboard.add_agent"
+    ></button>
+
+    <div id="agentesContainer">
+      <div class="empty-state" data-i18n="dashboard.loading"></div>
     </div>
+  </div>
 </div>
 
 <!-- Modal ejemplo -->
 <div id="agenteModal" class="modal">
-    <div class="modal-content">
-        <h3 id="modalTitle" data-i18n="dashboard.add_agent"></h3>
-        <form id="agenteForm">
-            <div class="form-group">
-                <label data-i18n-label="form.name"></label>
-                <input type="text" id="agenteNombre" required data-i18n-placeholder="form.name">
-            </div>
-            
-            <div style="margin-top: 20px;">
-                <button type="button" class="btn-cancel" onclick="closeModal()" data-i18n="form.cancel"></button>
-                <button type="submit" class="btn-primary" data-i18n="form.save"></button>
-            </div>
-        </form>
-    </div>
+  <div class="modal-content">
+    <h3 id="modalTitle" data-i18n="dashboard.add_agent"></h3>
+    <form id="agenteForm">
+      <div class="form-group">
+        <label data-i18n-label="form.name"></label>
+        <input
+          type="text"
+          id="agenteNombre"
+          required
+          data-i18n-placeholder="form.name"
+        />
+      </div>
+
+      <div style="margin-top: 20px;">
+        <button
+          type="button"
+          class="btn-cancel"
+          onclick="closeModal()"
+          data-i18n="form.cancel"
+        ></button>
+        <button
+          type="submit"
+          class="btn-primary"
+          data-i18n="form.save"
+        ></button>
+      </div>
+    </form>
+  </div>
 </div>
 ```
 
@@ -260,8 +309,9 @@ git diff frontend/pages/dashboard-lider.html
 
 ## ⚠️ Notas Importantes
 
-1. **Orden de scripts:** i18n.js debe cargarse ANTES de login.js/dashboard-*.js
+1. **Orden de scripts:** i18n.js debe cargarse ANTES de login.js/dashboard-\*.js
 2. **Atributos correctos:**
+
    - `data-i18n` = para textContent
    - `data-i18n-placeholder` = para input placeholders
    - `data-i18n-label` = para labels
@@ -277,17 +327,17 @@ git diff frontend/pages/dashboard-lider.html
 
 ```javascript
 // Obtener una traducción
-window.i18n.t('dashboard.welcome')
+window.i18n.t("dashboard.welcome");
 
 // Cambiar idioma
-window.i18n.setLanguage('en')
+window.i18n.setLanguage("en");
 
 // Obtener idioma actual
-window.i18n.getLanguage()
+window.i18n.getLanguage();
 
 // Escuchar cambios
-window.addEventListener('languageChanged', (e) => {
-    console.log('Nuevo idioma:', e.detail.language);
+window.addEventListener("languageChanged", (e) => {
+  console.log("Nuevo idioma:", e.detail.language);
 });
 ```
 
