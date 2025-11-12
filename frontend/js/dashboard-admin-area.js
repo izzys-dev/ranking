@@ -818,6 +818,90 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // ============================================
+// FUNCIONES PARA REGISTRO RÁPIDO (LEADS)
+// ============================================
+
+async function openRegistroRapido() {
+    try {
+        const { data: agentes, error } = await supabaseClient
+            .from('agentes')
+            .select('*')
+            .eq('area', currentUser.area)
+            .eq('activo', true)
+            .order('nombre');
+        
+        if (error) throw error;
+        
+        const select = document.getElementById('registroAgente');
+        select.innerHTML = '<option value="">-- Selecciona un agente --</option>';
+        
+        agentes.forEach(agente => {
+            const option = document.createElement('option');
+            option.value = agente.id;
+            option.textContent = agente.nombre;
+            select.appendChild(option);
+        });
+        
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('registroFecha').value = today;
+        
+        document.getElementById('registroRapidoForm').reset();
+        document.getElementById('registroFecha').value = today;
+        document.getElementById('registroRapidoError').style.display = 'none';
+        document.getElementById('registroRapidoModal').style.display = 'block';
+        
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error al cargar agentes');
+    }
+}
+
+function closeRegistroRapido() {
+    document.getElementById('registroRapidoModal').style.display = 'none';
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const registroRapidoForm = document.getElementById('registroRapidoForm');
+    if (registroRapidoForm) {
+        registroRapidoForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const agenteId = document.getElementById('registroAgente').value;
+            const fecha = document.getElementById('registroFecha').value;
+            const modalError = document.getElementById('registroRapidoError');
+            
+            modalError.style.display = 'none';
+            
+            try {
+                const fechaObj = new Date(fecha + 'T00:00:00');
+                const mes = fechaObj.getMonth() + 1;
+                const anio = fechaObj.getFullYear();
+                
+                const { error } = await supabaseClient
+                    .from('registros')
+                    .insert({
+                        agente_id: agenteId,
+                        fecha: fecha,
+                        mes: mes,
+                        anio: anio
+                    });
+                
+                if (error) throw error;
+                
+                alert('Registro (Lead) registrado exitosamente ✅');
+                closeRegistroRapido();
+                await cargarAgentes();
+                
+            } catch (error) {
+                console.error('Error:', error);
+                modalError.style.display = 'block';
+                modalError.textContent = `Error: ${error.message}`;
+            }
+        });
+    }
+});
+
+// ============================================
 // FUNCIONES PARA REGISTROS (LEADS)
 // ============================================
 

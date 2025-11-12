@@ -483,6 +483,34 @@
         </div>
     </div>
 
+    <!-- Modal para registro rápido (leads) -->
+    <div id="registroRapidoModal" class="modal">
+        <div class="modal-content">
+            <h3 data-i18n="registers.title">📝 Registro Rápido de Lead</h3>
+            <form id="registroRapidoForm">
+                <div class="form-group">
+                    <label for="registroAgente" data-i18n-label="deposits.agent">Seleccionar Agente</label>
+                    <select id="registroAgente" required>
+                        <option value="" data-i18n="form.select">-- Selecciona un agente --</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="registroFecha" data-i18n-label="registers.date">Fecha del registro</label>
+                    <input type="date" id="registroFecha" required>
+                </div>
+
+                <div id="registroRapidoError" class="error-message" style="display: none;"></div>
+
+                <div style="margin-top: 20px;">
+                    <button type="button" class="btn-cancel" onclick="closeRegistroRapido()"
+                        data-i18n="form.cancel">Cancelar</button>
+                    <button type="submit" class="btn-primary" data-i18n="registers.add">Registrar Lead</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Modal para ver/gestionar registros de un agente -->
     <div id="registrosModal" class="modal">
         <div class="modal-content">
