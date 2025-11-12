@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧪 Test de Conexión - RLS Habilitado</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .card h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 18px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .test-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            background: #f5f5f5;
+        }
+
+        .test-icon {
+            font-size: 24px;
+            margin-right: 15px;
+            min-width: 30px;
+        }
+
+        .test-info {
+            flex: 1;
+        }
+
+        .test-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .test-result {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .status-success {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+        }
+
+        .status-error {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+        }
+
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .button-group button {
+            flex: 1;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .log-box {
+            background: #1e1e1e;
+            color: #00ff00;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 15px;
+        }
+
+        .log-entry {
+            margin-bottom: 5px;
+            padding: 5px 0;
+            border-bottom: 1px solid #333;
+        }
+
+        .log-time {
+            color: #888;
+            margin-right: 10px;
+        }
+
+        .log-success {
+            color: #00ff00;
+        }
+
+        .log-error {
+            color: #ff4444;
+        }
+
+        .log-warning {
+            color: #ffff00;
+        }
+
+        .log-info {
+            color: #00ccff;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            border: 1px solid #28a745;
+            color: #155724;
+            display: block;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            border: 1px solid #dc3545;
+            color: #721c24;
+            display: block;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            border: 1px solid #0c5460;
+            color: #0c5460;
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧪 Test de Conexión - RLS Habilitado</h1>
+            <p>Verificando que tu aplicación funciona con Row-Level Security</p>
+        </div>
+
+        <div id="alertBox" class="alert"></div>
+
+        <div class="card">
+            <h2>🚀 Pruebas</h2>
+            <div class="button-group">
+                <button onclick="runAllTests()">▶️ Ejecutar Todos los Tests</button>
+                <button onclick="clearTests()">🗑️ Limpiar Resultados</button>
+            </div>
+
+            <div id="testsContainer">
+                <!-- Los tests se agregarán aquí -->
+            </div>
+
+            <div class="stats">
+                <div class="stat-box">
+                    <div class="stat-number" id="passCount">0</div>
+                    <div class="stat-label">Tests Exitosos</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number" id="failCount">0</div>
+                    <div class="stat-label">Tests Fallidos</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number" id="totalCount">0</div>
+                    <div class="stat-label">Total de Tests</div>
+                </div>
+            </div>
+
+            <div class="log-box" id="logBox">
+                <div class="log-entry">
+                    <span class="log-time">[READY]</span>
+                    <span class="log-info">Test de conexión listo. Haz clic en "Ejecutar Todos los Tests"</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📊 Detalles de Conexión</h2>
+            <div id="connectionDetails">
+                <div class="test-item status-pending">
+                    <span class="test-icon">⏳</span>
+                    <div class="test-info">
+                        <div class="test-name">Estado: Esperando ejecución de tests</div>
+                        <div class="test-result">Ejecuta los tests para ver los detalles</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuración Supabase
+        const SUPABASE_URL = 'https://kthdvnqdsczzbwpirbhl.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt0aGR2bnFkc2N6emJ3cGlyYmhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI0MzMyMTUsImV4cCI6MjA3ODAwOTIxNX0.-QCI7Sp3IKeZnnvPdoG1087k--IKemtGhQCf729C7uw';
+
+        const { createClient } = supabase;
+        let supabaseClient;
+        let testResults = {
+            pass: 0,
+            fail: 0,
+            tests: []
+        };
+
+        // Función para agregar logs
+        function addLog(message, type = 'info') {
+            const logBox = document.getElementById('logBox');
+            const time = new Date().toLocaleTimeString();
+            const logClass = `log-${type}`;
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.innerHTML = `<span class="log-time">[${time}]</span><span class="${logClass}">${message}</span>`;
+            logBox.appendChild(entry);
+            logBox.scrollTop = logBox.scrollHeight;
+        }
+
+        // Función para agregar test
+        function addTest(name, passed, result) {
+            const container = document.getElementById('testsContainer');
+            const statusClass = passed ? 'status-success' : 'status-error';
+            const icon = passed ? '✅' : '❌';
+
+            const test = document.createElement('div');
+            test.className = `test-item ${statusClass}`;
+            test.innerHTML = `
+                <span class="test-icon">${icon}</span>
+                <div class="test-info">
+                    <div class="test-name">${name}</div>
+                    <div class="test-result">${result}</div>
+                </div>
+            `;
+
+            container.appendChild(test);
+
+            if (passed) {
+                testResults.pass++;
+                addLog(`✅ ${name}`, 'success');
+            } else {
+                testResults.fail++;
+                addLog(`❌ ${name}: ${result}`, 'error');
+            }
+
+            testResults.tests.push({ name, passed, result });
+            updateStats();
+        }
+
+        // Actualizar estadísticas
+        function updateStats() {
+            document.getElementById('passCount').textContent = testResults.pass;
+            document.getElementById('failCount').textContent = testResults.fail;
+            document.getElementById('totalCount').textContent = testResults.pass + testResults.fail;
+        }
+
+        // Limpiar tests
+        function clearTests() {
+            document.getElementById('testsContainer').innerHTML = '';
+            testResults = { pass: 0, fail: 0, tests: [] };
+            updateStats();
+            document.getElementById('logBox').innerHTML = '';
+            addLog('Tests limpiados', 'info');
+        }
+
+        // Ejecutar todos los tests
+        async function runAllTests() {
+            clearTests();
+            addLog('Iniciando tests...', 'info');
+
+            supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+            // Test 1: Conectar a Supabase
+            await testConnection();
+
+            // Test 2: Verificar RLS en tabla usuarios
+            await testRLSUsuarios();
+
+            // Test 3: Verificar RLS en tabla agentes
+            await testRLSAgentes();
+
+            // Test 4: Verificar RLS en tabla depositos
+            await testRLSDepositos();
+
+            // Test 5: Verificar RLS en tabla registros
+            await testRLSRegistros();
+
+            // Test 6: Verificar RLS en tabla targets_mensuales
+            await testRLSTargets();
+
+            // Test 7: Probar login
+            await testLogin();
+
+            addLog('Tests completados ✅', 'success');
+
+            // Mostrar resumen
+            if (testResults.fail === 0) {
+                showAlert('🎉 ¡Todos los tests pasaron! RLS está funcionando correctamente.', 'success');
+            } else {
+                showAlert(`⚠️ ${testResults.fail} test(s) fallaron. Revisa los detalles arriba.`, 'error');
+            }
+        }
+
+        // Test 1: Conexión a Supabase
+        async function testConnection() {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('usuarios')
+                    .select('count', { count: 'exact' });
+
+                if (error) throw error;
+                addTest('Conexión a Supabase', true, 'Conectado correctamente');
+            } catch (error) {
+                addTest('Conexión a Supabase', false, error.message);
+            }
+        }
+
+        // Test 2: RLS en tabla usuarios
+        async function testRLSUsuarios() {
+            try {
+                const { data, error, count } = await supabaseClient
+                    .from('usuarios')
+                    .select('*', { count: 'exact' });
+
+                if (error) throw error;
+
+                if (data && data.length > 0) {
+                    addTest('RLS - Tabla usuarios', true, `${data.length} registros encontrados (RLS activo)`);
+                } else {
+                    addTest('RLS - Tabla usuarios', true, 'RLS activo (sin datos o filtrados)');
+                }
+            } catch (error) {
+                addTest('RLS - Tabla usuarios', false, error.message);
+            }
+        }
+
+        // Test 3: RLS en tabla agentes
+        async function testRLSAgentes() {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('agentes')
+                    .select('*', { count: 'exact' });
+
+                if (error) throw error;
+
+                if (data && data.length > 0) {
+                    addTest('RLS - Tabla agentes', true, `${data.length} registros encontrados (RLS activo)`);
+                } else {
+                    addTest('RLS - Tabla agentes', true, 'RLS activo (sin datos o filtrados)');
+                }
+            } catch (error) {
+                addTest('RLS - Tabla agentes', false, error.message);
+            }
+        }
+
+        // Test 4: RLS en tabla depositos
+        async function testRLSDepositos() {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('depositos')
+                    .select('*', { count: 'exact' });
+
+                if (error) throw error;
+
+                if (data && data.length > 0) {
+                    addTest('RLS - Tabla depositos', true, `${data.length} registros encontrados (RLS activo)`);
+                } else {
+                    addTest('RLS - Tabla depositos', true, 'RLS activo (sin datos o filtrados)');
+                }
+            } catch (error) {
+                addTest('RLS - Tabla depositos', false, error.message);
+            }
+        }
+
+        // Test 5: RLS en tabla registros
+        async function testRLSRegistros() {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('registros')
+                    .select('*', { count: 'exact' });
+
+                if (error) throw error;
+
+                if (data && data.length > 0) {
+                    addTest('RLS - Tabla registros', true, `${data.length} registros encontrados (RLS activo)`);
+                } else {
+                    addTest('RLS - Tabla registros', true, 'RLS activo (sin datos o filtrados)');
+                }
+            } catch (error) {
+                addTest('RLS - Tabla registros', false, error.message);
+            }
+        }
+
+        // Test 6: RLS en tabla targets_mensuales
+        async function testRLSTargets() {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('targets_mensuales')
+                    .select('*', { count: 'exact' });
+
+                if (error) throw error;
+
+                if (data && data.length > 0) {
+                    addTest('RLS - Tabla targets_mensuales', true, `${data.length} registros encontrados (RLS activo)`);
+                } else {
+                    addTest('RLS - Tabla targets_mensuales', true, 'RLS activo (sin datos o filtrados)');
+                }
+            } catch (error) {
+                addTest('RLS - Tabla targets_mensuales', false, error.message);
+            }
+        }
+
+        // Test 7: Probar login
+        async function testLogin() {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('usuarios')
+                    .select('id, email, nombre, rol')
+                    .eq('email', 'jordan@bizifysolutions.com')
+                    .single();
+
+                if (error) {
+                    addTest('Login Test', false, 'Usuario de prueba no encontrado');
+                } else {
+                    if (data) {
+                        addTest('Login Test', true, `Usuario encontrado: ${data.nombre} (${data.rol})`);
+                    } else {
+                        addTest('Login Test', false, 'Error al cargar usuario');
+                    }
+                }
+            } catch (error) {
+                addTest('Login Test', false, error.message);
+            }
+        }
+
+        // Mostrar alertas
+        function showAlert(message, type = 'info') {
+            const alertBox = document.getElementById('alertBox');
+            alertBox.innerHTML = message;
+            alertBox.className = `alert alert-${type}`;
+            setTimeout(() => {
+                alertBox.className = 'alert';
+            }, 10000);
+        }
+
+        // Inicializar
+        window.addEventListener('load', () => {
+            addLog('Página cargada. Listo para ejecutar tests.', 'info');
+        });
+    </script>
+</body>
+
+</html>

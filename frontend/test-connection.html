@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test de Conexión - Sistema de Ranking</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            max-width: 900px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        h1 {
+            color: #2563eb;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .subtitle {
+            color: #64748b;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .tests-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .test-card {
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .test-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .test-card h3 {
+            color: #1e293b;
+            font-size: 16px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .test-card button {
+            width: 100%;
+            padding: 12px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s ease;
+        }
+
+        .test-card button:hover {
+            background: #2563eb;
+        }
+
+        .test-card button:disabled {
+            background: #cbd5e1;
+            cursor: not-allowed;
+        }
+
+        .status {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            display: none;
+        }
+
+        .status.loading {
+            display: block;
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fcd34d;
+        }
+
+        .status.success {
+            display: block;
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+        .status.error {
+            display: block;
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        .icon {
+            font-size: 18px;
+        }
+
+        .summary {
+            background: #f1f5f9;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+
+        .summary h2 {
+            color: #1e293b;
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 14px;
+        }
+
+        .summary-item:last-child {
+            border-bottom: none;
+        }
+
+        .badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge.ok {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .badge.error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .badge.pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🧪 Test de Conexión del Sistema</h1>
+        <p class="subtitle">Verifica la conectividad de todas las páginas y servicios</p>
+
+        <div class="tests-grid">
+            <!-- Test Supabase -->
+            <div class="test-card">
+                <h3><span class="icon">🔌</span> Supabase Connection</h3>
+                <button onclick="testSupabase()">Probar Conexión</button>
+                <div id="supabaseStatus" class="status"></div>
+            </div>
+
+            <!-- Test i18n -->
+            <div class="test-card">
+                <h3><span class="icon">🌍</span> i18n System</h3>
+                <button onclick="testi18n()">Probar i18n</button>
+                <div id="i18nStatus" class="status"></div>
+            </div>
+
+            <!-- Test Dashboard Super -->
+            <div class="test-card">
+                <h3><span class="icon">👑</span> Dashboard Super</h3>
+                <button onclick="testDashboardSuper()">Abrir Dashboard</button>
+                <div id="superStatus" class="status"></div>
+            </div>
+
+            <!-- Test Dashboard Líder -->
+            <div class="test-card">
+                <h3><span class="icon">📊</span> Dashboard Líder</h3>
+                <button onclick="testDashboardLider()">Abrir Dashboard</button>
+                <div id="liderStatus" class="status"></div>
+            </div>
+
+            <!-- Test Dashboard Admin -->
+            <div class="test-card">
+                <h3><span class="icon">⚡</span> Dashboard Admin</h3>
+                <button onclick="testDashboardAdmin()">Abrir Dashboard</button>
+                <div id="adminStatus" class="status"></div>
+            </div>
+
+            <!-- Test Login -->
+            <div class="test-card">
+                <h3><span class="icon">🔑</span> Login Page</h3>
+                <button onclick="testLogin()">Ir a Login</button>
+                <div id="loginStatus" class="status"></div>
+            </div>
+        </div>
+
+        <div class="summary">
+            <h2>📋 Resumen General</h2>
+            <div class="summary-item">
+                <span>Supabase Configuration:</span>
+                <span id="configStatus" class="badge pending">Pendiente</span>
+            </div>
+            <div class="summary-item">
+                <span>i18n System:</span>
+                <span id="i18nSummary" class="badge pending">Pendiente</span>
+            </div>
+            <div class="summary-item">
+                <span>Database Connection:</span>
+                <span id="dbStatus" class="badge pending">Pendiente</span>
+            </div>
+            <div class="summary-item">
+                <span>All Pages Accessible:</span>
+                <span id="pagesStatus" class="badge pending">Pendiente</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../../config/config.js"></script>
+
+    <script>
+        function updateStatus(elementId, message, status) {
+            const el = document.getElementById(elementId);
+            el.className = `status ${status}`;
+            el.textContent = message;
+        }
+
+        function updateSummary(elementId, status) {
+            const el = document.getElementById(elementId);
+            el.className = `badge ${status}`;
+            el.textContent = status === 'ok' ? '✅ OK' : status === 'error' ? '❌ Error' : '⏳ Pendiente';
+        }
+
+        async function testSupabase() {
+            const statusId = 'supabaseStatus';
+            updateStatus(statusId, '⏳ Probando conexión a Supabase...', 'loading');
+
+            try {
+                if (!window.SUPABASE_CONFIG) {
+                    throw new Error('SUPABASE_CONFIG no encontrado en config.js');
+                }
+
+                const { createClient } = supabase;
+                const client = createClient(
+                    window.SUPABASE_CONFIG.url,
+                    window.SUPABASE_CONFIG.anonKey
+                );
+
+                // Intentar una consulta simple
+                const { data, error } = await client.from('usuarios').select('count');
+
+                if (error) throw error;
+
+                updateStatus(statusId, '✅ Conexión exitosa a Supabase', 'success');
+                updateSummary('configStatus', 'ok');
+                updateSummary('dbStatus', 'ok');
+
+            } catch (error) {
+                updateStatus(statusId, `❌ Error: ${error.message}`, 'error');
+                updateSummary('dbStatus', 'error');
+            }
+        }
+
+        function testi18n() {
+            const statusId = 'i18nStatus';
+            updateStatus(statusId, '⏳ Cargando i18n-init.js...', 'loading');
+
+            try {
+                const script = document.createElement('script');
+                script.src = 'js/i18n-init.js';
+                script.onload = () => {
+                    if (typeof window.t === 'function') {
+                        const testKey = 'login.title';
+                        const translated = window.t(testKey);
+                        updateStatus(statusId, `✅ i18n cargado correctamente. Test: "${translated}"`, 'success');
+                        updateSummary('i18nSummary', 'ok');
+                    } else {
+                        updateStatus(statusId, '❌ window.t no está disponible', 'error');
+                        updateSummary('i18nSummary', 'error');
+                    }
+                };
+                script.onerror = () => {
+                    updateStatus(statusId, '❌ Error al cargar i18n-init.js', 'error');
+                    updateSummary('i18nSummary', 'error');
+                };
+                document.head.appendChild(script);
+
+            } catch (error) {
+                updateStatus(statusId, `❌ Error: ${error.message}`, 'error');
+                updateSummary('i18nSummary', 'error');
+            }
+        }
+
+        function testDashboardSuper() {
+            const statusId = 'superStatus';
+            updateStatus(statusId, '⏳ Verificando acceso...', 'loading');
+
+            try {
+                const user = localStorage.getItem('user');
+                if (!user) {
+                    updateStatus(statusId, '⚠️ No hay sesión. Redirigiendo a login...', 'loading');
+                    setTimeout(() => window.location.href = 'index.html', 2000);
+                    return;
+                }
+
+                const userData = JSON.parse(user);
+                if (userData.rol !== 'super') {
+                    updateStatus(statusId, `❌ Rol incorrecto: ${userData.rol}`, 'error');
+                    updateSummary('pagesStatus', 'error');
+                    return;
+                }
+
+                updateStatus(statusId, '✅ Acceso permitido. Abriendo...', 'success');
+                setTimeout(() => window.location.href = 'pages/dashboard-super.html', 1500);
+
+            } catch (error) {
+                updateStatus(statusId, `❌ Error: ${error.message}`, 'error');
+                updateSummary('pagesStatus', 'error');
+            }
+        }
+
+        function testDashboardLider() {
+            const statusId = 'liderStatus';
+            updateStatus(statusId, '⏳ Verificando acceso...', 'loading');
+
+            try {
+                const user = localStorage.getItem('user');
+                if (!user) {
+                    updateStatus(statusId, '⚠️ No hay sesión. Redirigiendo a login...', 'loading');
+                    setTimeout(() => window.location.href = 'index.html', 2000);
+                    return;
+                }
+
+                const userData = JSON.parse(user);
+                if (userData.rol !== 'lider') {
+                    updateStatus(statusId, `❌ Rol incorrecto: ${userData.rol}`, 'error');
+                    updateSummary('pagesStatus', 'error');
+                    return;
+                }
+
+                updateStatus(statusId, '✅ Acceso permitido. Abriendo...', 'success');
+                setTimeout(() => window.location.href = 'pages/dashboard-lider.html', 1500);
+
+            } catch (error) {
+                updateStatus(statusId, `❌ Error: ${error.message}`, 'error');
+                updateSummary('pagesStatus', 'error');
+            }
+        }
+
+        function testDashboardAdmin() {
+            const statusId = 'adminStatus';
+            updateStatus(statusId, '⏳ Verificando acceso...', 'loading');
+
+            try {
+                const user = localStorage.getItem('user');
+                if (!user) {
+                    updateStatus(statusId, '⚠️ No hay sesión. Redirigiendo a login...', 'loading');
+                    setTimeout(() => window.location.href = 'index.html', 2000);
+                    return;
+                }
+
+                const userData = JSON.parse(user);
+                if (userData.rol !== 'admin_area') {
+                    updateStatus(statusId, `❌ Rol incorrecto: ${userData.rol}`, 'error');
+                    updateSummary('pagesStatus', 'error');
+                    return;
+                }
+
+                updateStatus(statusId, '✅ Acceso permitido. Abriendo...', 'success');
+                setTimeout(() => window.location.href = 'pages/dashboard-admin-area.html', 1500);
+
+            } catch (error) {
+                updateStatus(statusId, `❌ Error: ${error.message}`, 'error');
+                updateSummary('pagesStatus', 'error');
+            }
+        }
+
+        function testLogin() {
+            const statusId = 'loginStatus';
+            updateStatus(statusId, '⏳ Abriendo login...', 'loading');
+
+            try {
+                updateStatus(statusId, '✅ Redirigiendo a login...', 'success');
+                setTimeout(() => window.location.href = 'index.html', 1000);
+
+            } catch (error) {
+                updateStatus(statusId, `❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-test al cargar
+        window.addEventListener('DOMContentLoaded', () => {
+            console.log('🧪 Test Page Loaded');
+            console.log('SUPABASE_CONFIG disponible:', !!window.SUPABASE_CONFIG);
+        });
+    </script>
+</body>
+
+</html>
