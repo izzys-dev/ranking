@@ -361,10 +361,10 @@
         </div>
     </div>
 
-    <!-- Modal Agregar/Editar Agente -->
+    <!-- Modal Agregar/Editar Depósito -->
     <div id="agenteModal" class="modal">
         <div class="modal-content">
-            <h3 id="modalTitle"></h3>
+            <h3 id="modalTitle">Agregar Depósito</h3>
             <form id="agenteForm">
                 <div class="form-group">
                     <label for="liderSelect" id="assignLeaderLabel"></label>
@@ -423,11 +423,15 @@
                     <label for="depositoMonto" id="depositAmountLabel"></label>
                     <input type="number" id="depositoMonto" min="0" step="0.01" required>
                 </div>
+                <div class="form-group">
+                    <label for="depositoFecha">Fecha</label>
+                    <input type="date" id="depositoFecha" name="fecha" required>
+                </div>
 
                 <div id="depositoModalError" class="error-message" style="display: none;"></div>
 
                 <div style="margin-top: 20px;">
-                    <button type="submit" class="btn-primary" id="addDepositBtn"></button>
+                    <button type="submit" class="btn-primary" id="addDepositBtn">+ Agregar Depósito</button>
                 </div>
             </form>
 

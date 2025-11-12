@@ -574,32 +574,43 @@ document.getElementById('depositoForm').addEventListener('submit', async (e) => 
     e.preventDefault();
     
     const monto = parseFloat(document.getElementById('depositoMonto').value);
+    const fecha = document.getElementById('depositoFecha').value;
     const modalError = document.getElementById('depositoModalError');
-    
+
     modalError.style.display = 'none';
-    
+
     if (monto <= 0) {
         modalError.style.display = 'block';
         modalError.textContent = 'Monto inválido';
         return;
     }
-    
+    if (!fecha) {
+        modalError.style.display = 'block';
+        modalError.textContent = 'La fecha es obligatoria';
+        return;
+    }
+
+    const fechaObj = new Date(fecha + 'T00:00:00');
+    const mes = fechaObj.getMonth() + 1;
+    const anio = fechaObj.getFullYear();
+
     try {
         const { error } = await supabaseClient
             .from('depositos')
             .insert({
                 agente_id: currentAgenteId,
                 monto: monto,
-                mes: mesActual,
-                anio: anioActual
+                fecha: fecha,
+                mes: mes,
+                anio: anio
             });
-        
+
         if (error) throw error;
-        
+
         document.getElementById('depositoForm').reset();
         await cargarListaDepositos();
         await cargarEstadisticas();
-        
+
     } catch (error) {
         console.error('Error:', error);
         modalError.style.display = 'block';
