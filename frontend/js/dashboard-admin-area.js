@@ -220,7 +220,38 @@ function mostrarAgentes(agentes, lideresMap) {
 }
 
 async function cargarTargetAgente(agenteId) {
-    // Implementar igual que en dashboard-lider.js
+    try {
+        const { data: target, error } = await supabaseClient
+            .from('targets')
+            .select('*')
+            .eq('agente_id', agenteId)
+            .eq('mes', mesActual)
+            .eq('anio', anioActual)
+            .maybeSingle();
+        
+        if (error) throw error;
+        
+        let targetTexto = 'Sin target';
+        if (target) {
+            if (currentUser.area === 'conversion') {
+                targetTexto = `${target.target_cantidad} depósitos`;
+            } else {
+                targetTexto = `$${parseFloat(target.target_monto).toFixed(2)}`;
+            }
+        }
+        
+        const element = document.getElementById(`target-${agenteId}`);
+        if (element) {
+            element.textContent = targetTexto;
+        }
+        
+    } catch (error) {
+        console.error('Error al cargar target del agente:', error);
+        const element = document.getElementById(`target-${agenteId}`);
+        if (element) {
+            element.textContent = 'Error';
+        }
+    }
 }
 
 let depositoAgenteId = null;
@@ -567,6 +598,322 @@ async function eliminarAgente(id, nombre) {
         alert('Error: ' + error.message);
     }
 }
+
+// ============================================
+// FUNCIONES PARA TARGETS
+// ============================================
+
+let targetAgenteId = null;
+
+async function abrirTargetModal(agenteId, agenteNombre) {
+    targetAgenteId = agenteId;
+    
+    const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
+                   'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+    
+    document.getElementById('targetModalTitle').textContent = 'Asignar Target del Mes';
+    document.getElementById('targetAgente').value = agenteNombre;
+    document.getElementById('targetMes').value = `${meses[mesActual - 1]} ${anioActual}`;
+    
+    if (currentUser.area === 'conversion') {
+        document.getElementById('targetCantidadGroup').style.display = 'block';
+        document.getElementById('targetMontoGroup').style.display = 'none';
+        document.getElementById('targetCantidad').required = true;
+        document.getElementById('targetMonto').required = false;
+    } else {
+        document.getElementById('targetCantidadGroup').style.display = 'none';
+        document.getElementById('targetMontoGroup').style.display = 'block';
+        document.getElementById('targetCantidad').required = false;
+        document.getElementById('targetMonto').required = true;
+    }
+    
+    // Cargar target actual si existe
+    try {
+        const { data: target, error } = await supabaseClient
+            .from('targets')
+            .select('*')
+            .eq('agente_id', agenteId)
+            .eq('mes', mesActual)
+            .eq('anio', anioActual)
+            .maybeSingle();
+        
+        if (error) throw error;
+        
+        if (target) {
+            if (currentUser.area === 'conversion') {
+                document.getElementById('targetCantidad').value = target.target_cantidad || '';
+            } else {
+                document.getElementById('targetMonto').value = target.target_monto || '';
+            }
+        } else {
+            document.getElementById('targetCantidad').value = '';
+            document.getElementById('targetMonto').value = '';
+        }
+        
+    } catch (error) {
+        console.error('Error al cargar target:', error);
+    }
+    
+    document.getElementById('targetModalError').style.display = 'none';
+    document.getElementById('targetModal').style.display = 'block';
+}
+
+function closeTargetModal() {
+    document.getElementById('targetModal').style.display = 'none';
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const targetForm = document.getElementById('targetForm');
+    if (targetForm) {
+        targetForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const modalError = document.getElementById('targetModalError');
+            modalError.style.display = 'none';
+            
+            try {
+                let targetData = {
+                    agente_id: targetAgenteId,
+                    mes: mesActual,
+                    anio: anioActual
+                };
+                
+                if (currentUser.area === 'conversion') {
+                    targetData.target_cantidad = parseInt(document.getElementById('targetCantidad').value);
+                    if (!targetData.target_cantidad || targetData.target_cantidad <= 0) {
+                        throw new Error('El target de cantidad debe ser mayor a 0');
+                    }
+                } else {
+                    targetData.target_monto = parseFloat(document.getElementById('targetMonto').value);
+                    if (!targetData.target_monto || targetData.target_monto <= 0) {
+                        throw new Error('El target de monto debe ser mayor a 0');
+                    }
+                }
+                
+                // Verificar si ya existe un target para este agente este mes
+                const { data: existingTarget, error: checkError } = await supabaseClient
+                    .from('targets')
+                    .select('*')
+                    .eq('agente_id', targetAgenteId)
+                    .eq('mes', mesActual)
+                    .eq('anio', anioActual)
+                    .maybeSingle();
+                
+                if (checkError) throw checkError;
+                
+                if (existingTarget) {
+                    // UPDATE
+                    const { error } = await supabaseClient
+                        .from('targets')
+                        .update(targetData)
+                        .eq('id', existingTarget.id);
+                    
+                    if (error) throw error;
+                } else {
+                    // INSERT
+                    const { error } = await supabaseClient
+                        .from('targets')
+                        .insert(targetData);
+                    
+                    if (error) throw error;
+                }
+                
+                closeTargetModal();
+                await cargarAgentes();
+                alert('Target guardado exitosamente ✅');
+                
+            } catch (error) {
+                console.error('Error:', error);
+                modalError.style.display = 'block';
+                modalError.textContent = `Error: ${error.message}`;
+            }
+        });
+    }
+});
+
+// ============================================
+// FUNCIONES PARA REGISTROS (LEADS)
+// ============================================
+
+let registroAgenteId = null;
+let editingRegistroId = null;
+
+async function verRegistros(agenteId, agenteNombre) {
+    registroAgenteId = agenteId;
+    document.getElementById('registrosAgenteNombre').textContent = agenteNombre;
+    document.getElementById('registrosContainer').innerHTML = '<div class="empty-state">Cargando registros...</div>';
+    document.getElementById('registrosModal').style.display = 'block';
+    
+    await cargarRegistrosAgente();
+}
+
+async function cargarRegistrosAgente() {
+    try {
+        const { data: registros, error } = await supabaseClient
+            .from('registros')
+            .select('*')
+            .eq('agente_id', registroAgenteId)
+            .order('fecha', { ascending: false });
+        
+        if (error) throw error;
+        
+        mostrarRegistrosAgente(registros || []);
+        
+    } catch (error) {
+        console.error('Error al cargar registros:', error);
+        document.getElementById('registrosContainer').innerHTML = 
+            `<div class="empty-state">Error al cargar registros: ${error.message}</div>`;
+    }
+}
+
+function mostrarRegistrosAgente(registros) {
+    const container = document.getElementById('registrosContainer');
+    
+    if (registros.length === 0) {
+        container.innerHTML = '<div class="empty-state">No hay registros (leads) registrados</div>';
+        return;
+    }
+    
+    let html = '<h4 style="margin-top: 30px; margin-bottom: 15px;">Registros (Leads) Registrados:</h4>';
+    
+    registros.forEach(registro => {
+        const fecha = new Date(registro.fecha).toLocaleDateString('es-ES');
+        
+        html += `
+            <div class="deposito-item">
+                <div class="deposito-info">
+                    <div class="deposito-fecha">${fecha}</div>
+                </div>
+                <div class="deposito-actions">
+                    <button type="button" class="btn-edit" onclick="editarRegistro('${registro.id}')">✏️</button>
+                    <button type="button" class="btn-delete" onclick="eliminarRegistro('${registro.id}')">🗑️</button>
+                </div>
+            </div>
+        `;
+    });
+    
+    container.innerHTML = html;
+}
+
+function closeRegistrosModal() {
+    document.getElementById('registrosModal').style.display = 'none';
+    registroAgenteId = null;
+    editingRegistroId = null;
+}
+
+async function agregarRegistroAgente() {
+    editingRegistroId = null;
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('registroEditFecha').value = today;
+    document.getElementById('registroEditError').style.display = 'none';
+    document.getElementById('registroEditModal').style.display = 'block';
+}
+
+async function editarRegistro(registroId) {
+    try {
+        const { data: registro, error } = await supabaseClient
+            .from('registros')
+            .select('*')
+            .eq('id', registroId)
+            .single();
+        
+        if (error) throw error;
+        
+        editingRegistroId = registro.id;
+        const fecha = new Date(registro.fecha);
+        const fechaFormato = fecha.toISOString().split('T')[0];
+        document.getElementById('registroEditFecha').value = fechaFormato;
+        document.getElementById('registroEditError').style.display = 'none';
+        document.getElementById('registroEditModal').style.display = 'block';
+        
+    } catch (error) {
+        console.error('Error al cargar registro:', error);
+        alert('Error: ' + error.message);
+    }
+}
+
+function closeRegistroEditModal() {
+    document.getElementById('registroEditModal').style.display = 'none';
+    editingRegistroId = null;
+}
+
+async function eliminarRegistro(registroId) {
+    if (!confirm('¿Estás seguro de que quieres eliminar este registro?')) {
+        return;
+    }
+    
+    try {
+        const { error } = await supabaseClient
+            .from('registros')
+            .delete()
+            .eq('id', registroId);
+        
+        if (error) throw error;
+        
+        await cargarRegistrosAgente();
+        
+    } catch (error) {
+        console.error('Error al eliminar registro:', error);
+        alert('Error: ' + error.message);
+    }
+}
+
+// Manejar envío del formulario de registros
+document.addEventListener('DOMContentLoaded', function() {
+    const registroEditForm = document.getElementById('registroEditForm');
+    if (registroEditForm) {
+        registroEditForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const fecha = document.getElementById('registroEditFecha').value;
+            const errorDiv = document.getElementById('registroEditError');
+            
+            if (!fecha) {
+                errorDiv.style.display = 'block';
+                errorDiv.textContent = 'Debes seleccionar una fecha';
+                return;
+            }
+            
+            try {
+                if (editingRegistroId) {
+                    // UPDATE
+                    const { error } = await supabaseClient
+                        .from('registros')
+                        .update({
+                            fecha,
+                            updated_at: new Date().toISOString()
+                        })
+                        .eq('id', editingRegistroId);
+                    
+                    if (error) throw error;
+                } else {
+                    // INSERT
+                    const now = new Date();
+                    const { error } = await supabaseClient
+                        .from('registros')
+                        .insert({
+                            agente_id: registroAgenteId,
+                            fecha,
+                            mes: now.getMonth() + 1,
+                            anio: now.getFullYear(),
+                            created_at: new Date().toISOString()
+                        });
+                    
+                    if (error) throw error;
+                }
+                
+                errorDiv.style.display = 'none';
+                closeRegistroEditModal();
+                await cargarRegistrosAgente();
+                
+            } catch (error) {
+                console.error('Error al guardar registro:', error);
+                errorDiv.style.display = 'block';
+                errorDiv.textContent = 'Error: ' + error.message;
+            }
+        });
+    }
+});
 
 async function logout() {
     localStorage.removeItem('user');

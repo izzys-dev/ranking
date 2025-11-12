@@ -413,6 +413,83 @@
         </div>
     </div>
 
+    <!-- Modal para asignar target -->
+    <div id="targetModal" class="modal">
+        <div class="modal-content">
+            <h3 id="targetModalTitle" data-i18n="deposits.assign">Asignar Target</h3>
+            <form id="targetForm">
+                <div class="form-group">
+                    <label for="targetAgente" data-i18n-label="deposits.agent">Agente</label>
+                    <input type="text" id="targetAgente" readonly style="background: #f1f5f9;">
+                </div>
+
+                <div class="form-group">
+                    <label for="targetMes" data-i18n-label="deposits.month">Mes</label>
+                    <input type="text" id="targetMes" readonly style="background: #f1f5f9;">
+                </div>
+
+                <div class="form-group" id="targetCantidadGroup" style="display: none;">
+                    <label for="targetCantidad" data-i18n-label="deposits.quantity">Target (Cantidad de
+                        depósitos)</label>
+                    <input type="number" id="targetCantidad" min="1" placeholder="Ejemplo: 10">
+                </div>
+
+                <div class="form-group" id="targetMontoGroup" style="display: none;">
+                    <label for="targetMonto" data-i18n-label="deposits.amount">Target (Monto en $)</label>
+                    <input type="number" id="targetMonto" min="1" step="0.01" placeholder="Ejemplo: 5000.00">
+                </div>
+
+                <div id="targetModalError" class="error-message" style="display: none;"></div>
+
+                <div style="margin-top: 20px;">
+                    <button type="button" class="btn-cancel" onclick="closeTargetModal()"
+                        data-i18n="form.cancel">Cancelar</button>
+                    <button type="submit" class="btn-primary" data-i18n="form.save">Guardar Target</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para ver/gestionar registros de un agente -->
+    <div id="registrosModal" class="modal">
+        <div class="modal-content">
+            <h3 id="registrosModalTitle" data-i18n="registers.title">Registros (Leads) del Agente</h3>
+            <p id="registrosAgenteNombre" style="color: #64748b; margin-bottom: 20px;"></p>
+
+            <button class="btn-add btn-registro-rapido" onclick="agregarRegistroAgente()" data-i18n="registers.add">+
+                Agregar Registro</button>
+
+            <div id="registrosContainer" class="depositos-list">
+                <div class="empty-state" data-i18n="dashboard.loading">Cargando registros...</div>
+            </div>
+
+            <div style="margin-top: 20px;">
+                <button class="btn-cancel" onclick="closeRegistrosModal()" data-i18n="form.close">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para agregar/editar registro individual -->
+    <div id="registroEditModal" class="modal">
+        <div class="modal-content">
+            <h3 id="registroEditTitle" data-i18n="registers.add">Agregar Registro</h3>
+            <form id="registroEditForm">
+                <div class="form-group">
+                    <label for="registroEditFecha" data-i18n-label="registers.date">Fecha del registro</label>
+                    <input type="date" id="registroEditFecha" required>
+                </div>
+
+                <div id="registroEditError" class="error-message" style="display: none;"></div>
+
+                <div style="margin-top: 20px;">
+                    <button type="button" class="btn-cancel" onclick="closeRegistroEditModal()"
+                        data-i18n="form.cancel">Cancelar</button>
+                    <button type="submit" class="btn-primary" data-i18n="form.save">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../../config/config.js"></script>
     <script src="../js/i18n.js"></script>
