@@ -88,24 +88,29 @@ async function cargarEstadisticas() {
         
         let html = `
             <div class="stat-card">
-                <h3>Total Agentes</h3>
+                <h3 data-i18n="dashboard.total_agents">Total Agentes</h3>
                 <div class="value">${agentes?.length || 0}</div>
             </div>
             <div class="stat-card">
-                <h3>Líderes Activos</h3>
+                <h3 data-i18n="dashboard.active_leaders">Líderes Activos</h3>
                 <div class="value">${lideres?.length || 0}</div>
             </div>
             <div class="stat-card">
-                <h3>Depósitos del Mes</h3>
+                <h3 data-i18n="dashboard.month_deposits">Depósitos del Mes</h3>
                 <div class="value">${cantidadDepositos}</div>
             </div>
             <div class="stat-card">
-                <h3>Total Ingresado</h3>
+                <h3 data-i18n="dashboard.total_income">Total Ingresado</h3>
                 <div class="value">$${totalDepositos.toFixed(0)}</div>
             </div>
         `;
         
         document.getElementById('statsGrid').innerHTML = html;
+        
+        // Traducir el contenido nuevo
+        if (window.i18n && window.i18n.translatePage) {
+            await window.i18n.translatePage();
+        }
         
     } catch (error) {
         console.error('Error al cargar estadísticas:', error);

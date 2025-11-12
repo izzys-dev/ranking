@@ -26,7 +26,11 @@
       "quick_deposit": "⚡ Depósito Rápido",
       "quick_register": "📝 Registro Rápido",
       "loading": "Cargando agentes...",
-      "empty": "No hay agentes registrados"
+      "empty": "No hay agentes registrados",
+      "total_agents": "Total Agentes",
+      "active_leaders": "Líderes Activos",
+      "month_deposits": "Depósitos del Mes",
+      "total_income": "Total Ingresado"
     },
     "form": {
       "name": "Nombre completo",
@@ -149,7 +153,11 @@
       "quick_deposit": "⚡ Quick Deposit",
       "quick_register": "📝 Quick Register",
       "loading": "Loading agents...",
-      "empty": "No registered agents"
+      "empty": "No registered agents",
+      "total_agents": "Total Agents",
+      "active_leaders": "Active Leaders",
+      "month_deposits": "Month Deposits",
+      "total_income": "Total Income"
     },
     "form": {
       "name": "Full name",
@@ -272,7 +280,11 @@
       "quick_deposit": "⚡ Depósito Rápido",
       "quick_register": "📝 Registro Rápido",
       "loading": "Carregando agentes...",
-      "empty": "Nenhum agente registrado"
+      "empty": "Nenhum agente registrado",
+      "total_agents": "Total de Agentes",
+      "active_leaders": "Líderes Ativos",
+      "month_deposits": "Depósitos do Mês",
+      "total_income": "Receita Total"
     },
     "form": {
       "name": "Nome completo",
