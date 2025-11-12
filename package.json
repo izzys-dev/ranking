@@ -1,0 +1,13 @@
+{
+  "name": "ranking-depositos-tests",
+  "version": "1.0.0",
+  "description": "Test suite for ranking-depositos",
+  "scripts": {
+    "test": "playwright test",
+    "test:debug": "playwright test --debug",
+    "test:report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.40.0"
+  }
+}

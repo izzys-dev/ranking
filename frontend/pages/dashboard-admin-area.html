@@ -381,7 +381,33 @@
         </div>
     </div>
 
-    <!-- Resto de modales igual que dashboard-lider.html -->
+    <!-- Modal para gestionar depósitos -->
+    <div id="depositosModal" class="modal">
+        <div class="modal-content">
+            <h3>💰 Depósitos de <span id="depositoAgenteNombre"></span></h3>
+
+            <form id="depositoForm" style="margin-bottom: 20px;">
+                <div class="form-group">
+                    <label for="depositoMonto">Monto a depositar</label>
+                    <input type="number" id="depositoMonto" step="0.01" min="0" required placeholder="Ej: 500.00">
+                </div>
+
+                <div class="form-group">
+                    <label for="depositoFecha">Fecha del depósito</label>
+                    <input type="date" id="depositoFecha" required>
+                </div>
+
+                <div id="depositoError" class="error-message" style="display: none;"></div>
+
+                <div style="margin-top: 15px;">
+                    <button type="button" class="btn-cancel" onclick="cerrarDepositosModal()">Cerrar</button>
+                    <button type="submit" class="btn-primary" id="btnGuardarDeposito">Agregar</button>
+                </div>
+            </form>
+
+            <div id="depositosList" class="depositos-list"></div>
+        </div>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../../config/config.js"></script>

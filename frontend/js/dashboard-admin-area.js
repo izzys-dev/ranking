@@ -223,6 +223,208 @@ async function cargarTargetAgente(agenteId) {
     // Implementar igual que en dashboard-lider.js
 }
 
+let depositoAgenteId = null;
+let editingDepositoId = null;
+
+async function verDepositos(agenteId, agenteNombre) {
+    depositoAgenteId = agenteId;
+    document.getElementById('depositoAgenteNombre').textContent = agenteNombre;
+    document.getElementById('depositoForm').reset();
+    document.getElementById('depositoError').style.display = 'none';
+    editingDepositoId = null;
+    document.getElementById('btnGuardarDeposito').textContent = 'Agregar';
+    
+    document.getElementById('depositosModal').style.display = 'block';
+    
+    await cargarDepositosAgente();
+}
+
+async function cargarDepositosAgente() {
+    try {
+        const { data: depositos, error } = await supabaseClient
+            .from('depositos')
+            .select('*')
+            .eq('agente_id', depositoAgenteId)
+            .order('fecha', { ascending: false });
+        
+        if (error) throw error;
+        
+        mostrarDepositosAgente(depositos || []);
+        
+    } catch (error) {
+        console.error('Error al cargar depósitos:', error);
+        document.getElementById('depositoError').textContent = 'Error al cargar depósitos';
+        document.getElementById('depositoError').style.display = 'block';
+    }
+}
+
+function mostrarDepositosAgente(depositos) {
+    const container = document.getElementById('depositosList');
+    
+    if (depositos.length === 0) {
+        container.innerHTML = '<div class="empty-state">No hay depósitos registrados</div>';
+        return;
+    }
+    
+    let totalDepositos = 0;
+    let html = '<h4 style="margin-top: 30px; margin-bottom: 15px;">Depósitos Registrados:</h4>';
+    
+    depositos.forEach(deposito => {
+        totalDepositos += parseFloat(deposito.monto);
+        const fecha = new Date(deposito.fecha).toLocaleDateString('es-ES');
+        
+        html += `
+            <div class="deposito-item">
+                <div class="deposito-info">
+                    <div class="deposito-monto">$${parseFloat(deposito.monto).toFixed(2)}</div>
+                    <div class="deposito-fecha">${fecha}</div>
+                </div>
+                <div class="deposito-actions">
+                    <button type="button" class="btn-edit" onclick="editarDeposito('${deposito.id}')">✏️</button>
+                    <button type="button" class="btn-delete" onclick="eliminarDeposito('${deposito.id}')">🗑️</button>
+                </div>
+            </div>
+        `;
+    });
+    
+    html += `
+        <div style="margin-top: 20px; padding-top: 15px; border-top: 2px solid #e2e8f0;">
+            <strong>Total de depósitos: $${totalDepositos.toFixed(2)}</strong>
+        </div>
+    `;
+    
+    container.innerHTML = html;
+}
+
+async function editarDeposito(depositoId) {
+    try {
+        const { data: deposito, error } = await supabaseClient
+            .from('depositos')
+            .select('*')
+            .eq('id', depositoId)
+            .single();
+        
+        if (error) throw error;
+        
+        editingDepositoId = deposito.id;
+        document.getElementById('depositoMonto').value = deposito.monto;
+        
+        // Convertir fecha ISO a formato YYYY-MM-DD
+        const fecha = new Date(deposito.fecha);
+        const fechaFormato = fecha.toISOString().split('T')[0];
+        document.getElementById('depositoFecha').value = fechaFormato;
+        
+        document.getElementById('btnGuardarDeposito').textContent = 'Guardar cambios';
+        
+        // Scroll al formulario
+        document.getElementById('depositoForm').scrollIntoView({ behavior: 'smooth' });
+        document.getElementById('depositoMonto').focus();
+        
+    } catch (error) {
+        console.error('Error al cargar depósito:', error);
+        document.getElementById('depositoError').textContent = 'Error al cargar el depósito';
+        document.getElementById('depositoError').style.display = 'block';
+    }
+}
+
+async function eliminarDeposito(depositoId) {
+    if (!confirm('¿Estás seguro de que quieres eliminar este depósito?')) {
+        return;
+    }
+    
+    try {
+        const { error } = await supabaseClient
+            .from('depositos')
+            .delete()
+            .eq('id', depositoId);
+        
+        if (error) throw error;
+        
+        document.getElementById('depositoError').style.display = 'none';
+        await cargarDepositosAgente();
+        
+    } catch (error) {
+        console.error('Error al eliminar depósito:', error);
+        document.getElementById('depositoError').textContent = 'Error al eliminar el depósito';
+        document.getElementById('depositoError').style.display = 'block';
+    }
+}
+
+function cerrarDepositosModal() {
+    document.getElementById('depositosModal').style.display = 'none';
+    depositoAgenteId = null;
+    editingDepositoId = null;
+}
+
+// Manejar envío del formulario de depósitos
+document.addEventListener('DOMContentLoaded', function() {
+    const depositoForm = document.getElementById('depositoForm');
+    if (depositoForm) {
+        depositoForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const monto = parseFloat(document.getElementById('depositoMonto').value);
+            const fecha = document.getElementById('depositoFecha').value;
+            
+            if (!monto || monto <= 0) {
+                document.getElementById('depositoError').textContent = 'El monto debe ser mayor a 0';
+                document.getElementById('depositoError').style.display = 'block';
+                return;
+            }
+            
+            if (!fecha) {
+                document.getElementById('depositoError').textContent = 'Debes seleccionar una fecha';
+                document.getElementById('depositoError').style.display = 'block';
+                return;
+            }
+            
+            try {
+                if (editingDepositoId) {
+                    // UPDATE
+                    const { error } = await supabaseClient
+                        .from('depositos')
+                        .update({
+                            monto,
+                            fecha,
+                            updated_at: new Date().toISOString()
+                        })
+                        .eq('id', editingDepositoId);
+                    
+                    if (error) throw error;
+                    
+                } else {
+                    // INSERT
+                    const now = new Date();
+                    const { error } = await supabaseClient
+                        .from('depositos')
+                        .insert({
+                            agente_id: depositoAgenteId,
+                            monto,
+                            fecha,
+                            mes: now.getMonth() + 1,
+                            anio: now.getFullYear(),
+                            created_at: new Date().toISOString()
+                        });
+                    
+                    if (error) throw error;
+                }
+                
+                document.getElementById('depositoError').style.display = 'none';
+                document.getElementById('depositoForm').reset();
+                editingDepositoId = null;
+                document.getElementById('btnGuardarDeposito').textContent = 'Agregar';
+                
+                await cargarDepositosAgente();
+                
+            } catch (error) {
+                console.error('Error al guardar depósito:', error);
+                document.getElementById('depositoError').textContent = 'Error al guardar el depósito: ' + error.message;
+                document.getElementById('depositoError').style.display = 'block';
+            }
+        });
+    }
+});
+
 function abrirRankingTV() {
     // Ver TODOS los agentes del área (sin filtrar por líder)
     const url = `../tv-ranking.html?area=${currentUser.area}`;
