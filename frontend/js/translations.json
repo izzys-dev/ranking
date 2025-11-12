@@ -46,7 +46,8 @@
       "edit": "Editar",
       "delete": "Eliminar",
       "yes": "Sí",
-      "no": "No"
+      "no": "No",
+      "actions": "Acciones"
     },
     "deposits": {
       "title": "💰 Depósitos",
@@ -173,7 +174,8 @@
       "edit": "Edit",
       "delete": "Delete",
       "yes": "Yes",
-      "no": "No"
+      "no": "No",
+      "actions": "Actions"
     },
     "deposits": {
       "title": "💰 Deposits",
@@ -300,7 +302,8 @@
       "edit": "Editar",
       "delete": "Deletar",
       "yes": "Sim",
-      "no": "Não"
+      "no": "Não",
+      "actions": "Ações"
     },
     "deposits": {
       "title": "💰 Depósitos",

@@ -17,6 +17,11 @@ window.addEventListener('DOMContentLoaded', async () => {
     await cargarLideresEnSelect();
 });
 
+// Listener para cambios de idioma
+window.addEventListener('languageChanged', () => {
+    configurarMesActual();
+});
+
 async function verificarAcceso() {
     const userStr = localStorage.getItem('user');
     if (!userStr) {
@@ -50,9 +55,21 @@ function configurarMesActual() {
     mesActual = now.getMonth() + 1;
     anioActual = now.getFullYear();
     
-    const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
-                   'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-    document.getElementById('mesActual').textContent = `${meses[mesActual - 1]} ${anioActual}`;
+    // Obtener el idioma actual del i18n
+    const idioma = window.i18n ? window.i18n.getLanguage() : 'es';
+    
+    // Mapear idiomas a locales
+    const localeMap = {
+        'es': 'es-ES',
+        'en': 'en-US',
+        'pt': 'pt-BR'
+    };
+    
+    const locale = localeMap[idioma] || 'es-ES';
+    
+    // Usar Intl.DateTimeFormat para obtener el mes en el idioma correcto
+    const mesTexto = now.toLocaleDateString(locale, { month: 'long', year: 'numeric' });
+    document.getElementById('mesActual').textContent = mesTexto.charAt(0).toUpperCase() + mesTexto.slice(1);
 }
 
 async function cargarEstadisticas() {
@@ -187,10 +204,10 @@ function mostrarAgentes(agentes, lideresMap) {
         <table class="agentes-table">
             <thead>
                 <tr>
-                    <th>Agente</th>
-                    <th>Líder</th>
-                    <th>Target</th>
-                    <th>Acciones</th>
+                    <th data-i18n="dashboard.agents">Agente</th>
+                    <th data-i18n="users.leader">Líder</th>
+                    <th data-i18n="targets.title">Target</th>
+                    <th data-i18n="form.actions">Acciones</th>
                 </tr>
             </thead>
             <tbody>
@@ -219,6 +236,11 @@ function mostrarAgentes(agentes, lideresMap) {
     
     html += '</tbody></table>';
     container.innerHTML = html;
+    
+    // Traducir encabezados
+    if (window.i18n && window.i18n.translatePage) {
+        window.i18n.translatePage();
+    }
     
     // Cargar targets de forma asíncrona
     agentes.forEach(agente => cargarTargetAgente(agente.id));
