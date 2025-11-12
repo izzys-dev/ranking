@@ -132,7 +132,7 @@ async function cargarEstadisticas() {
             .eq('rol', 'lider')
             .eq('area', currentUser.area)
             .eq('activo', true);
-        
+        // ************
         let html = `
             <div class="stat-card">
                 <h3>${i18n.t('total_agents')}</h3>
