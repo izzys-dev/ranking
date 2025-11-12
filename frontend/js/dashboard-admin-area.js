@@ -222,7 +222,7 @@ function mostrarAgentes(agentes, lideresMap) {
 async function cargarTargetAgente(agenteId) {
     try {
         const { data: target, error } = await supabaseClient
-            .from('targets')
+            .from('targets_mensuales')
             .select('*')
             .eq('agente_id', agenteId)
             .eq('mes', mesActual)
@@ -630,7 +630,7 @@ async function abrirTargetModal(agenteId, agenteNombre) {
     // Cargar target actual si existe
     try {
         const { data: target, error } = await supabaseClient
-            .from('targets')
+            .from('targets_mensuales')
             .select('*')
             .eq('agente_id', agenteId)
             .eq('mes', mesActual)
@@ -692,7 +692,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Verificar si ya existe un target para este agente este mes
                 const { data: existingTarget, error: checkError } = await supabaseClient
-                    .from('targets')
+                    .from('targets_mensuales')
                     .select('*')
                     .eq('agente_id', targetAgenteId)
                     .eq('mes', mesActual)
@@ -704,7 +704,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (existingTarget) {
                     // UPDATE
                     const { error } = await supabaseClient
-                        .from('targets')
+                        .from('targets_mensuales')
                         .update(targetData)
                         .eq('id', existingTarget.id);
                     
@@ -712,7 +712,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 } else {
                     // INSERT
                     const { error } = await supabaseClient
-                        .from('targets')
+                        .from('targets_mensuales')
                         .insert(targetData);
                     
                     if (error) throw error;
