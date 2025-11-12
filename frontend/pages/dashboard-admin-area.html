@@ -327,23 +327,24 @@
     <div class="dashboard">
         <div class="header">
             <div>
-                <h1>⚡ Panel Administrador de Área</h1>
+                <h1 data-i18n="dashboard.admin_area"></h1>
                 <p id="welcomeText" style="color: #64748b; margin-top: 5px;"></p>
                 <div id="areaBadge" class="area-badge"></div>
             </div>
             <div style="display: flex; gap: 10px;">
-                <button class="btn-tv" onclick="abrirRankingTV()">📺 Mostrar Ranking</button>
-                <button class="btn-logout" onclick="logout()">Cerrar Sesión</button>
+                <button class="btn-tv" onclick="abrirRankingTV()" data-i18n="dashboard.show_ranking"></button>
+                <button class="btn-logout" onclick="logout()" data-i18n="dashboard.logout"></button>
             </div>
         </div>
 
         <div class="stats-grid" id="statsGrid"></div>
 
         <div class="card">
-            <h2>Todos los Agentes del Área</h2>
+            <h2 data-i18n="dashboard.all_agents"></h2>
             <div class="mes-actual" id="mesActual"></div>
-            <button class="btn-add" onclick="openModal()">+ Agregar Agente</button>
-            <button class="btn-add btn-deposito-rapido" onclick="openDepositoRapido()">⚡ Depósito Rápido</button>
+            <button class="btn-add" onclick="openModal()" data-i18n="dashboard.add_agent"></button>
+            <button class="btn-add btn-deposito-rapido" onclick="openDepositoRapido()"
+                data-i18n="dashboard.quick_deposit"></button>
             <button class="btn-add btn-registro-rapido" onclick="openRegistroRapido()" id="btnRegistroRapido"
                 style="display: none;">📝 Registro Rápido</button>
 
@@ -357,25 +358,26 @@
     <!-- Modal para agregar agente -->
     <div id="agenteModal" class="modal">
         <div class="modal-content">
-            <h3 id="modalTitle">Agregar Agente</h3>
+            <h3 id="modalTitle" data-i18n="dashboard.add_agent">Agregar Agente</h3>
             <form id="agenteForm">
                 <div class="form-group">
-                    <label for="liderSelect">Asignar a Líder</label>
+                    <label for="liderSelect" data-i18n-label="users.add_leader">Asignar a Líder</label>
                     <select id="liderSelect" required>
-                        <option value="">-- Selecciona un líder --</option>
+                        <option value="" data-i18n="form.select">-- Selecciona un líder --</option>
                     </select>
                 </div>
 
                 <div class="form-group">
-                    <label for="agenteNombre">Nombre completo</label>
+                    <label for="agenteNombre" data-i18n-label="form.name">Nombre completo</label>
                     <input type="text" id="agenteNombre" required>
                 </div>
 
                 <div id="modalError" class="error-message" style="display: none;"></div>
 
                 <div style="margin-top: 20px;">
-                    <button type="button" class="btn-cancel" onclick="closeModal()">Cancelar</button>
-                    <button type="submit" class="btn-primary">Guardar</button>
+                    <button type="button" class="btn-cancel" onclick="closeModal()"
+                        data-i18n="form.cancel">Cancelar</button>
+                    <button type="submit" class="btn-primary" data-i18n="form.save">Guardar</button>
                 </div>
             </form>
         </div>
@@ -384,24 +386,26 @@
     <!-- Modal para gestionar depósitos -->
     <div id="depositosModal" class="modal">
         <div class="modal-content">
-            <h3>💰 Depósitos de <span id="depositoAgenteNombre"></span></h3>
+            <h3 data-i18n="deposits.title">💰 Depósitos de <span id="depositoAgenteNombre"></span></h3>
 
             <form id="depositoForm" style="margin-bottom: 20px;">
                 <div class="form-group">
-                    <label for="depositoMonto">Monto a depositar</label>
+                    <label for="depositoMonto" data-i18n-label="deposits.amount">Monto a depositar</label>
                     <input type="number" id="depositoMonto" step="0.01" min="0" required placeholder="Ej: 500.00">
                 </div>
 
                 <div class="form-group">
-                    <label for="depositoFecha">Fecha del depósito</label>
+                    <label for="depositoFecha" data-i18n-label="deposits.date">Fecha del depósito</label>
                     <input type="date" id="depositoFecha" required>
                 </div>
 
                 <div id="depositoError" class="error-message" style="display: none;"></div>
 
                 <div style="margin-top: 15px;">
-                    <button type="button" class="btn-cancel" onclick="cerrarDepositosModal()">Cerrar</button>
-                    <button type="submit" class="btn-primary" id="btnGuardarDeposito">Agregar</button>
+                    <button type="button" class="btn-cancel" onclick="cerrarDepositosModal()"
+                        data-i18n="form.close">Cerrar</button>
+                    <button type="submit" class="btn-primary" id="btnGuardarDeposito"
+                        data-i18n="form.add">Agregar</button>
                 </div>
             </form>
 
@@ -411,7 +415,43 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../../config/config.js"></script>
+    <script src="../js/i18n.js"></script>
+
+    <script>
+        // Inicializar i18n
+        (async () => {
+            console.log('Inicializando i18n en dashboard-admin-area...');
+            await window.i18n.loadTranslations();
+            await window.i18n.translatePage();
+        })();
+    </script>
+
     <script src="../js/dashboard-admin-area.js"></script>
+
+    <script>
+        // Selector de idiomas
+        document.addEventListener('DOMContentLoaded', () => {
+            const body = document.querySelector('body');
+            const headerDiv = document.createElement('div');
+            headerDiv.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 1001;';
+            headerDiv.innerHTML = `
+                <select id="languageSelect" style="padding: 6px 10px; font-size: 12px; min-width: 60px; border: 2px solid #3b82f6; border-radius: 6px; background: transparent; cursor: pointer; font-weight: 700; color: #1e293b; transition: all 0.3s ease;">
+                    <option value="es">ES</option>
+                    <option value="en">EN</option>
+                    <option value="pt">PT</option>
+                </select>
+            `;
+            body.appendChild(headerDiv);
+
+            const select = document.getElementById('languageSelect');
+            if (select) {
+                select.value = window.i18n.getLanguage();
+                select.addEventListener('change', (e) => {
+                    window.i18n.setLanguage(e.target.value);
+                });
+            }
+        });
+    </script>
 </body>
 
 </html>
