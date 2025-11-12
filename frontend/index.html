@@ -15,35 +15,34 @@
         }
 
         #languageSelect {
-            padding: 8px 12px;
-            font-size: 13px;
-            height: auto;
-            min-width: 120px;
+            padding: 6px 10px;
+            font-size: 12px;
+            min-width: 60px;
             border: 2px solid #3b82f6;
-            border-radius: 8px;
-            background: white;
+            border-radius: 6px;
+            background: transparent;
             cursor: pointer;
-            font-weight: 600;
+            font-weight: 700;
             color: #1e293b;
             transition: all 0.3s ease;
-            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
         }
 
         #languageSelect:hover {
             border-color: #2563eb;
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
-            transform: translateY(-2px);
+            color: #2563eb;
         }
 
         #languageSelect:focus {
             outline: none;
             border-color: #1d4ed8;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1), 0 4px 12px rgba(59, 130, 246, 0.2);
+            color: #1d4ed8;
         }
 
         #languageSelect option {
             padding: 8px;
             font-weight: 600;
+            background: white;
+            color: #1e293b;
         }
     </style>
 </head>
@@ -98,9 +97,9 @@
 
             headerLang.innerHTML = `
                 <select id="languageSelect">
-                    <option value="es">🇪🇸 Español</option>
-                    <option value="en">🇺🇸 English</option>
-                    <option value="pt">🇧🇷 Português</option>
+                    <option value="es">ES</option>
+                    <option value="en">EN</option>
+                    <option value="pt">PT</option>
                 </select>
             `;
 
