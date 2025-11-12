@@ -1,10 +1,15 @@
 const { createClient } = supabase;
 let supabaseClient;
 let currentUser;
-let mesActual, anioActual;
 let editingAgenteId = null;
-let currentAgenteId = null;
-let currentAgenteName = null;
+let targetAgenteId = null;
+let depositosAgenteId = null;
+let depositosAgenteNombre = null;
+let editingDepositoId = null;
+let registrosAgenteId = null;
+let registrosAgenteNombre = null;
+let editingRegistroId = null;
+let mesActual, anioActual;
 
 window.addEventListener('DOMContentLoaded', async () => {
     supabaseClient = createClient(
@@ -12,59 +17,29 @@ window.addEventListener('DOMContentLoaded', async () => {
         window.SUPABASE_CONFIG.anonKey
     );
     
-    applyTranslations();
+    const now = new Date();
+    mesActual = now.getMonth() + 1;
+    anioActual = now.getFullYear();
+    
+    const meses = [
+        window.t('dashboard.super.month.january'),
+        window.t('dashboard.super.month.february'),
+        window.t('dashboard.super.month.march'),
+        window.t('dashboard.super.month.april'),
+        window.t('dashboard.super.month.may'),
+        window.t('dashboard.super.month.june'),
+        window.t('dashboard.super.month.july'),
+        window.t('dashboard.super.month.august'),
+        window.t('dashboard.super.month.september'),
+        window.t('dashboard.super.month.october'),
+        window.t('dashboard.super.month.november'),
+        window.t('dashboard.super.month.december')
+    ];
+    document.getElementById('mesActual').textContent = `${window.t('dashboard.lider.month.current')}: ${meses[mesActual - 1]} ${anioActual}`;
+    
     await verificarAcceso();
-    configurarMesActual();
-    await cargarEstadisticas();
     await cargarAgentes();
 });
-
-function applyTranslations() {
-    document.getElementById('panelTitle').textContent = `⚡ ${i18n.t('leader_panel')}`;
-    document.getElementById('showRankingBtn').textContent = `📺 ${i18n.t('show_ranking')}`;
-    document.getElementById('logoutBtn').textContent = i18n.t('logout');
-    document.getElementById('myAgentsTitle').textContent = i18n.t('my_agents');
-    document.getElementById('addAgentBtn').textContent = `+ ${i18n.t('add_agent')}`;
-    document.getElementById('quickDepositBtn').textContent = `⚡ ${i18n.t('quick_deposit')}`;
-    document.getElementById('quickRegistrationBtn').textContent = `📝 ${i18n.t('quick_registration')}`;
-    document.getElementById('loadingAgents').textContent = `${i18n.t('loading')}...`;
-    
-    // Modal labels
-    document.getElementById('agentNameLabel').textContent = i18n.t('full_name');
-    document.getElementById('cancelBtn').textContent = i18n.t('cancel');
-    document.getElementById('saveBtn').textContent = i18n.t('save');
-    
-    // Target modal
-    document.getElementById('targetModalTitle').textContent = i18n.t('assign_target');
-    document.getElementById('targetAmountLabel').textContent = `${i18n.t('target')} (${i18n.t('deposits').toLowerCase()})`;
-    document.getElementById('targetMoneyLabel').textContent = `${i18n.t('target')} ($)`;
-    document.getElementById('cancelTargetBtn').textContent = i18n.t('cancel');
-    document.getElementById('saveTargetBtn').textContent = i18n.t('save');
-    
-    // Deposits modal
-    document.getElementById('depositAmountLabel').textContent = i18n.t('amount');
-    document.getElementById('addDepositBtn').textContent = `+ ${i18n.t('add_agent')}`;
-    document.getElementById('closeDepositsBtn').textContent = i18n.t('close');
-    
-    // Registrations modal
-    document.getElementById('addRegistrationBtn').textContent = `+ ${i18n.t('add_agent')}`;
-    document.getElementById('closeRegistrationsBtn').textContent = i18n.t('close');
-    
-    // Quick deposit
-    document.getElementById('quickDepositModalTitle').textContent = i18n.t('quick_deposit');
-    document.getElementById('selectAgentDepositLabel').textContent = i18n.t('agent');
-    document.getElementById('selectAgentOption').textContent = `-- ${i18n.t('select_area')} --`;
-    document.getElementById('amountLabel').textContent = i18n.t('amount');
-    document.getElementById('cancelQuickDepositBtn').textContent = i18n.t('cancel');
-    document.getElementById('saveQuickDepositBtn').textContent = i18n.t('save');
-    
-    // Quick registration
-    document.getElementById('quickRegistrationModalTitle').textContent = i18n.t('quick_registration');
-    document.getElementById('selectAgentRegistrationLabel').textContent = i18n.t('agent');
-    document.getElementById('selectAgentRegistrationOption').textContent = `-- ${i18n.t('select_area')} --`;
-    document.getElementById('cancelQuickRegistrationBtn').textContent = i18n.t('cancel');
-    document.getElementById('saveQuickRegistrationBtn').textContent = i18n.t('save');
-}
 
 async function verificarAcceso() {
     const userStr = localStorage.getItem('user');
@@ -76,151 +51,164 @@ async function verificarAcceso() {
     currentUser = JSON.parse(userStr);
     
     if (currentUser.rol !== 'lider') {
-        alert('No tienes acceso a esta página');
+        alert(window.t('dashboard.lider.confirm.noAccess'));
         window.location.href = '../index.html';
         return;
     }
     
-    document.getElementById('welcomeText').textContent = `${i18n.t('welcome')}, ${currentUser.nombre}`;
+    document.getElementById('welcomeText').textContent = `${window.t('dashboard.lider.welcome')}, ${currentUser.nombre}`;
     
     const areaBadge = document.getElementById('areaBadge');
-    const areaTexto = i18n.t(`area_${currentUser.area}`);
-    areaBadge.textContent = `${i18n.t('area')}: ${areaTexto}`;
-    areaBadge.className = `area-badge area-${currentUser.area}`;
+    const areaTexto = currentUser.area ? currentUser.area.charAt(0).toUpperCase() + currentUser.area.slice(1) : 'Sin área';
+    areaBadge.textContent = `${window.t('dashboard.lider.area')}: ${areaTexto}`;
+    areaBadge.classList.add(`area-${currentUser.area}`);
     
     if (currentUser.area === 'conversion') {
-        document.getElementById('quickRegistrationBtn').style.display = 'inline-block';
-    }
-}
-
-function configurarMesActual() {
-    const now = new Date();
-    mesActual = now.getMonth() + 1;
-    anioActual = now.getFullYear();
-    
-    const meses = i18n.getMonths();
-    document.getElementById('mesActual').textContent = `${meses[mesActual - 1]} ${anioActual}`;
-}
-
-async function cargarEstadisticas() {
-    try {
-        const { data: agentes } = await supabaseClient
-            .from('agentes')
-            .select('*')
-            .eq('lider_id', currentUser.id)
-            .eq('activo', true);
-        
-        const { data: depositos } = await supabaseClient
-            .from('depositos')
-            .select('*')
-            .eq('mes', mesActual)
-            .eq('anio', anioActual);
-        
-        const depositosMisAgentes = depositos?.filter(d => 
-            agentes?.some(a => a.id === d.agente_id)
-        ) || [];
-        
-        const totalDepositos = depositosMisAgentes.reduce((sum, d) => sum + parseFloat(d.monto), 0);
-        const cantidadDepositos = depositosMisAgentes.length;
-        
-        let html = `
-            <div class="stat-card">
-                <h3>${i18n.t('my_agents')}</h3>
-                <div class="value">${agentes?.length || 0}</div>
-            </div>
-            <div class="stat-card">
-                <h3>${i18n.t('monthly_deposits')}</h3>
-                <div class="value">${cantidadDepositos}</div>
-            </div>
-            <div class="stat-card">
-                <h3>${i18n.t('total_income')}</h3>
-                <div class="value">$${totalDepositos.toFixed(0)}</div>
-            </div>
-        `;
-        
-        document.getElementById('statsGrid').innerHTML = html;
-        
-    } catch (error) {
-        console.error('Error al cargar estadísticas:', error);
+        document.getElementById('btnRegistroRapido').style.display = 'inline-block';
     }
 }
 
 async function cargarAgentes() {
     try {
-        const { data: agentes, error } = await supabaseClient
+        const { data: agentes, error: agentesError } = await supabaseClient
             .from('agentes')
             .select('*')
             .eq('lider_id', currentUser.id)
             .eq('activo', true)
             .order('nombre');
         
-        if (error) throw error;
+        if (agentesError) throw agentesError;
         
-        mostrarAgentes(agentes);
+        const { data: targets, error: targetsError } = await supabaseClient
+            .from('targets_mensuales')
+            .select('*')
+            .eq('mes', mesActual)
+            .eq('anio', anioActual);
         
-        await cargarAgentesEnSelects(agentes);
+        if (targetsError) throw targetsError;
+        
+        const { data: depositos, error: depositosError } = await supabaseClient
+            .from('depositos')
+            .select('*')
+            .eq('mes', mesActual)
+            .eq('anio', anioActual);
+        
+        if (depositosError) throw depositosError;
+        
+        let registros = [];
+        if (currentUser.area === 'conversion') {
+            const { data: registrosData, error: registrosError } = await supabaseClient
+                .from('registros')
+                .select('*')
+                .eq('mes', mesActual)
+                .eq('anio', anioActual);
+            
+            if (registrosError) throw registrosError;
+            registros = registrosData || [];
+        }
+        
+        const agentesConDatos = agentes.map(agente => {
+            const target = targets?.find(t => t.agente_id === agente.id);
+            const depositosAgente = depositos?.filter(d => d.agente_id === agente.id) || [];
+            const totalDepositos = depositosAgente.reduce((sum, d) => sum + parseFloat(d.monto), 0);
+            const cantidadDepositos = depositosAgente.length;
+            
+            const registrosAgente = registros?.filter(r => r.agente_id === agente.id) || [];
+            const cantidadRegistros = registrosAgente.length;
+            
+            return { 
+                ...agente, 
+                target,
+                totalDepositos,
+                cantidadDepositos,
+                cantidadRegistros
+            };
+        });
+        
+        mostrarAgentes(agentesConDatos);
         
     } catch (error) {
         console.error('Error al cargar agentes:', error);
         document.getElementById('agentesContainer').innerHTML = 
-            `<div class="empty-state">${i18n.t('error_loading')}</div>`;
+            '<div class="empty-state">Error al cargar agentes</div>';
     }
-}
-
-async function cargarAgentesEnSelects(agentes) {
-    const selectDeposito = document.getElementById('agenteSelectDeposito');
-    const selectRegistro = document.getElementById('agenteSelectRegistro');
-    
-    selectDeposito.innerHTML = `<option value="">${i18n.t('select_area')}</option>`;
-    selectRegistro.innerHTML = `<option value="">${i18n.t('select_area')}</option>`;
-    
-    agentes?.forEach(agente => {
-        const optionDep = document.createElement('option');
-        optionDep.value = agente.id;
-        optionDep.textContent = agente.nombre;
-        selectDeposito.appendChild(optionDep);
-        
-        const optionReg = document.createElement('option');
-        optionReg.value = agente.id;
-        optionReg.textContent = agente.nombre;
-        selectRegistro.appendChild(optionReg);
-    });
 }
 
 function mostrarAgentes(agentes) {
     const container = document.getElementById('agentesContainer');
     
     if (!agentes || agentes.length === 0) {
-        container.innerHTML = `<div class="empty-state">${i18n.t('no_agents_create')}</div>`;
+        container.innerHTML = `<div class="empty-state">${window.t('dashboard.lider.agents.empty')}</div>`;
         return;
     }
+    
+    let headers = `
+        <th data-i18n="dashboard.lider.table.name">Nombre</th>
+        <th data-i18n="dashboard.lider.table.area">Área</th>
+        <th data-i18n="dashboard.lider.table.target">Target del Mes</th>
+        <th data-i18n="dashboard.lider.table.deposits">Depósitos del Mes</th>
+    `;
+    
+    if (currentUser.area === 'conversion') {
+        headers += `<th data-i18n="dashboard.lider.table.records">Registros del Mes</th>`;
+    }
+    
+    headers += `<th data-i18n="dashboard.lider.table.actions">Acciones</th>`;
     
     let html = `
         <table class="agentes-table">
             <thead>
-                <tr>
-                    <th>${i18n.t('agent')}</th>
-                    <th>${i18n.t('target')}</th>
-                    <th>${i18n.t('actions')}</th>
-                </tr>
+                <tr>${headers}</tr>
             </thead>
             <tbody>
     `;
     
     agentes.forEach(agente => {
+        const areaTexto = agente.area ? agente.area.charAt(0).toUpperCase() + agente.area.slice(1) : '';
+        
+        let targetTexto = `<span class="target-info">${window.t('dashboard.lider.table.noTarget')}</span>`;
+        if (agente.target) {
+            if (currentUser.area === 'conversion') {
+                targetTexto = `<strong>${agente.target.target_cantidad || 0}</strong> ${window.t('dashboard.lider.table.deposits_count')}`;
+            } else {
+                targetTexto = `<strong>$${agente.target.target_monto || 0}</strong>`;
+            }
+        }
+        
+        let depositosTexto = '';
+        if (currentUser.area === 'conversion') {
+            depositosTexto = `<strong>${agente.cantidadDepositos}</strong> ${window.t('dashboard.lider.table.deposits_count')}<br><span class="target-info">$${agente.totalDepositos.toFixed(2)}</span>`;
+        } else {
+            depositosTexto = `<strong>$${agente.totalDepositos.toFixed(2)}</strong>`;
+        }
+        
+        let registrosTexto = '';
+        if (currentUser.area === 'conversion') {
+            registrosTexto = `<td><strong>${agente.cantidadRegistros}</strong> ${window.t('dashboard.lider.table.records')}</td>`;
+        }
+        
+        let botones = `
+            <button class="btn-depositos" onclick="verDepositos('${agente.id}', '${agente.nombre}')" data-i18n="dashboard.lider.button.deposits">Depósitos</button>
+        `;
+        
+        if (currentUser.area === 'conversion') {
+            botones += `<button class="btn-registros" onclick="verRegistros('${agente.id}', '${agente.nombre}')" data-i18n="dashboard.lider.button.records">Registros</button>`;
+        }
+        
+        botones += `
+            <button class="btn-target" onclick="asignarTarget('${agente.id}', '${agente.nombre}')" data-i18n="dashboard.lider.button.target">Target</button>
+            <button class="btn-edit" onclick="editarAgente('${agente.id}')" data-i18n="dashboard.lider.button.edit">Editar</button>
+            <button class="btn-delete" onclick="eliminarAgente('${agente.id}', '${agente.nombre}')" data-i18n="dashboard.lider.button.delete">Eliminar</button>
+        `;
+        
         html += `
             <tr>
-                <td><strong>${agente.nombre}</strong></td>
-                <td><span class="target-info" id="target-${agente.id}">${i18n.t('loading')}...</span></td>
-                <td>
-                    <button class="btn-target" onclick="abrirTargetModal('${agente.id}', '${agente.nombre}')">🎯 ${i18n.t('target')}</button>
-                    <button class="btn-depositos" onclick="verDepositos('${agente.id}', '${agente.nombre}')">💰 ${i18n.t('deposits')}</button>
-                    ${currentUser.area === 'conversion' ? 
-                        `<button class="btn-registros" onclick="verRegistros('${agente.id}', '${agente.nombre}')">📝 ${i18n.t('registrations')}</button>` : ''
-                    }
-                    <button class="btn-edit" onclick="editarAgente('${agente.id}')">✏️</button>
-                    <button class="btn-delete" onclick="eliminarAgente('${agente.id}', '${agente.nombre}')">🗑️</button>
-                </td>
+                <td>${agente.nombre}</td>
+                <td>${areaTexto}</td>
+                <td>${targetTexto}</td>
+                <td>${depositosTexto}</td>
+                ${registrosTexto}
+                <td>${botones}</td>
             </tr>
         `;
     });
@@ -228,39 +216,13 @@ function mostrarAgentes(agentes) {
     html += '</tbody></table>';
     container.innerHTML = html;
     
-    agentes.forEach(agente => cargarTargetAgente(agente.id));
-}
-
-async function cargarTargetAgente(agenteId) {
-    try {
-        const { data: target } = await supabaseClient
-            .from('targets_mensuales')
-            .select('*')
-            .eq('agente_id', agenteId)
-            .eq('mes', mesActual)
-            .eq('anio', anioActual)
-            .maybeSingle();
-        
-        const targetSpan = document.getElementById(`target-${agenteId}`);
-        if (!targetSpan) return;
-        
-        if (target) {
-            if (currentUser.area === 'conversion') {
-                targetSpan.textContent = `${target.target_cantidad || 0} ${i18n.t('deposits').toLowerCase()}`;
-            } else {
-                targetSpan.textContent = `$${target.target_monto?.toFixed(0) || 0}`;
-            }
-        } else {
-            targetSpan.textContent = i18n.t('no_target');
-        }
-    } catch (error) {
-        console.error('Error al cargar target:', error);
-    }
+    // Actualizar las traducciones en los botones dinámicos
+    window.updateTranslations();
 }
 
 function openModal() {
     editingAgenteId = null;
-    document.getElementById('modalTitle').textContent = i18n.t('add_agent');
+    document.getElementById('modalTitle').textContent = window.t('dashboard.lider.modal.addAgent');
     document.getElementById('agenteForm').reset();
     document.getElementById('modalError').style.display = 'none';
     document.getElementById('agenteModal').style.display = 'block';
@@ -281,14 +243,14 @@ async function editarAgente(id) {
         if (error) throw error;
         
         editingAgenteId = id;
-        document.getElementById('modalTitle').textContent = i18n.t('edit_user');
+        document.getElementById('modalTitle').textContent = window.t('dashboard.lider.modal.editAgent');
         document.getElementById('agenteNombre').value = data.nombre;
         document.getElementById('modalError').style.display = 'none';
         document.getElementById('agenteModal').style.display = 'block';
         
     } catch (error) {
         console.error('Error:', error);
-        alert(i18n.t('error_loading'));
+        alert('Error al cargar datos del agente');
     }
 }
 
@@ -309,26 +271,47 @@ document.getElementById('agenteForm').addEventListener('submit', async (e) => {
             
             if (error) throw error;
             
-            alert(i18n.t('agent_updated'));
+            alert('Agente actualizado exitosamente');
             
         } else {
-            const { error: dbError } = await supabaseClient
+            const { data: existingAgente } = await supabaseClient
                 .from('agentes')
-                .insert({
-                    nombre: nombre,
-                    lider_id: currentUser.id,
-                    area: currentUser.area,
-                    activo: true
-                });
+                .select('*')
+                .eq('nombre', nombre)
+                .eq('lider_id', currentUser.id)
+                .eq('area', currentUser.area)
+                .maybeSingle();
             
-            if (dbError) throw dbError;
-            
-            alert(i18n.t('agent_created'));
+            if (existingAgente) {
+                if (!existingAgente.activo) {
+                    const { error: reactivateError } = await supabaseClient
+                        .from('agentes')
+                        .update({ activo: true })
+                        .eq('id', existingAgente.id);
+                    
+                    if (reactivateError) throw reactivateError;
+                    
+                    alert('Agente reactivado exitosamente ✅');
+                } else {
+                    throw new Error('Este agente ya existe y está activo');
+                }
+            } else {
+                const { error: dbError } = await supabaseClient
+                    .from('agentes')
+                    .insert({
+                        nombre: nombre,
+                        area: currentUser.area,
+                        lider_id: currentUser.id
+                    });
+                
+                if (dbError) throw dbError;
+                
+                alert('Agente creado exitosamente ✅');
+            }
         }
         
         closeModal();
         await cargarAgentes();
-        await cargarEstadisticas();
         
     } catch (error) {
         console.error('Error:', error);
@@ -338,7 +321,7 @@ document.getElementById('agenteForm').addEventListener('submit', async (e) => {
 });
 
 async function eliminarAgente(id, nombre) {
-    if (!confirm(`${i18n.t('confirm_delete_agent')} ${nombre}?`)) {
+    if (!confirm(`¿Estás seguro de desactivar al agente ${nombre}?\n\nPodrás reactivarlo después si lo necesitas.`)) {
         return;
     }
     
@@ -350,24 +333,39 @@ async function eliminarAgente(id, nombre) {
         
         if (error) throw error;
         
-        alert(i18n.t('agent_deleted'));
+        alert('Agente desactivado exitosamente');
         await cargarAgentes();
-        await cargarEstadisticas();
         
     } catch (error) {
         console.error('Error:', error);
-        alert(`${i18n.t('error_loading')}: ${error.message}`);
+        alert('Error al desactivar agente: ' + error.message);
     }
 }
 
-async function abrirTargetModal(agenteId, agenteNombre) {
-    currentAgenteId = agenteId;
-    currentAgenteName = agenteNombre;
+async function asignarTarget(agenteId, agenteNombre) {
+    targetAgenteId = agenteId;
     
-    document.getElementById('targetModalTitle').textContent = `${i18n.t('assign_target')}: ${agenteNombre}`;
+    const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
+                   'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+    
+    document.getElementById('targetModalTitle').textContent = 'Asignar Target del Mes';
+    document.getElementById('targetAgente').value = agenteNombre;
+    document.getElementById('targetMes').value = `${meses[mesActual - 1]} ${anioActual}`;
+    
+    if (currentUser.area === 'conversion') {
+        document.getElementById('targetCantidadGroup').style.display = 'block';
+        document.getElementById('targetMontoGroup').style.display = 'none';
+        document.getElementById('targetCantidad').required = true;
+        document.getElementById('targetMonto').required = false;
+    } else {
+        document.getElementById('targetCantidadGroup').style.display = 'none';
+        document.getElementById('targetMontoGroup').style.display = 'block';
+        document.getElementById('targetCantidad').required = false;
+        document.getElementById('targetMonto').required = true;
+    }
     
     try {
-        const { data: target } = await supabaseClient
+        const { data: targetActual } = await supabaseClient
             .from('targets_mensuales')
             .select('*')
             .eq('agente_id', agenteId)
@@ -375,11 +373,18 @@ async function abrirTargetModal(agenteId, agenteNombre) {
             .eq('anio', anioActual)
             .maybeSingle();
         
-        document.getElementById('targetCantidad').value = target?.target_cantidad || '';
-        document.getElementById('targetMonto').value = target?.target_monto || '';
-        
+        if (targetActual) {
+            if (currentUser.area === 'conversion') {
+                document.getElementById('targetCantidad').value = targetActual.target_cantidad || '';
+            } else {
+                document.getElementById('targetMonto').value = targetActual.target_monto || '';
+            }
+        } else {
+            document.getElementById('targetCantidad').value = '';
+            document.getElementById('targetMonto').value = '';
+        }
     } catch (error) {
-        console.error('Error:', error);
+        console.error('Error al cargar target:', error);
     }
     
     document.getElementById('targetModalError').style.display = 'none';
@@ -393,46 +398,49 @@ function closeTargetModal() {
 document.getElementById('targetForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     
-    const cantidad = parseInt(document.getElementById('targetCantidad').value) || 0;
-    const monto = parseFloat(document.getElementById('targetMonto').value) || 0;
     const modalError = document.getElementById('targetModalError');
-    
     modalError.style.display = 'none';
     
     try {
-        const { data: existing } = await supabaseClient
+        let targetData = {
+            agente_id: targetAgenteId,
+            mes: mesActual,
+            anio: anioActual
+        };
+        
+        if (currentUser.area === 'conversion') {
+            targetData.target_cantidad = parseInt(document.getElementById('targetCantidad').value);
+            targetData.target_monto = null;
+        } else {
+            targetData.target_monto = parseFloat(document.getElementById('targetMonto').value);
+            targetData.target_cantidad = null;
+        }
+        
+        const { data: existingTarget } = await supabaseClient
             .from('targets_mensuales')
-            .select('id')
-            .eq('agente_id', currentAgenteId)
+            .select('*')
+            .eq('agente_id', targetAgenteId)
             .eq('mes', mesActual)
             .eq('anio', anioActual)
             .maybeSingle();
         
-        if (existing) {
+        if (existingTarget) {
             const { error } = await supabaseClient
                 .from('targets_mensuales')
-                .update({
-                    target_cantidad: cantidad,
-                    target_monto: monto
-                })
-                .eq('id', existing.id);
+                .update(targetData)
+                .eq('id', existingTarget.id);
             
             if (error) throw error;
+            alert('Target actualizado exitosamente ✅');
         } else {
             const { error } = await supabaseClient
                 .from('targets_mensuales')
-                .insert({
-                    agente_id: currentAgenteId,
-                    mes: mesActual,
-                    anio: anioActual,
-                    target_cantidad: cantidad,
-                    target_monto: monto
-                });
+                .insert(targetData);
             
             if (error) throw error;
+            alert('Target asignado exitosamente ✅');
         }
         
-        alert(`${i18n.t('target')} ${i18n.t('updated_successfully')}`);
         closeTargetModal();
         await cargarAgentes();
         
@@ -443,234 +451,39 @@ document.getElementById('targetForm').addEventListener('submit', async (e) => {
     }
 });
 
-async function verDepositos(agenteId, agenteNombre) {
-    currentAgenteId = agenteId;
-    currentAgenteName = agenteNombre;
-    
-    document.getElementById('depositosModalTitle').textContent = `${i18n.t('deposits')} - ${agenteNombre}`;
-    document.getElementById('depositoForm').reset();
-    document.getElementById('depositoModalError').style.display = 'none';
-    document.getElementById('depositosModal').style.display = 'block';
-    
-    await cargarListaDepositos();
-}
-
-async function cargarListaDepositos() {
+async function openDepositoRapido() {
     try {
-        const { data: depositos, error } = await supabaseClient
-            .from('depositos')
+        const { data: agentes, error } = await supabaseClient
+            .from('agentes')
             .select('*')
-            .eq('agente_id', currentAgenteId)
-            .eq('mes', mesActual)
-            .eq('anio', anioActual)
-            .order('created_at', { ascending: false });
+            .eq('lider_id', currentUser.id)
+            .eq('activo', true)
+            .order('nombre');
         
         if (error) throw error;
         
-        const lista = document.getElementById('depositosList');
+        const select = document.getElementById('depositoAgente');
+        select.innerHTML = '<option value="">-- Selecciona un agente --</option>';
         
-        if (!depositos || depositos.length === 0) {
-            lista.innerHTML = `<div class="empty-state">${i18n.t('no_agents')}</div>`;
-            return;
-        }
-        
-        const meses = i18n.getMonths();
-        
-        let html = '';
-        depositos.forEach(deposito => {
-            const fecha = new Date(deposito.created_at);
-            const fechaStr = `${fecha.getDate()} ${meses[fecha.getMonth()]} ${fecha.getFullYear()}`;
-            
-            html += `
-                <div class="deposito-item">
-                    <div class="deposito-info">
-                        <div class="deposito-monto">$${parseFloat(deposito.monto).toFixed(2)}</div>
-                        <div class="deposito-fecha">${fechaStr}</div>
-                    </div>
-                    <div class="deposito-actions">
-                        <button class="btn-delete" onclick="eliminarDeposito('${deposito.id}')">🗑️</button>
-                    </div>
-                </div>
-            `;
+        agentes.forEach(agente => {
+            const option = document.createElement('option');
+            option.value = agente.id;
+            option.textContent = agente.nombre;
+            select.appendChild(option);
         });
         
-        lista.innerHTML = html;
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('depositoFecha').value = today;
+        
+        document.getElementById('depositoRapidoForm').reset();
+        document.getElementById('depositoFecha').value = today;
+        document.getElementById('depositoRapidoError').style.display = 'none';
+        document.getElementById('depositoRapidoModal').style.display = 'block';
         
     } catch (error) {
         console.error('Error:', error);
+        alert('Error al cargar agentes');
     }
-}
-
-function closeDepositosModal() {
-    document.getElementById('depositosModal').style.display = 'none';
-}
-
-document.getElementById('depositoForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    const monto = parseFloat(document.getElementById('depositoMonto').value);
-    const modalError = document.getElementById('depositoModalError');
-    
-    modalError.style.display = 'none';
-    
-    if (monto <= 0) {
-        modalError.style.display = 'block';
-        modalError.textContent = i18n.t('amount_invalid');
-        return;
-    }
-    
-    try {
-        const { error } = await supabaseClient
-            .from('depositos')
-            .insert({
-                agente_id: currentAgenteId,
-                monto: monto,
-                mes: mesActual,
-                anio: anioActual
-            });
-        
-        if (error) throw error;
-        
-        document.getElementById('depositoForm').reset();
-        await cargarListaDepositos();
-        await cargarEstadisticas();
-        
-    } catch (error) {
-        console.error('Error:', error);
-        modalError.style.display = 'block';
-        modalError.textContent = `Error: ${error.message}`;
-    }
-});
-
-async function eliminarDeposito(id) {
-    if (!confirm(`${i18n.t('confirm_delete')}?`)) {
-        return;
-    }
-    
-    try {
-        const { error } = await supabaseClient
-            .from('depositos')
-            .delete()
-            .eq('id', id);
-        
-        if (error) throw error;
-        
-        await cargarListaDepositos();
-        await cargarEstadisticas();
-        
-    } catch (error) {
-        console.error('Error:', error);
-        alert(`${i18n.t('error_loading')}: ${error.message}`);
-    }
-}
-
-async function verRegistros(agenteId, agenteNombre) {
-    currentAgenteId = agenteId;
-    currentAgenteName = agenteNombre;
-    
-    document.getElementById('registrosModalTitle').textContent = `${i18n.t('registrations')} - ${agenteNombre}`;
-    document.getElementById('registrosModal').style.display = 'block';
-    
-    await cargarListaRegistros();
-}
-
-async function cargarListaRegistros() {
-    try {
-        const { data: registros, error } = await supabaseClient
-            .from('registros')
-            .select('*')
-            .eq('agente_id', currentAgenteId)
-            .eq('mes', mesActual)
-            .eq('anio', anioActual)
-            .order('created_at', { ascending: false });
-        
-        if (error) throw error;
-        
-        const lista = document.getElementById('registrosList');
-        
-        if (!registros || registros.length === 0) {
-            lista.innerHTML = `<div class="empty-state">${i18n.t('no_agents')}</div>`;
-            return;
-        }
-        
-        const meses = i18n.getMonths();
-        
-        let html = '';
-        registros.forEach(registro => {
-            const fecha = new Date(registro.created_at);
-            const fechaStr = `${fecha.getDate()} ${meses[fecha.getMonth()]} ${fecha.getFullYear()}`;
-            
-            html += `
-                <div class="registro-item">
-                    <div class="registro-info">
-                        <div class="deposito-monto">📝 ${i18n.t('lead')}</div>
-                        <div class="registro-fecha">${fechaStr}</div>
-                    </div>
-                    <div class="registro-actions">
-                        <button class="btn-delete" onclick="eliminarRegistro('${registro.id}')">🗑️</button>
-                    </div>
-                </div>
-            `;
-        });
-        
-        lista.innerHTML = html;
-        
-    } catch (error) {
-        console.error('Error:', error);
-    }
-}
-
-function closeRegistrosModal() {
-    document.getElementById('registrosModal').style.display = 'none';
-}
-
-document.getElementById('registroForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    try {
-        const { error } = await supabaseClient
-            .from('registros')
-            .insert({
-                agente_id: currentAgenteId,
-                mes: mesActual,
-                anio: anioActual
-            });
-        
-        if (error) throw error;
-        
-        await cargarListaRegistros();
-        
-    } catch (error) {
-        console.error('Error:', error);
-        alert(`Error: ${error.message}`);
-    }
-});
-
-async function eliminarRegistro(id) {
-    if (!confirm(`${i18n.t('confirm_delete')}?`)) {
-        return;
-    }
-    
-    try {
-        const { error } = await supabaseClient
-            .from('registros')
-            .delete()
-            .eq('id', id);
-        
-        if (error) throw error;
-        
-        await cargarListaRegistros();
-        
-    } catch (error) {
-        console.error('Error:', error);
-        alert(`${i18n.t('error_loading')}: ${error.message}`);
-    }
-}
-
-function openDepositoRapido() {
-    document.getElementById('depositoRapidoForm').reset();
-    document.getElementById('depositoRapidoError').style.display = 'none';
-    document.getElementById('depositoRapidoModal').style.display = 'block';
 }
 
 function closeDepositoRapido() {
@@ -680,33 +493,33 @@ function closeDepositoRapido() {
 document.getElementById('depositoRapidoForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     
-    const agenteId = document.getElementById('agenteSelectDeposito').value;
-    const monto = parseFloat(document.getElementById('montoRapido').value);
+    const agenteId = document.getElementById('depositoAgente').value;
+    const monto = parseFloat(document.getElementById('depositoMonto').value);
+    const fecha = document.getElementById('depositoFecha').value;
     const modalError = document.getElementById('depositoRapidoError');
     
     modalError.style.display = 'none';
     
-    if (!agenteId || monto <= 0) {
-        modalError.style.display = 'block';
-        modalError.textContent = i18n.t('fill_all_fields');
-        return;
-    }
-    
     try {
+        const fechaObj = new Date(fecha + 'T00:00:00');
+        const mes = fechaObj.getMonth() + 1;
+        const anio = fechaObj.getFullYear();
+        
         const { error } = await supabaseClient
             .from('depositos')
             .insert({
                 agente_id: agenteId,
                 monto: monto,
-                mes: mesActual,
-                anio: anioActual
+                fecha: fecha,
+                mes: mes,
+                anio: anio
             });
         
         if (error) throw error;
         
-        alert(`${i18n.t('deposits')} ${i18n.t('created_successfully')} ✅`);
+        alert('Depósito registrado exitosamente ✅');
         closeDepositoRapido();
-        await cargarEstadisticas();
+        await cargarAgentes();
         
     } catch (error) {
         console.error('Error:', error);
@@ -715,10 +528,231 @@ document.getElementById('depositoRapidoForm').addEventListener('submit', async (
     }
 });
 
-function openRegistroRapido() {
-    document.getElementById('registroRapidoForm').reset();
-    document.getElementById('registroRapidoError').style.display = 'none';
-    document.getElementById('registroRapidoModal').style.display = 'block';
+async function verDepositos(agenteId, agenteNombre) {
+    depositosAgenteId = agenteId;
+    depositosAgenteNombre = agenteNombre;
+    
+    document.getElementById('depositosModalTitle').textContent = `Depósitos de ${agenteNombre}`;
+    document.getElementById('depositosAgenteNombre').textContent = `Mes actual: ${new Date().toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}`;
+    
+    document.getElementById('depositosModal').style.display = 'block';
+    
+    await cargarDepositosAgente();
+}
+
+function closeDepositosModal() {
+    document.getElementById('depositosModal').style.display = 'none';
+}
+
+async function cargarDepositosAgente() {
+    try {
+        const { data: depositos, error } = await supabaseClient
+            .from('depositos')
+            .select('*')
+            .eq('agente_id', depositosAgenteId)
+            .eq('mes', mesActual)
+            .eq('anio', anioActual)
+            .order('fecha', { ascending: false });
+        
+        if (error) throw error;
+        
+        mostrarDepositosAgente(depositos);
+        
+    } catch (error) {
+        console.error('Error:', error);
+        document.getElementById('depositosContainer').innerHTML = 
+            '<div class="empty-state">Error al cargar depósitos</div>';
+    }
+}
+
+function mostrarDepositosAgente(depositos) {
+    const container = document.getElementById('depositosContainer');
+    
+    if (!depositos || depositos.length === 0) {
+        container.innerHTML = '<div class="empty-state">No hay depósitos registrados este mes.</div>';
+        return;
+    }
+    
+    let html = '';
+    let totalMonto = 0;
+    
+    depositos.forEach(deposito => {
+        totalMonto += parseFloat(deposito.monto);
+        const fechaFormateada = new Date(deposito.fecha + 'T00:00:00').toLocaleDateString('es-ES');
+        
+        html += `
+            <div class="deposito-item">
+                <div class="deposito-info">
+                    <div class="deposito-monto">$${parseFloat(deposito.monto).toFixed(2)}</div>
+                    <div class="deposito-fecha">📅 ${fechaFormateada}</div>
+                </div>
+                <div class="deposito-actions">
+                    <button class="btn-edit" onclick="editarDeposito('${deposito.id}')">Editar</button>
+                    <button class="btn-delete" onclick="eliminarDeposito('${deposito.id}')">Eliminar</button>
+                </div>
+            </div>
+        `;
+    });
+    
+    html = `
+        <div style="background: #f0f9ff; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center;">
+            <div style="font-size: 14px; color: #64748b;">Total del mes</div>
+            <div style="font-size: 24px; font-weight: 700; color: #0f172a;">$${totalMonto.toFixed(2)}</div>
+            <div style="font-size: 14px; color: #64748b;">${depositos.length} depósito(s)</div>
+        </div>
+    ` + html;
+    
+    container.innerHTML = html;
+}
+
+function agregarDepositoAgente() {
+    editingDepositoId = null;
+    document.getElementById('depositoEditTitle').textContent = `Agregar Depósito - ${depositosAgenteNombre}`;
+    document.getElementById('depositoEditForm').reset();
+    
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('depositoEditFecha').value = today;
+    
+    document.getElementById('depositoEditError').style.display = 'none';
+    document.getElementById('depositoEditModal').style.display = 'block';
+}
+
+function closeDepositoEditModal() {
+    document.getElementById('depositoEditModal').style.display = 'none';
+}
+
+async function editarDeposito(depositoId) {
+    try {
+        const { data, error } = await supabaseClient
+            .from('depositos')
+            .select('*')
+            .eq('id', depositoId)
+            .single();
+        
+        if (error) throw error;
+        
+        editingDepositoId = depositoId;
+        document.getElementById('depositoEditTitle').textContent = `Editar Depósito - ${depositosAgenteNombre}`;
+        document.getElementById('depositoEditMonto').value = data.monto;
+        document.getElementById('depositoEditFecha').value = data.fecha;
+        document.getElementById('depositoEditError').style.display = 'none';
+        document.getElementById('depositoEditModal').style.display = 'block';
+        
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error al cargar depósito');
+    }
+}
+
+document.getElementById('depositoEditForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const monto = parseFloat(document.getElementById('depositoEditMonto').value);
+    const fecha = document.getElementById('depositoEditFecha').value;
+    const modalError = document.getElementById('depositoEditError');
+    
+    modalError.style.display = 'none';
+    
+    try {
+        const fechaObj = new Date(fecha + 'T00:00:00');
+        const mes = fechaObj.getMonth() + 1;
+        const anio = fechaObj.getFullYear();
+        
+        const depositoData = {
+            monto: monto,
+            fecha: fecha,
+            mes: mes,
+            anio: anio
+        };
+        
+        if (editingDepositoId) {
+            const { error } = await supabaseClient
+                .from('depositos')
+                .update(depositoData)
+                .eq('id', editingDepositoId);
+            
+            if (error) throw error;
+            
+            alert('Depósito actualizado exitosamente ✅');
+        } else {
+            depositoData.agente_id = depositosAgenteId;
+            
+            const { error } = await supabaseClient
+                .from('depositos')
+                .insert(depositoData);
+            
+            if (error) throw error;
+            
+            alert('Depósito agregado exitosamente ✅');
+        }
+        
+        closeDepositoEditModal();
+        await cargarDepositosAgente();
+        await cargarAgentes();
+        
+    } catch (error) {
+        console.error('Error:', error);
+        modalError.style.display = 'block';
+        modalError.textContent = `Error: ${error.message}`;
+    }
+});
+
+async function eliminarDeposito(depositoId) {
+    if (!confirm('¿Estás seguro de eliminar este depósito?')) {
+        return;
+    }
+    
+    try {
+        const { error } = await supabaseClient
+            .from('depositos')
+            .delete()
+            .eq('id', depositoId);
+        
+        if (error) throw error;
+        
+        alert('Depósito eliminado exitosamente');
+        await cargarDepositosAgente();
+        await cargarAgentes();
+        
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error al eliminar depósito: ' + error.message);
+    }
+}
+
+async function openRegistroRapido() {
+    try {
+        const { data: agentes, error } = await supabaseClient
+            .from('agentes')
+            .select('*')
+            .eq('lider_id', currentUser.id)
+            .eq('activo', true)
+            .order('nombre');
+        
+        if (error) throw error;
+        
+        const select = document.getElementById('registroAgente');
+        select.innerHTML = '<option value="">-- Selecciona un agente --</option>';
+        
+        agentes.forEach(agente => {
+            const option = document.createElement('option');
+            option.value = agente.id;
+            option.textContent = agente.nombre;
+            select.appendChild(option);
+        });
+        
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('registroFecha').value = today;
+        
+        document.getElementById('registroRapidoForm').reset();
+        document.getElementById('registroFecha').value = today;
+        document.getElementById('registroRapidoError').style.display = 'none';
+        document.getElementById('registroRapidoModal').style.display = 'block';
+        
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error al cargar agentes');
+    }
 }
 
 function closeRegistroRapido() {
@@ -728,30 +762,31 @@ function closeRegistroRapido() {
 document.getElementById('registroRapidoForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     
-    const agenteId = document.getElementById('agenteSelectRegistro').value;
+    const agenteId = document.getElementById('registroAgente').value;
+    const fecha = document.getElementById('registroFecha').value;
     const modalError = document.getElementById('registroRapidoError');
     
     modalError.style.display = 'none';
     
-    if (!agenteId) {
-        modalError.style.display = 'block';
-        modalError.textContent = i18n.t('select_agent');
-        return;
-    }
-    
     try {
+        const fechaObj = new Date(fecha + 'T00:00:00');
+        const mes = fechaObj.getMonth() + 1;
+        const anio = fechaObj.getFullYear();
+        
         const { error } = await supabaseClient
             .from('registros')
             .insert({
                 agente_id: agenteId,
-                mes: mesActual,
-                anio: anioActual
+                fecha: fecha,
+                mes: mes,
+                anio: anio
             });
         
         if (error) throw error;
         
-        alert(`${i18n.t('registrations')} ${i18n.t('created_successfully')} ✅`);
+        alert('Registro (Lead) registrado exitosamente ✅');
         closeRegistroRapido();
+        await cargarAgentes();
         
     } catch (error) {
         console.error('Error:', error);
@@ -760,7 +795,194 @@ document.getElementById('registroRapidoForm').addEventListener('submit', async (
     }
 });
 
+async function verRegistros(agenteId, agenteNombre) {
+    registrosAgenteId = agenteId;
+    registrosAgenteNombre = agenteNombre;
+    
+    document.getElementById('registrosModalTitle').textContent = `Registros (Leads) de ${agenteNombre}`;
+    document.getElementById('registrosAgenteNombre').textContent = `Mes actual: ${new Date().toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}`;
+    
+    document.getElementById('registrosModal').style.display = 'block';
+    
+    await cargarRegistrosAgente();
+}
+
+function closeRegistrosModal() {
+    document.getElementById('registrosModal').style.display = 'none';
+}
+
+async function cargarRegistrosAgente() {
+    try {
+        const { data: registros, error } = await supabaseClient
+            .from('registros')
+            .select('*')
+            .eq('agente_id', registrosAgenteId)
+            .eq('mes', mesActual)
+            .eq('anio', anioActual)
+            .order('fecha', { ascending: false });
+        
+        if (error) throw error;
+        
+        mostrarRegistrosAgente(registros);
+        
+    } catch (error) {
+        console.error('Error:', error);
+        document.getElementById('registrosContainer').innerHTML = 
+            '<div class="empty-state">Error al cargar registros</div>';
+    }
+}
+
+function mostrarRegistrosAgente(registros) {
+    const container = document.getElementById('registrosContainer');
+    
+    if (!registros || registros.length === 0) {
+        container.innerHTML = '<div class="empty-state">No hay registros (leads) este mes.</div>';
+        return;
+    }
+    
+    let html = '';
+    
+    registros.forEach(registro => {
+        const fechaFormateada = new Date(registro.fecha + 'T00:00:00').toLocaleDateString('es-ES');
+        
+        html += `
+            <div class="registro-item">
+                <div class="deposito-info">
+                    <div class="deposito-monto">📝 Registro (Lead)</div>
+                    <div class="deposito-fecha">📅 ${fechaFormateada}</div>
+                </div>
+                <div class="deposito-actions">
+                    <button class="btn-edit" onclick="editarRegistro('${registro.id}')">Editar</button>
+                    <button class="btn-delete" onclick="eliminarRegistro('${registro.id}')">Eliminar</button>
+                </div>
+            </div>
+        `;
+    });
+    
+    html = `
+        <div style="background: #f0fdfa; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center;">
+            <div style="font-size: 14px; color: #64748b;">Total del mes</div>
+            <div style="font-size: 24px; font-weight: 700; color: #0f172a;">${registros.length}</div>
+            <div style="font-size: 14px; color: #64748b;">registro(s) / lead(s)</div>
+        </div>
+    ` + html;
+    
+    container.innerHTML = html;
+}
+
+function agregarRegistroAgente() {
+    editingRegistroId = null;
+    document.getElementById('registroEditTitle').textContent = `Agregar Registro - ${registrosAgenteNombre}`;
+    document.getElementById('registroEditForm').reset();
+    
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('registroEditFecha').value = today;
+    
+    document.getElementById('registroEditError').style.display = 'none';
+    document.getElementById('registroEditModal').style.display = 'block';
+}
+
+function closeRegistroEditModal() {
+    document.getElementById('registroEditModal').style.display = 'none';
+}
+
+async function editarRegistro(registroId) {
+    try {
+        const { data, error } = await supabaseClient
+            .from('registros')
+            .select('*')
+            .eq('id', registroId)
+            .single();
+        
+        if (error) throw error;
+        
+        editingRegistroId = registroId;
+        document.getElementById('registroEditTitle').textContent = `Editar Registro - ${registrosAgenteNombre}`;
+        document.getElementById('registroEditFecha').value = data.fecha;
+        document.getElementById('registroEditError').style.display = 'none';
+        document.getElementById('registroEditModal').style.display = 'block';
+        
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error al cargar registro');
+    }
+}
+
+document.getElementById('registroEditForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const fecha = document.getElementById('registroEditFecha').value;
+    const modalError = document.getElementById('registroEditError');
+    
+    modalError.style.display = 'none';
+    
+    try {
+        const fechaObj = new Date(fecha + 'T00:00:00');
+        const mes = fechaObj.getMonth() + 1;
+        const anio = fechaObj.getFullYear();
+        
+        const registroData = {
+            fecha: fecha,
+            mes: mes,
+            anio: anio
+        };
+        
+        if (editingRegistroId) {
+            const { error } = await supabaseClient
+                .from('registros')
+                .update(registroData)
+                .eq('id', editingRegistroId);
+            
+            if (error) throw error;
+            
+            alert('Registro actualizado exitosamente ✅');
+        } else {
+            registroData.agente_id = registrosAgenteId;
+            
+            const { error } = await supabaseClient
+                .from('registros')
+                .insert(registroData);
+            
+            if (error) throw error;
+            
+            alert('Registro agregado exitosamente ✅');
+        }
+        
+        closeRegistroEditModal();
+        await cargarRegistrosAgente();
+        await cargarAgentes();
+        
+    } catch (error) {
+        console.error('Error:', error);
+        modalError.style.display = 'block';
+        modalError.textContent = `Error: ${error.message}`;
+    }
+});
+
+async function eliminarRegistro(registroId) {
+    if (!confirm('¿Estás seguro de eliminar este registro?')) {
+        return;
+    }
+    
+    try {
+        const { error } = await supabaseClient
+            .from('registros')
+            .delete()
+            .eq('id', registroId);
+        
+        if (error) throw error;
+        
+        alert('Registro eliminado exitosamente');
+        await cargarRegistrosAgente();
+        await cargarAgentes();
+        
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error al eliminar registro: ' + error.message);
+    }
+}
 function abrirRankingTV() {
+    // Pasar el ID del líder en la URL para filtrar solo sus agentes
     const url = `../tv-ranking.html?area=${currentUser.area}&lider_id=${currentUser.id}`;
     const ventana = window.open(url, '_blank');
     
@@ -768,8 +990,9 @@ function abrirRankingTV() {
         ventana.focus();
     }
 }
-
 async function logout() {
     localStorage.removeItem('user');
     window.location.href = '../index.html';
 }
+
+
