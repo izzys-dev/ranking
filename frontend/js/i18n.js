@@ -15,11 +15,22 @@ class I18n {
      */
     async loadTranslations() {
         try {
-            const response = await fetch('../js/translations.json');
+            // Detectar la ruta correcta según dónde se ejecute
+            const currentPath = window.location.pathname;
+            const isInPages = currentPath.includes('/pages/');
+            const translationsPath = isInPages 
+                ? '../js/translations.json' 
+                : 'js/translations.json';
+            
+            const response = await fetch(translationsPath);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
             this.translations = await response.json();
-            console.log('Traducciones cargadas:', Object.keys(this.translations));
+            console.log('✅ Traducciones cargadas correctamente:', Object.keys(this.translations));
         } catch (error) {
-            console.error('Error cargando traducciones:', error);
+            console.error('❌ Error cargando traducciones:', error);
+            console.warn('Usando traducciones vacías como fallback');
             // Fallback a traducciones vacías
             this.translations = { es: {}, en: {}, pt: {} };
         }
@@ -103,36 +114,8 @@ class I18n {
      * Crear y insertar selector de idiomas
      */
     initializeLanguageSelector() {
-        // Esperamos a que el DOM esté listo
-        document.addEventListener('DOMContentLoaded', () => {
-            const header = document.querySelector('.header');
-            if (!header) return;
-
-            // Crear contenedor de selector de idioma
-            const langSelector = document.createElement('div');
-            langSelector.className = 'language-selector';
-            langSelector.innerHTML = `
-                <select id="languageSelect" style="padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 6px; background: white; cursor: pointer; font-weight: 600; color: #475569;">
-                    <option value="es">🇪🇸 Español</option>
-                    <option value="en">🇺🇸 English</option>
-                    <option value="pt">🇧🇷 Português</option>
-                </select>
-            `;
-
-            // Insertar en el header o al inicio del body
-            if (header) {
-                const headerRight = header.querySelector('div:last-child') || header;
-                headerRight.appendChild(langSelector);
-            }
-
-            const select = document.getElementById('languageSelect');
-            if (select) {
-                select.value = this.currentLanguage;
-                select.addEventListener('change', (e) => {
-                    this.setLanguage(e.target.value);
-                });
-            }
-        });
+        // Ya no lo hacemos aquí, se hará en el HTML específico
+        console.log('i18n inicializado con idioma:', this.currentLanguage);
     }
 
     /**

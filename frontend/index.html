@@ -46,12 +46,28 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../config/config.js"></script>
     <script src="js/i18n.js"></script>
-    <script src="js/login.js"></script>
 
     <script>
-        // Inyectar selector de idiomas en el header
+        // Cargar traducciones e inicializar i18n ANTES de login.js
+        (async () => {
+            console.log('Iniciando carga de i18n...');
+            await window.i18n.loadTranslations();
+            await window.i18n.translatePage();
+            console.log('✅ i18n inicializado y traducción aplicada');
+
+            // Ahora cargar login.js
+            const script = document.createElement('script');
+            script.src = 'js/login.js';
+            document.body.appendChild(script);
+        })();
+    </script>
+
+    <script>
+        // Inyectar selector de idiomas cuando el DOM esté listo
         document.addEventListener('DOMContentLoaded', () => {
             const headerLang = document.querySelector('.header-language');
+            if (!headerLang) return;
+
             headerLang.innerHTML = `
                 <select id="languageSelect" style="padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 6px; background: white; cursor: pointer; font-weight: 600; color: #475569;">
                     <option value="es">🇪🇸 Español</option>
@@ -61,10 +77,12 @@
             `;
 
             const select = document.getElementById('languageSelect');
-            select.value = window.i18n.getLanguage();
-            select.addEventListener('change', (e) => {
-                window.i18n.setLanguage(e.target.value);
-            });
+            if (select) {
+                select.value = window.i18n.getLanguage();
+                select.addEventListener('change', (e) => {
+                    window.i18n.setLanguage(e.target.value);
+                });
+            }
         });
     </script>
 </body>
