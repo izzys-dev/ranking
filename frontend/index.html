@@ -13,6 +13,38 @@
             right: 20px;
             z-index: 100;
         }
+
+        #languageSelect {
+            padding: 8px 12px;
+            font-size: 13px;
+            height: auto;
+            min-width: 120px;
+            border: 2px solid #3b82f6;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            font-weight: 600;
+            color: #1e293b;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
+        }
+
+        #languageSelect:hover {
+            border-color: #2563eb;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+            transform: translateY(-2px);
+        }
+
+        #languageSelect:focus {
+            outline: none;
+            border-color: #1d4ed8;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1), 0 4px 12px rgba(59, 130, 246, 0.2);
+        }
+
+        #languageSelect option {
+            padding: 8px;
+            font-weight: 600;
+        }
     </style>
 </head>
 
@@ -65,10 +97,10 @@
             if (!headerLang) return;
 
             headerLang.innerHTML = `
-                <select id="languageSelect" style="padding: 5px 8px; font-size: 12px; height: 40px; border: 1px solid #e2e8f0; border-radius: 4px; background: white; cursor: pointer; font-weight: 600; color: #475569;">
-                    <option value="es">🇪🇸 Es</option>
-                    <option value="en">🇺🇸 En</option>
-                    <option value="pt">🇧🇷 Pt</option>
+                <select id="languageSelect">
+                    <option value="es">🇪🇸 Español</option>
+                    <option value="en">🇺🇸 English</option>
+                    <option value="pt">🇧🇷 Português</option>
                 </select>
             `;
 
