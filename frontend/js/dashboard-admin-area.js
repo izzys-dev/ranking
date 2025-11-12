@@ -732,6 +732,92 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // ============================================
+// FUNCIONES PARA DEPÓSITO RÁPIDO
+// ============================================
+
+async function openDepositoRapido() {
+    try {
+        const { data: agentes, error } = await supabaseClient
+            .from('agentes')
+            .select('*')
+            .eq('area', currentUser.area)
+            .eq('activo', true)
+            .order('nombre');
+        
+        if (error) throw error;
+        
+        const select = document.getElementById('depositoAgente');
+        select.innerHTML = '<option value="">-- Selecciona un agente --</option>';
+        
+        agentes.forEach(agente => {
+            const option = document.createElement('option');
+            option.value = agente.id;
+            option.textContent = agente.nombre;
+            select.appendChild(option);
+        });
+        
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('depositoRapidoFecha').value = today;
+        
+        document.getElementById('depositoRapidoForm').reset();
+        document.getElementById('depositoRapidoFecha').value = today;
+        document.getElementById('depositoRapidoError').style.display = 'none';
+        document.getElementById('depositoRapidoModal').style.display = 'block';
+        
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error al cargar agentes');
+    }
+}
+
+function closeDepositoRapido() {
+    document.getElementById('depositoRapidoModal').style.display = 'none';
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const depositoRapidoForm = document.getElementById('depositoRapidoForm');
+    if (depositoRapidoForm) {
+        depositoRapidoForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const agenteId = document.getElementById('depositoAgente').value;
+            const monto = parseFloat(document.getElementById('depositoRapidoMonto').value);
+            const fecha = document.getElementById('depositoRapidoFecha').value;
+            const modalError = document.getElementById('depositoRapidoError');
+            
+            modalError.style.display = 'none';
+            
+            try {
+                const fechaObj = new Date(fecha + 'T00:00:00');
+                const mes = fechaObj.getMonth() + 1;
+                const anio = fechaObj.getFullYear();
+                
+                const { error } = await supabaseClient
+                    .from('depositos')
+                    .insert({
+                        agente_id: agenteId,
+                        monto: monto,
+                        fecha: fecha,
+                        mes: mes,
+                        anio: anio
+                    });
+                
+                if (error) throw error;
+                
+                alert('Depósito registrado exitosamente ✅');
+                closeDepositoRapido();
+                await cargarAgentes();
+                
+            } catch (error) {
+                console.error('Error:', error);
+                modalError.style.display = 'block';
+                modalError.textContent = `Error: ${error.message}`;
+            }
+        });
+    }
+});
+
+// ============================================
 // FUNCIONES PARA REGISTROS (LEADS)
 // ============================================
 
