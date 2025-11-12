@@ -6,36 +6,67 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Ranking - Login</title>
     <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .header-language {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+        }
+    </style>
 </head>
 
 <body>
+    <div class="header-language" style="display: flex; gap: 10px;"></div>
+
     <div class="login-container">
         <div class="login-card">
             <div class="logo">🏆</div>
-            <h1>Sistema de Ranking</h1>
-            <p class="subtitle">Accede con tu correo electrónico</p>
+            <h1 data-i18n="app.title"></h1>
+            <p class="subtitle" data-i18n="app.subtitle"></p>
 
             <form id="loginForm">
                 <div class="form-group">
-                    <label for="email">Email</label>
-                    <input type="email" id="email" required autofocus placeholder="tu@email.com">
+                    <label for="email" data-i18n-label="login.email"></label>
+                    <input type="email" id="email" required autofocus data-i18n-placeholder="login.placeholder_email">
                 </div>
 
                 <div class="form-group">
-                    <label for="password">Contraseña</label>
+                    <label for="password" data-i18n-label="login.password"></label>
                     <input type="password" id="password" required>
                 </div>
 
                 <div id="errorMessage" class="error-message" style="display: none;"></div>
 
-                <button type="submit" class="btn-primary">Iniciar Sesión</button>
+                <button type="submit" class="btn-primary" data-i18n="login.submit"></button>
             </form>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../config/config.js"></script>
+    <script src="js/i18n.js"></script>
     <script src="js/login.js"></script>
+
+    <script>
+        // Inyectar selector de idiomas en el header
+        document.addEventListener('DOMContentLoaded', () => {
+            const headerLang = document.querySelector('.header-language');
+            headerLang.innerHTML = `
+                <select id="languageSelect" style="padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 6px; background: white; cursor: pointer; font-weight: 600; color: #475569;">
+                    <option value="es">🇪🇸 Español</option>
+                    <option value="en">🇺🇸 English</option>
+                    <option value="pt">🇧🇷 Português</option>
+                </select>
+            `;
+
+            const select = document.getElementById('languageSelect');
+            select.value = window.i18n.getLanguage();
+            select.addEventListener('change', (e) => {
+                window.i18n.setLanguage(e.target.value);
+            });
+        });
+    </script>
 </body>
 
 </html>

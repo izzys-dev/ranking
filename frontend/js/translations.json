@@ -1,0 +1,365 @@
+{
+  "es": {
+    "app": {
+      "title": "Sistema de Ranking",
+      "subtitle": "Accede con tu correo electrónico"
+    },
+    "login": {
+      "email": "Email",
+      "password": "Contraseña",
+      "submit": "Iniciar Sesión",
+      "error": "Email o contraseña incorrectos",
+      "placeholder_email": "tu@email.com"
+    },
+    "dashboard": {
+      "admin_area": "⚡ Panel Administrador de Área",
+      "lider": "👥 Panel de Líder",
+      "super": "👑 Panel de Super Usuario",
+      "welcome": "Bienvenido",
+      "area": "Área",
+      "logout": "Cerrar Sesión",
+      "show_ranking": "📺 Mostrar Ranking",
+      "agents": "Agentes",
+      "my_agents": "Mis Agentes",
+      "all_agents": "Todos los Agentes del Área",
+      "add_agent": "+ Agregar Agente",
+      "quick_deposit": "⚡ Depósito Rápido",
+      "quick_register": "📝 Registro Rápido",
+      "loading": "Cargando agentes...",
+      "empty": "No hay agentes registrados"
+    },
+    "form": {
+      "name": "Nombre completo",
+      "email": "Email",
+      "password": "Contraseña",
+      "area": "Área",
+      "leader": "Asignar a Líder",
+      "select": "-- Selecciona --",
+      "cancel": "Cancelar",
+      "save": "Guardar",
+      "close": "Cerrar",
+      "add": "Agregar",
+      "edit": "Editar",
+      "delete": "Eliminar",
+      "yes": "Sí",
+      "no": "No"
+    },
+    "deposits": {
+      "title": "💰 Depósitos",
+      "agent": "Agente",
+      "amount": "Monto a depositar",
+      "date": "Fecha del depósito",
+      "currency": "$",
+      "placeholder_amount": "Ej: 500.00",
+      "add_deposit": "+ Agregar Depósito",
+      "edit_deposit": "Editar Depósito",
+      "delete_deposit": "Eliminar Depósito",
+      "confirm_delete": "¿Estás seguro de eliminar este depósito?",
+      "no_deposits": "Sin depósitos registrados",
+      "total": "Total"
+    },
+    "registers": {
+      "title": "📝 Registros (Leads)",
+      "date": "Fecha del registro",
+      "add_register": "+ Agregar Registro",
+      "edit_register": "Editar Registro",
+      "delete_register": "Eliminar Registro",
+      "confirm_delete": "¿Estás seguro de eliminar este registro?",
+      "no_registers": "Sin registros",
+      "quick_lead": "Registro Rápido de Lead"
+    },
+    "targets": {
+      "title": "🎯 Target",
+      "assign": "Asignar Target",
+      "quantity": "Target (Cantidad de depósitos)",
+      "amount": "Target (Monto en $)",
+      "month": "Mes",
+      "progress": "Progreso",
+      "placeholder_quantity": "Ejemplo: 10",
+      "placeholder_amount": "Ejemplo: 5000.00"
+    },
+    "ranking": {
+      "title": "📊 Rankings por Área",
+      "all": "Ver Todos los Rankings",
+      "conversion": "🎯 Conversión",
+      "retention": "🔄 Retención",
+      "recovery": "💰 Recovery",
+      "position": "Posición",
+      "agent": "Agente",
+      "deposits": "Depósitos",
+      "amount": "Monto",
+      "percentage": "Progreso (%)",
+      "leader": "Líder",
+      "agents": "Agentes"
+    },
+    "users": {
+      "title": "Gestión de Usuarios",
+      "add_leader": "+ Agregar Líder",
+      "add_admin": "⚡ Agregar Admin de Área",
+      "name": "Nombre completo",
+      "email": "Email",
+      "password": "Contraseña",
+      "role": "Rol",
+      "leader": "Líder",
+      "admin_area": "Admin de Área",
+      "loading": "Cargando usuarios...",
+      "empty": "No hay usuarios registrados"
+    },
+    "areas": {
+      "conversion": "Conversión",
+      "retention": "Retención",
+      "recovery": "Recovery"
+    },
+    "messages": {
+      "success": "Operación completada con éxito",
+      "error": "Hubo un error al procesar la solicitud",
+      "confirm_delete": "¿Estás seguro de que deseas eliminar esto?",
+      "deleted": "Eliminado correctamente",
+      "saved": "Guardado correctamente",
+      "loading": "Cargando...",
+      "no_data": "Sin datos disponibles"
+    }
+  },
+  "en": {
+    "app": {
+      "title": "Ranking System",
+      "subtitle": "Sign in with your email address"
+    },
+    "login": {
+      "email": "Email",
+      "password": "Password",
+      "submit": "Sign In",
+      "error": "Incorrect email or password",
+      "placeholder_email": "your@email.com"
+    },
+    "dashboard": {
+      "admin_area": "⚡ Area Admin Panel",
+      "lider": "👥 Leader Panel",
+      "super": "👑 Super User Panel",
+      "welcome": "Welcome",
+      "area": "Area",
+      "logout": "Sign Out",
+      "show_ranking": "📺 Show Ranking",
+      "agents": "Agents",
+      "my_agents": "My Agents",
+      "all_agents": "All Area Agents",
+      "add_agent": "+ Add Agent",
+      "quick_deposit": "⚡ Quick Deposit",
+      "quick_register": "📝 Quick Register",
+      "loading": "Loading agents...",
+      "empty": "No registered agents"
+    },
+    "form": {
+      "name": "Full name",
+      "email": "Email",
+      "password": "Password",
+      "area": "Area",
+      "leader": "Assign to Leader",
+      "select": "-- Select --",
+      "cancel": "Cancel",
+      "save": "Save",
+      "close": "Close",
+      "add": "Add",
+      "edit": "Edit",
+      "delete": "Delete",
+      "yes": "Yes",
+      "no": "No"
+    },
+    "deposits": {
+      "title": "💰 Deposits",
+      "agent": "Agent",
+      "amount": "Amount to deposit",
+      "date": "Deposit date",
+      "currency": "$",
+      "placeholder_amount": "Ex: 500.00",
+      "add_deposit": "+ Add Deposit",
+      "edit_deposit": "Edit Deposit",
+      "delete_deposit": "Delete Deposit",
+      "confirm_delete": "Are you sure you want to delete this deposit?",
+      "no_deposits": "No deposits registered",
+      "total": "Total"
+    },
+    "registers": {
+      "title": "📝 Registers (Leads)",
+      "date": "Registration date",
+      "add_register": "+ Add Register",
+      "edit_register": "Edit Register",
+      "delete_register": "Delete Register",
+      "confirm_delete": "Are you sure you want to delete this register?",
+      "no_registers": "No registers",
+      "quick_lead": "Quick Lead Register"
+    },
+    "targets": {
+      "title": "🎯 Target",
+      "assign": "Assign Target",
+      "quantity": "Target (Number of deposits)",
+      "amount": "Target (Amount in $)",
+      "month": "Month",
+      "progress": "Progress",
+      "placeholder_quantity": "Example: 10",
+      "placeholder_amount": "Example: 5000.00"
+    },
+    "ranking": {
+      "title": "📊 Rankings by Area",
+      "all": "View All Rankings",
+      "conversion": "🎯 Conversion",
+      "retention": "🔄 Retention",
+      "recovery": "💰 Recovery",
+      "position": "Position",
+      "agent": "Agent",
+      "deposits": "Deposits",
+      "amount": "Amount",
+      "percentage": "Progress (%)",
+      "leader": "Leader",
+      "agents": "Agents"
+    },
+    "users": {
+      "title": "User Management",
+      "add_leader": "+ Add Leader",
+      "add_admin": "⚡ Add Area Admin",
+      "name": "Full name",
+      "email": "Email",
+      "password": "Password",
+      "role": "Role",
+      "leader": "Leader",
+      "admin_area": "Area Admin",
+      "loading": "Loading users...",
+      "empty": "No users registered"
+    },
+    "areas": {
+      "conversion": "Conversion",
+      "retention": "Retention",
+      "recovery": "Recovery"
+    },
+    "messages": {
+      "success": "Operation completed successfully",
+      "error": "An error occurred while processing the request",
+      "confirm_delete": "Are you sure you want to delete this?",
+      "deleted": "Deleted successfully",
+      "saved": "Saved successfully",
+      "loading": "Loading...",
+      "no_data": "No data available"
+    }
+  },
+  "pt": {
+    "app": {
+      "title": "Sistema de Ranking",
+      "subtitle": "Faça login com seu email"
+    },
+    "login": {
+      "email": "Email",
+      "password": "Senha",
+      "submit": "Entrar",
+      "error": "Email ou senha incorretos",
+      "placeholder_email": "seu@email.com"
+    },
+    "dashboard": {
+      "admin_area": "⚡ Painel de Admin de Área",
+      "lider": "👥 Painel de Líder",
+      "super": "👑 Painel de Super Usuário",
+      "welcome": "Bem-vindo",
+      "area": "Área",
+      "logout": "Sair",
+      "show_ranking": "📺 Mostrar Ranking",
+      "agents": "Agentes",
+      "my_agents": "Meus Agentes",
+      "all_agents": "Todos os Agentes da Área",
+      "add_agent": "+ Adicionar Agente",
+      "quick_deposit": "⚡ Depósito Rápido",
+      "quick_register": "📝 Registro Rápido",
+      "loading": "Carregando agentes...",
+      "empty": "Nenhum agente registrado"
+    },
+    "form": {
+      "name": "Nome completo",
+      "email": "Email",
+      "password": "Senha",
+      "area": "Área",
+      "leader": "Atribuir a Líder",
+      "select": "-- Selecione --",
+      "cancel": "Cancelar",
+      "save": "Salvar",
+      "close": "Fechar",
+      "add": "Adicionar",
+      "edit": "Editar",
+      "delete": "Deletar",
+      "yes": "Sim",
+      "no": "Não"
+    },
+    "deposits": {
+      "title": "💰 Depósitos",
+      "agent": "Agente",
+      "amount": "Valor a depositar",
+      "date": "Data do depósito",
+      "currency": "R$",
+      "placeholder_amount": "Ex: 500.00",
+      "add_deposit": "+ Adicionar Depósito",
+      "edit_deposit": "Editar Depósito",
+      "delete_deposit": "Deletar Depósito",
+      "confirm_delete": "Tem certeza que deseja deletar este depósito?",
+      "no_deposits": "Nenhum depósito registrado",
+      "total": "Total"
+    },
+    "registers": {
+      "title": "📝 Registros (Leads)",
+      "date": "Data do registro",
+      "add_register": "+ Adicionar Registro",
+      "edit_register": "Editar Registro",
+      "delete_register": "Deletar Registro",
+      "confirm_delete": "Tem certeza que deseja deletar este registro?",
+      "no_registers": "Nenhum registro",
+      "quick_lead": "Registro Rápido de Lead"
+    },
+    "targets": {
+      "title": "🎯 Meta",
+      "assign": "Atribuir Meta",
+      "quantity": "Meta (Quantidade de depósitos)",
+      "amount": "Meta (Valor em R$)",
+      "month": "Mês",
+      "progress": "Progresso",
+      "placeholder_quantity": "Exemplo: 10",
+      "placeholder_amount": "Exemplo: 5000.00"
+    },
+    "ranking": {
+      "title": "📊 Rankings por Área",
+      "all": "Ver Todos os Rankings",
+      "conversion": "🎯 Conversão",
+      "retention": "🔄 Retenção",
+      "recovery": "💰 Recovery",
+      "position": "Posição",
+      "agent": "Agente",
+      "deposits": "Depósitos",
+      "amount": "Valor",
+      "percentage": "Progresso (%)",
+      "leader": "Líder",
+      "agents": "Agentes"
+    },
+    "users": {
+      "title": "Gerenciamento de Usuários",
+      "add_leader": "+ Adicionar Líder",
+      "add_admin": "⚡ Adicionar Admin de Área",
+      "name": "Nome completo",
+      "email": "Email",
+      "password": "Senha",
+      "role": "Função",
+      "leader": "Líder",
+      "admin_area": "Admin de Área",
+      "loading": "Carregando usuários...",
+      "empty": "Nenhum usuário registrado"
+    },
+    "areas": {
+      "conversion": "Conversão",
+      "retention": "Retenção",
+      "recovery": "Recovery"
+    },
+    "messages": {
+      "success": "Operação concluída com sucesso",
+      "error": "Ocorreu um erro ao processar a solicitação",
+      "confirm_delete": "Tem certeza que deseja deletar isso?",
+      "deleted": "Deletado com sucesso",
+      "saved": "Salvo com sucesso",
+      "loading": "Carregando...",
+      "no_data": "Nenhum dado disponível"
+    }
+  }
+}
