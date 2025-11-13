@@ -191,7 +191,7 @@ async function verificarAcceso() {
     }
     const areaLabel = getUIText('area');
     areaBadge.textContent = `${areaLabel}: ${areaTexto}`;
-    areaBadge.className = `area-badge area-${currentUser.area}`;
+    areaBadge.className = `area-badge area-${areaValue}`;
     
     // Mostrar botón de registro rápido solo para conversión
     if (areaValue === 'conversion') {

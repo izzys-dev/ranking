@@ -247,9 +247,9 @@ async function verificarAcceso() {
     }
     const areaLabel = getUIText('area');
     areaBadge.textContent = `${areaLabel}: ${areaTexto}`;
-    areaBadge.classList.add(`area-${currentUser.area}`);
+    areaBadge.classList.add(`area-${areaValue}`);
     
-    if (currentUser.area === 'conversion') {
+    if (areaValue === 'conversion') {
         document.getElementById('btnRegistroRapido').style.display = 'inline-block';
     }
 }
