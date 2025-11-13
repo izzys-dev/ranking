@@ -88,6 +88,39 @@ function getMessage(key) {
     return messages[lang]?.[key] || key;
 }
 
+// Función helper para obtener etiquetas de UI
+function getUIText(key) {
+    const uiTexts = {
+        es: {
+            'welcome': 'Bienvenido',
+            'area': 'Área',
+            'area_conversion': 'Conversión',
+            'area_retention': 'Retención',
+            'area_recovery': 'Recovery',
+            'no_area': 'Sin área'
+        },
+        en: {
+            'welcome': 'Welcome',
+            'area': 'Area',
+            'area_conversion': 'Conversion',
+            'area_retention': 'Retention',
+            'area_recovery': 'Recovery',
+            'no_area': 'No area'
+        },
+        pt: {
+            'welcome': 'Bem-vindo',
+            'area': 'Área',
+            'area_conversion': 'Conversão',
+            'area_retention': 'Retenção',
+            'area_recovery': 'Recovery',
+            'no_area': 'Sem área'
+        }
+    };
+    
+    const lang = window.i18n?.getLanguage?.() || 'es';
+    return uiTexts[lang]?.[key] || key;
+}
+
 window.addEventListener('DOMContentLoaded', async () => {
     supabaseClient = createClient(
         window.SUPABASE_CONFIG.url,
@@ -108,15 +141,15 @@ window.addEventListener('languageChanged', async () => {
     if (currentUser) {
         let areaTexto = '';
         if (currentUser.area === 'conversion') {
-            areaTexto = window.i18n ? window.i18n.t('dashboard.area_conversion') : 'Conversión';
+            areaTexto = getUIText('area_conversion');
         } else if (currentUser.area === 'retention') {
-            areaTexto = window.i18n ? window.i18n.t('dashboard.area_retention') : 'Retención';
+            areaTexto = getUIText('area_retention');
         } else if (currentUser.area === 'recovery') {
-            areaTexto = window.i18n ? window.i18n.t('dashboard.area_recovery') : 'Recovery';
+            areaTexto = getUIText('area_recovery');
         } else {
-            areaTexto = 'Sin área';
+            areaTexto = getUIText('no_area');
         }
-        const areaLabel = window.i18n ? window.i18n.t('dashboard.area') : 'Área';
+        const areaLabel = getUIText('area');
         document.getElementById('areaBadge').textContent = `${areaLabel}: ${areaTexto}`;
     }
     
@@ -139,20 +172,20 @@ async function verificarAcceso() {
         return;
     }
     
-    document.getElementById('welcomeText').textContent = `${window.i18n ? window.i18n.t('dashboard.welcome') : 'Bienvenido'}, ${currentUser.nombre}`;
+    document.getElementById('welcomeText').textContent = `${getUIText('welcome')}, ${currentUser.nombre}`;
     
     const areaBadge = document.getElementById('areaBadge');
     let areaTexto = '';
     if (currentUser.area === 'conversion') {
-        areaTexto = window.i18n ? window.i18n.t('dashboard.area_conversion') : 'Conversión';
+        areaTexto = getUIText('area_conversion');
     } else if (currentUser.area === 'retention') {
-        areaTexto = window.i18n ? window.i18n.t('dashboard.area_retention') : 'Retención';
+        areaTexto = getUIText('area_retention');
     } else if (currentUser.area === 'recovery') {
-        areaTexto = window.i18n ? window.i18n.t('dashboard.area_recovery') : 'Recovery';
+        areaTexto = getUIText('area_recovery');
     } else {
-        areaTexto = 'Sin área';
+        areaTexto = getUIText('no_area');
     }
-    const areaLabel = window.i18n ? window.i18n.t('dashboard.area') : 'Área';
+    const areaLabel = getUIText('area');
     areaBadge.textContent = `${areaLabel}: ${areaTexto}`;
     areaBadge.className = `area-badge area-${currentUser.area}`;
     
