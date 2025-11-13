@@ -1,6 +1,13 @@
+// Load Supabase configuration from environment variables
+// For local development: Create a .env file with your credentials
+// For production: Set environment variables on your hosting platform
 const SUPABASE_CONFIG = {
-    url: 'https://kthdvnqdsczzbwpirbhl.supabase.co',
-    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt0aGR2bnFkc2N6emJ3cGlyYmhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI0MzMyMTUsImV4cCI6MjA3ODAwOTIxNX0.-QCI7Sp3IKeZnnvPdoG1087k--IKemtGhQCf729C7uw'
+    url: import.meta.env.VITE_SUPABASE_URL || localStorage.getItem('supabase_url'),
+    anonKey: import.meta.env.VITE_SUPABASE_ANON_KEY || localStorage.getItem('supabase_key')
 };
+
+if (!SUPABASE_CONFIG.url || !SUPABASE_CONFIG.anonKey) {
+    console.error('❌ ERROR: Supabase credentials not configured. Please check your .env file or environment variables.');
+}
 
 window.SUPABASE_CONFIG = SUPABASE_CONFIG;
