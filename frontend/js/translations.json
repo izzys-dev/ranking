@@ -131,6 +131,21 @@
       "retention": "Retención",
       "recovery": "Recovery"
     },
+    "months": {
+      "january": "Enero",
+      "february": "Febrero",
+      "march": "Marzo",
+      "april": "Abril",
+      "may": "Mayo",
+      "june": "Junio",
+      "july": "Julio",
+      "august": "Agosto",
+      "september": "Septiembre",
+      "october": "Octubre",
+      "november": "Noviembre",
+      "december": "Diciembre",
+      "current_month": "Mes Actual"
+    },
     "messages": {
       "success": "Operación completada con éxito",
       "error": "Hubo un error al procesar la solicitud",
@@ -286,6 +301,21 @@
       "retention": "Retention",
       "recovery": "Recovery"
     },
+    "months": {
+      "january": "January",
+      "february": "February",
+      "march": "March",
+      "april": "April",
+      "may": "May",
+      "june": "June",
+      "july": "July",
+      "august": "August",
+      "september": "September",
+      "october": "October",
+      "november": "November",
+      "december": "December",
+      "current_month": "Current Month"
+    },
     "messages": {
       "success": "Operation completed successfully",
       "error": "An error occurred while processing the request",
@@ -440,6 +470,21 @@
       "conversion": "Conversão",
       "retention": "Retenção",
       "recovery": "Recovery"
+    },
+    "months": {
+      "january": "Janeiro",
+      "february": "Fevereiro",
+      "march": "Março",
+      "april": "Abril",
+      "may": "Maio",
+      "june": "Junho",
+      "july": "Julho",
+      "august": "Agosto",
+      "september": "Setembro",
+      "october": "Outubro",
+      "november": "Novembro",
+      "december": "Dezembro",
+      "current_month": "Mês Atual"
     },
     "messages": {
       "success": "Operação concluída com sucesso",

@@ -51,9 +51,13 @@ window.addEventListener('DOMContentLoaded', async () => {
     mesActual = now.getMonth() + 1;
     anioActual = now.getFullYear();
     
-    const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
-                   'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-    document.getElementById('mesActual').textContent = `📅 Mes Actual: ${meses[mesActual - 1]} ${anioActual}`;
+    const monthKeys = ['january', 'february', 'march', 'april', 'may', 'june', 
+                       'july', 'august', 'september', 'october', 'november', 'december'];
+    const monthName = window.i18n ? window.i18n.t(`months.${monthKeys[mesActual - 1]}`) : 
+                      ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
+                       'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'][mesActual - 1];
+    const currentMonthLabel = window.i18n ? window.i18n.t('months.current_month') : 'Mes Actual';
+    document.getElementById('mesActual').textContent = `📅 ${currentMonthLabel}: ${monthName} ${anioActual}`;
     
     await verificarAcceso();
     await cargarAgentes();
@@ -115,6 +119,15 @@ function getMessage(key) {
 
 // Listener para cambios de idioma
 window.addEventListener('languageChanged', async () => {
+    // Actualizar el mes en el encabezado
+    const monthKeys = ['january', 'february', 'march', 'april', 'may', 'june', 
+                       'july', 'august', 'september', 'october', 'november', 'december'];
+    const monthName = window.i18n ? window.i18n.t(`months.${monthKeys[mesActual - 1]}`) : 
+                      ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
+                       'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'][mesActual - 1];
+    const currentMonthLabel = window.i18n ? window.i18n.t('months.current_month') : 'Mes Actual';
+    document.getElementById('mesActual').textContent = `📅 ${currentMonthLabel}: ${monthName} ${anioActual}`;
+    
     await cargarAgentes();
 });
 
@@ -607,7 +620,9 @@ async function verDepositos(agenteId, agenteNombre) {
     depositosAgenteNombre = agenteNombre;
     
     document.getElementById('depositosModalTitle').textContent = `Depósitos de ${agenteNombre}`;
-    document.getElementById('depositosAgenteNombre').textContent = `Mes actual: ${new Date().toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}`;
+    const currentMonth = new Date().toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+    const mesActualLabel = window.i18n ? window.i18n.t('months.current_month') : 'Mes actual';
+    document.getElementById('depositosAgenteNombre').textContent = `${mesActualLabel}: ${currentMonth}`;
     
     document.getElementById('depositosModal').style.display = 'block';
     
@@ -874,7 +889,9 @@ async function verRegistros(agenteId, agenteNombre) {
     registrosAgenteNombre = agenteNombre;
     
     document.getElementById('registrosModalTitle').textContent = `Registros (Leads) de ${agenteNombre}`;
-    document.getElementById('registrosAgenteNombre').textContent = `Mes actual: ${new Date().toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}`;
+    const currentMonth = new Date().toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+    const mesActualLabel = window.i18n ? window.i18n.t('months.current_month') : 'Mes actual';
+    document.getElementById('registrosAgenteNombre').textContent = `${mesActualLabel}: ${currentMonth}`;
     
     document.getElementById('registrosModal').style.display = 'block';
     
