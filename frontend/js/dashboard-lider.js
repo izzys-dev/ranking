@@ -53,11 +53,23 @@ window.addEventListener('DOMContentLoaded', async () => {
     
     const monthKeys = ['january', 'february', 'march', 'april', 'may', 'june', 
                        'july', 'august', 'september', 'october', 'november', 'december'];
-    const monthName = window.i18n ? window.i18n.t(`months.${monthKeys[mesActual - 1]}`) : 
-                      ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
-                       'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'][mesActual - 1];
-    const currentMonthLabel = window.i18n ? window.i18n.t('months.current_month') : 'Mes Actual';
-    document.getElementById('mesActual').textContent = `📅 ${currentMonthLabel}: ${monthName} ${anioActual}`;
+    
+    // Crear función para actualizar mes
+    const updateMonthDisplay = () => {
+        const monthName = window.i18n ? window.i18n.t(`months.${monthKeys[mesActual - 1]}`) : 
+                          ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
+                           'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'][mesActual - 1];
+        const currentMonthLabel = window.i18n ? window.i18n.t('months.current_month') : 'Mes Actual';
+        document.getElementById('mesActual').textContent = `📅 ${currentMonthLabel}: ${monthName} ${anioActual}`;
+    };
+    
+    // Actualizar mes cuando las traducciones estén listas
+    if (window.i18n && window.i18n.translations) {
+        updateMonthDisplay();
+    } else {
+        // Fallback si i18n no está completamente cargado
+        document.getElementById('mesActual').textContent = `📅 Mes Actual: Noviembre ${anioActual}`;
+    }
     
     await verificarAcceso();
     await cargarAgentes();
