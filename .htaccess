@@ -1,0 +1,12 @@
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+  
+  # No reescribir si es un archivo real
+  RewriteCond %{REQUEST_FILENAME} !-f
+  # No reescribir si es un directorio real
+  RewriteCond %{REQUEST_FILENAME} !-d
+  
+  # Reescribir todas las rutas a index.html
+  RewriteRule ^(.*)$ index.html [L]
+</IfModule>
