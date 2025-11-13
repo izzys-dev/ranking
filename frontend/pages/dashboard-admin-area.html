@@ -386,7 +386,12 @@
     <!-- Modal para gestionar depósitos -->
     <div id="depositosModal" class="modal">
         <div class="modal-content">
-            <h3 data-i18n="deposits.title">💰 Depósitos de <span id="depositoAgenteNombre"></span></h3>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 data-i18n="deposits.title">💰 Depósitos de <span id="depositoAgenteNombre"></span></h3>
+                <button type="button"
+                    style="background: none; border: none; font-size: 24px; cursor: pointer; color: #64748b;"
+                    onclick="cerrarDepositosModal()">×</button>
+            </div>
 
             <form id="depositoForm" style="margin-bottom: 20px;">
                 <div class="form-group">
@@ -416,7 +421,12 @@
     <!-- Modal para asignar target -->
     <div id="targetModal" class="modal">
         <div class="modal-content">
-            <h3 id="targetModalTitle" data-i18n="deposits.assign">Asignar Target</h3>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 id="targetModalTitle" data-i18n="deposits.assign">Asignar Target</h3>
+                <button type="button"
+                    style="background: none; border: none; font-size: 24px; cursor: pointer; color: #64748b;"
+                    onclick="closeTargetModal()">×</button>
+            </div>
             <form id="targetForm">
                 <div class="form-group">
                     <label for="targetAgente" data-i18n-label="deposits.agent">Agente</label>
@@ -453,7 +463,12 @@
     <!-- Modal para depósito rápido -->
     <div id="depositoRapidoModal" class="modal">
         <div class="modal-content">
-            <h3 data-i18n="dashboard.quick_deposit">⚡ Depósito Rápido</h3>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 data-i18n="dashboard.quick_deposit">⚡ Depósito Rápido</h3>
+                <button type="button"
+                    style="background: none; border: none; font-size: 24px; cursor: pointer; color: #64748b;"
+                    onclick="closeDepositoRapido()">×</button>
+            </div>
             <form id="depositoRapidoForm">
                 <div class="form-group">
                     <label for="depositoAgente" data-i18n-label="deposits.agent">Seleccionar Agente</label>
@@ -486,7 +501,12 @@
     <!-- Modal para registro rápido (leads) -->
     <div id="registroRapidoModal" class="modal">
         <div class="modal-content">
-            <h3 data-i18n="registers.title">📝 Registro Rápido de Lead</h3>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 data-i18n="registers.title">📝 Registro Rápido de Lead</h3>
+                <button type="button"
+                    style="background: none; border: none; font-size: 24px; cursor: pointer; color: #64748b;"
+                    onclick="closeRegistroRapido()">×</button>
+            </div>
             <form id="registroRapidoForm">
                 <div class="form-group">
                     <label for="registroAgente" data-i18n-label="deposits.agent">Seleccionar Agente</label>
@@ -514,7 +534,12 @@
     <!-- Modal para ver/gestionar registros de un agente -->
     <div id="registrosModal" class="modal">
         <div class="modal-content">
-            <h3 id="registrosModalTitle" data-i18n="registers.title">Registros (Leads) del Agente</h3>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 id="registrosModalTitle" data-i18n="registers.title">Registros (Leads) del Agente</h3>
+                <button type="button"
+                    style="background: none; border: none; font-size: 24px; cursor: pointer; color: #64748b;"
+                    onclick="closeRegistrosModal()">×</button>
+            </div>
             <p id="registrosAgenteNombre" style="color: #64748b; margin-bottom: 20px;"></p>
 
             <button class="btn-add btn-registro-rapido" onclick="agregarRegistroAgente()" data-i18n="registers.add">+
