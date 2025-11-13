@@ -2,11 +2,11 @@
   RewriteEngine On
   RewriteBase /
   
-  # No reescribir si es un archivo real
-  RewriteCond %{REQUEST_FILENAME} !-f
-  # No reescribir si es un directorio real
-  RewriteCond %{REQUEST_FILENAME} !-d
+  # Permitir acceso directo a archivos reales (html, css, js, imágenes, etc)
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
   
-  # Reescribir todas las rutas a index.html
+  # Reescribir todas las rutas que no sean archivos/directorios a index.html
   RewriteRule ^(.*)$ index.html [L]
 </IfModule>
