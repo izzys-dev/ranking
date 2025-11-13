@@ -38,7 +38,7 @@ async function handleLogin(e) {
         console.log('Respuesta de Supabase:', { data, error });
         
         if (error || !data) {
-            errorMessage.textContent = 'Email o contraseña incorrectos';
+            errorMessage.textContent = window.i18n ? window.i18n.t('login.error') : 'Email o contraseña incorrectos';
             errorMessage.style.display = 'block';
             return;
         }
@@ -50,13 +50,13 @@ async function handleLogin(e) {
         // Redirigir según el rol
         if (data.rol === 'super') {
             console.log('Redirigiendo a dashboard-super...');
-            window.location.href = 'pages/dashboard-super.html';
+            window.location.href = '/frontend/pages/dashboard-super.html';
         } else if (data.rol === 'admin_area') {
             console.log('Redirigiendo a dashboard-admin-area...');
-            window.location.href = 'pages/dashboard-admin-area.html';
+            window.location.href = '/frontend/pages/dashboard-admin-area.html';
         } else if (data.rol === 'lider') {
             console.log('Redirigiendo a dashboard-lider...');
-            window.location.href = 'pages/dashboard-lider.html';
+            window.location.href = '/frontend/pages/dashboard-lider.html';
         } else {
             errorMessage.textContent = 'Rol de usuario no válido';
             errorMessage.style.display = 'block';

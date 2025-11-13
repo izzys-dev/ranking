@@ -1,0 +1,12 @@
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+  
+  # Permitir acceso directo a archivos reales (html, css, js, imágenes, etc)
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+  
+  # Reescribir todas las rutas que no sean archivos/directorios a index.html
+  RewriteRule ^(.*)$ index.html [L]
+</IfModule>

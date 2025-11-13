@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Super Usuario</title>
-    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="/frontend/css/styles.css">
     <style>
         .dashboard {
             max-width: 1200px;
@@ -355,23 +355,26 @@
     <div class="dashboard">
         <div class="header">
             <div>
-                <h1>👑 Panel de Super Usuario</h1>
+                <h1 data-i18n="dashboard.super"></h1>
                 <p id="welcomeText" style="color: #64748b; margin-top: 5px;"></p>
             </div>
-            <button class="btn-logout" onclick="logout()">Cerrar Sesión</button>
+            <button class="btn-logout" onclick="logout()" data-i18n="dashboard.logout"></button>
         </div>
 
         <div class="card">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
-                <h2 style="margin: 0;">Gestión de Usuarios</h2>
-                <button class="btn-ver-todos" onclick="verTodosLosRankings()">📊 Ver Todos los Rankings</button>
+                <h2 style="margin: 0;" data-i18n="dashboard.users">Gestión de Usuarios</h2>
+                <button class="btn-ver-todos" onclick="verTodosLosRankings()" data-i18n="dashboard.show_ranking">📺
+                    Mostrar Ranking</button>
             </div>
 
-            <button class="btn-add" onclick="openModal('lider')">+ Agregar Líder</button>
-            <button class="btn-add btn-add-admin" onclick="openModal('admin_area')">⚡ Agregar Admin de Área</button>
+            <button class="btn-add" onclick="openModal('lider')" data-i18n="dashboard.add_leader">+ Agregar
+                Líder</button>
+            <button class="btn-add btn-add-admin" onclick="openModal('admin_area')" data-i18n="dashboard.add_admin">⚡
+                Agregar Admin de Área</button>
 
             <div id="usuariosContainer">
-                <div class="empty-state">Cargando usuarios...</div>
+                <div class="empty-state" data-i18n="dashboard.loading"></div>
             </div>
         </div>
     </div>
@@ -379,30 +382,30 @@
     <!-- Modal para agregar/editar usuario -->
     <div id="usuarioModal" class="modal">
         <div class="modal-content">
-            <h3 id="modalTitle">Agregar Usuario</h3>
+            <h3 id="modalTitle" data-i18n="users.add_leader"></h3>
             <form id="usuarioForm">
                 <div class="form-group">
-                    <label for="usuarioNombre">Nombre completo</label>
+                    <label for="usuarioNombre" data-i18n-label="form.name">Nombre completo</label>
                     <input type="text" id="usuarioNombre" required>
                 </div>
 
                 <div class="form-group">
-                    <label for="usuarioEmail">Email</label>
+                    <label for="usuarioEmail" data-i18n-label="form.email">Email</label>
                     <input type="email" id="usuarioEmail" required>
                 </div>
 
                 <div class="form-group">
-                    <label for="usuarioPassword">Contraseña</label>
+                    <label for="usuarioPassword" data-i18n-label="form.password">Contraseña</label>
                     <input type="password" id="usuarioPassword" required>
                 </div>
 
                 <div class="form-group">
-                    <label for="usuarioArea">Área</label>
+                    <label for="usuarioArea" data-i18n-label="form.area">Área</label>
                     <select id="usuarioArea" required>
-                        <option value="">-- Selecciona un área --</option>
-                        <option value="conversion">Conversión</option>
-                        <option value="retencion">Retención</option>
-                        <option value="recovery">Recovery</option>
+                        <option value="" data-i18n="form.select">-- Selecciona un área --</option>
+                        <option value="conversion" data-i18n="areas.conversion">Conversión</option>
+                        <option value="retencion" data-i18n="areas.retention">Retención</option>
+                        <option value="recovery" data-i18n="areas.recovery">Recovery</option>
                     </select>
                 </div>
 
@@ -411,8 +414,9 @@
                 <div id="modalError" class="error-message" style="display: none;"></div>
 
                 <div style="margin-top: 20px;">
-                    <button type="button" class="btn-cancel" onclick="closeModal()">Cancelar</button>
-                    <button type="submit" class="btn-primary">Guardar</button>
+                    <button type="button" class="btn-cancel" onclick="closeModal()"
+                        data-i18n="form.cancel">Cancelar</button>
+                    <button type="submit" class="btn-primary" data-i18n="form.save">Guardar</button>
                 </div>
             </form>
         </div>
@@ -421,20 +425,23 @@
     <!-- Modal para ver todos los rankings -->
     <div id="rankingModal" class="ranking-modal">
         <div class="ranking-modal-content">
-            <h3>📊 Rankings por Área</h3>
+            <h3 data-i18n="dashboard.show_ranking"></h3>
 
             <div class="ranking-tabs">
-                <button class="ranking-tab active" onclick="cambiarAreaRanking('conversion')">🎯 Conversión</button>
-                <button class="ranking-tab" onclick="cambiarAreaRanking('retencion')">🔄 Retención</button>
-                <button class="ranking-tab" onclick="cambiarAreaRanking('recovery')">💰 Recovery</button>
+                <button class="ranking-tab active" onclick="cambiarAreaRanking('conversion')"
+                    data-i18n="areas.conversion"></button>
+                <button class="ranking-tab" onclick="cambiarAreaRanking('retencion')"
+                    data-i18n="areas.retention"></button>
+                <button class="ranking-tab" onclick="cambiarAreaRanking('recovery')"
+                    data-i18n="areas.recovery"></button>
             </div>
 
             <div id="rankingContent">
-                <div class="empty-state">Cargando rankings...</div>
+                <div class="empty-state" data-i18n="dashboard.loading"></div>
             </div>
 
             <div style="margin-top: 30px; text-align: center;">
-                <button class="btn-cancel" onclick="cerrarRankingModal()">Cerrar</button>
+                <button class="btn-cancel" onclick="cerrarRankingModal()" data-i18n="form.close">Cerrar</button>
             </div>
         </div>
     </div>
@@ -442,21 +449,61 @@
     <!-- Modal para ver agentes de un líder/admin -->
     <div id="agentesLiderModal" class="ranking-modal">
         <div class="ranking-modal-content">
-            <h3 id="agentesLiderTitle">👥 Agentes</h3>
+            <h3 id="agentesLiderTitle" data-i18n="ranking.agents"></h3>
 
             <div id="agentesLiderContent">
-                <div class="empty-state">Cargando agentes...</div>
+                <div class="empty-state" data-i18n="dashboard.loading"></div>
             </div>
 
             <div style="margin-top: 30px; text-align: center;">
-                <button class="btn-cancel" onclick="cerrarAgentesLiderModal()">Cerrar</button>
+                <button class="btn-cancel" onclick="cerrarAgentesLiderModal()" data-i18n="form.close">Cerrar</button>
             </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="../../config/config.js"></script>
-    <script src="../js/dashboard-super.js"></script>
+    <script src="/config/config.js"></script>
+    <script src="/config/config.local.js"></script>
+    <script src="/frontend/js/i18n.js"></script>
+
+    <script>
+        // Inicializar i18n
+        (async () => {
+            console.log('Inicializando i18n en dashboard-super...');
+            await window.i18n.loadTranslations();
+            await window.i18n.translatePage();
+            console.log('✅ i18n inicializado en super');
+            // Disparar evento para que otros scripts sepan que i18n está listo
+            window.dispatchEvent(new CustomEvent('i18nReady', { detail: { ready: true } }));
+        })();
+    </script>
+
+    <script src="/frontend/js/dashboard-super.js"></script>
+
+    <script>
+        // Selector de idiomas
+        document.addEventListener('DOMContentLoaded', () => {
+            const body = document.querySelector('body');
+            const headerDiv = document.createElement('div');
+            headerDiv.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 1001;';
+            headerDiv.innerHTML = `
+                <select id="languageSelect" style="padding: 6px 10px; font-size: 12px; min-width: 60px; border: 2px solid #3b82f6; border-radius: 6px; background: transparent; cursor: pointer; font-weight: 700; color: #1e293b; transition: all 0.3s ease;">
+                    <option value="es">ES</option>
+                    <option value="en">EN</option>
+                    <option value="pt">PT</option>
+                </select>
+            `;
+            body.appendChild(headerDiv);
+
+            const select = document.getElementById('languageSelect');
+            if (select) {
+                select.value = window.i18n.getLanguage();
+                select.addEventListener('change', (e) => {
+                    window.i18n.setLanguage(e.target.value);
+                });
+            }
+        });
+    </script>
 </body>
 
 </html>

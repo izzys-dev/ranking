@@ -11,6 +11,57 @@ let registrosAgenteNombre = null;
 let editingRegistroId = null;
 let mesActual, anioActual;
 
+const monthKeys = ['january', 'february', 'march', 'april', 'may', 'june', 
+                   'july', 'august', 'september', 'october', 'november', 'december'];
+
+// Función para actualizar el display del mes
+function updateMonthDisplay() {
+    if (!mesActual) return;
+    
+    if (!window.i18n?.translations) {
+        return;
+    }
+    
+    const monthName = window.i18n.t(`months.${monthKeys[mesActual - 1]}`) || 
+                      monthKeys[mesActual - 1];
+    const currentMonthLabel = window.i18n.t('months.current_month') || 'Mes Actual';
+    
+    const mesActualElement = document.getElementById('mesActual');
+    if (mesActualElement) {
+        mesActualElement.textContent = `📅 ${currentMonthLabel}: ${monthName} ${anioActual}`;
+    }
+}
+
+// Función helper para obtener textos traducidos
+function getButtonText(key) {
+    const translations = {
+        es: {
+            'buttons.deposits': 'Depósitos',
+            'buttons.registers': 'Registros',
+            'buttons.target': 'Target',
+            'buttons.edit': 'Editar',
+            'buttons.delete': 'Eliminar'
+        },
+        en: {
+            'buttons.deposits': 'Deposits',
+            'buttons.registers': 'Registers',
+            'buttons.target': 'Target',
+            'buttons.edit': 'Edit',
+            'buttons.delete': 'Delete'
+        },
+        pt: {
+            'buttons.deposits': 'Depósitos',
+            'buttons.registers': 'Registros',
+            'buttons.target': 'Meta',
+            'buttons.edit': 'Editar',
+            'buttons.delete': 'Deletar'
+        }
+    };
+    
+    const lang = window.i18n?.getLanguage?.() || 'es';
+    return translations[lang]?.[key] || key;
+}
+
 window.addEventListener('DOMContentLoaded', async () => {
     supabaseClient = createClient(
         window.SUPABASE_CONFIG.url,
@@ -21,18 +72,140 @@ window.addEventListener('DOMContentLoaded', async () => {
     mesActual = now.getMonth() + 1;
     anioActual = now.getFullYear();
     
-    const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
-                   'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-    document.getElementById('mesActual').textContent = `📅 Mes Actual: ${meses[mesActual - 1]} ${anioActual}`;
+    // Esperar a que i18n esté completamente cargado
+    if (window.i18n && window.i18n.translations) {
+        updateMonthDisplay();
+    } else {
+        // Esperar el evento i18nReady
+        window.addEventListener('i18nReady', () => {
+            updateMonthDisplay();
+        }, { once: true });
+    }
     
     await verificarAcceso();
+    await cargarAgentes();
+});
+
+// Función helper para obtener mensajes traducidos
+function getMessage(key) {
+    const messages = {
+        es: {
+            'access_denied': 'No tienes acceso a esta página',
+            'load_agent_error': 'Error al cargar el agente',
+            'agent_updated': 'Agente actualizado exitosamente',
+            'agent_created': 'Agente creado exitosamente',
+            'agent_deleted': 'Agente eliminado exitosamente',
+            'confirm_delete_agent': '¿Estás seguro de que deseas eliminar este agente?',
+            'deposit_created': 'Depósito creado exitosamente',
+            'deposit_updated': 'Depósito actualizado exitosamente',
+            'deposit_deleted': 'Depósito eliminado exitosamente',
+            'register_created': 'Registro creado exitosamente',
+            'register_updated': 'Registro actualizado exitosamente',
+            'register_deleted': 'Registro eliminado exitosamente',
+            'target_assigned': 'Target asignado exitosamente'
+        },
+        en: {
+            'access_denied': 'You do not have access to this page',
+            'load_agent_error': 'Error loading agent',
+            'agent_updated': 'Agent updated successfully',
+            'agent_created': 'Agent created successfully',
+            'agent_deleted': 'Agent deleted successfully',
+            'confirm_delete_agent': 'Are you sure you want to delete this agent?',
+            'deposit_created': 'Deposit created successfully',
+            'deposit_updated': 'Deposit updated successfully',
+            'deposit_deleted': 'Deposit deleted successfully',
+            'register_created': 'Register created successfully',
+            'register_updated': 'Register updated successfully',
+            'register_deleted': 'Register deleted successfully',
+            'target_assigned': 'Target assigned successfully'
+        },
+        pt: {
+            'access_denied': 'Você não tem acesso a esta página',
+            'load_agent_error': 'Erro ao carregar agente',
+            'agent_updated': 'Agente atualizado com sucesso',
+            'agent_created': 'Agente criado com sucesso',
+            'agent_deleted': 'Agente deletado com sucesso',
+            'confirm_delete_agent': 'Tem certeza que deseja deletar este agente?',
+            'deposit_created': 'Depósito criado com sucesso',
+            'deposit_updated': 'Depósito atualizado com sucesso',
+            'deposit_deleted': 'Depósito deletado com sucesso',
+            'register_created': 'Registro criado com sucesso',
+            'register_updated': 'Registro atualizado com sucesso',
+            'register_deleted': 'Registro deletado com sucesso',
+            'target_assigned': 'Meta atribuída com sucesso'
+        }
+    };
+    
+    const lang = window.i18n?.getLanguage?.() || 'es';
+    return messages[lang]?.[key] || key;
+}
+
+// Función helper para obtener etiquetas de UI
+function getUIText(key) {
+    const uiTexts = {
+        es: {
+            'welcome': 'Bienvenido',
+            'area': 'Área',
+            'area_conversion': 'Conversión',
+            'area_retention': 'Retención',
+            'area_recovery': 'Recovery',
+            'no_area': 'Sin área'
+        },
+        en: {
+            'welcome': 'Welcome',
+            'area': 'Area',
+            'area_conversion': 'Conversion',
+            'area_retention': 'Retention',
+            'area_recovery': 'Recovery',
+            'no_area': 'No area'
+        },
+        pt: {
+            'welcome': 'Bem-vindo',
+            'area': 'Área',
+            'area_conversion': 'Conversão',
+            'area_retention': 'Retenção',
+            'area_recovery': 'Recovery',
+            'no_area': 'Sem área'
+        }
+    };
+    
+    const lang = window.i18n?.getLanguage?.() || 'es';
+    return uiTexts[lang]?.[key] || key;
+}
+
+// Listener para cambios de idioma
+window.addEventListener('languageChanged', async () => {
+    // Actualizar el mes en el encabezado
+    updateMonthDisplay();
+    
+    // Actualizar el badge de área
+    const currentUser = JSON.parse(localStorage.getItem('user'));
+    if (currentUser) {
+        let areaTexto = '';
+        const areaValue = currentUser.area ? String(currentUser.area).toLowerCase().trim() : '';
+        
+        if (areaValue === 'conversion') {
+            areaTexto = getUIText('area_conversion');
+        } else if (areaValue === 'retention') {
+            areaTexto = getUIText('area_retention');
+        } else if (areaValue === 'recovery') {
+            areaTexto = getUIText('area_recovery');
+        } else {
+            areaTexto = getUIText('no_area');
+        }
+        const areaLabel = getUIText('area');
+        const areaBadge = document.getElementById('areaBadge');
+        areaBadge.textContent = `${areaLabel}: ${areaTexto}`;
+        areaBadge.className = `area-badge area-${areaValue}`;
+    }
+    
     await cargarAgentes();
 });
 
 async function verificarAcceso() {
     const userStr = localStorage.getItem('user');
     if (!userStr) {
-        window.location.href = '../index.html';
+        window.location.href = '/index.html';
         return;
     }
     
@@ -40,18 +213,54 @@ async function verificarAcceso() {
     
     if (currentUser.rol !== 'lider') {
         alert('No tienes acceso a esta página');
-        window.location.href = '../index.html';
+        window.location.href = '/index.html';
         return;
     }
     
-    document.getElementById('welcomeText').textContent = `Bienvenido, ${currentUser.nombre}`;
+    document.getElementById('welcomeText').textContent = `${getUIText('welcome')}, ${currentUser.nombre}`;
     
+    // Si el líder no tiene área asignada, obtener del primer agente
+    if (!currentUser.area && currentUser.id) {
+        try {
+            const { data: agentes, error } = await supabaseClient
+                .from('agentes')
+                .select('area, lider_id, id')
+                .eq('lider_id', currentUser.id)
+                .eq('activo', true)
+                .limit(1);
+            
+            if (!error && agentes && agentes.length > 0) {
+                currentUser.area = agentes[0].area;
+                // Actualizar el localStorage con el área obtenida
+                localStorage.setItem('user', JSON.stringify(currentUser));
+            }
+        } catch (err) {
+            console.error('Error al buscar agentes:', err);
+        }
+    }
+    
+    // Ahora aplicar el área al badge (después de asegurar que currentUser.area está actualizado)
     const areaBadge = document.getElementById('areaBadge');
-    const areaTexto = currentUser.area ? currentUser.area.charAt(0).toUpperCase() + currentUser.area.slice(1) : 'Sin área';
-    areaBadge.textContent = `Área: ${areaTexto}`;
-    areaBadge.classList.add(`area-${currentUser.area}`);
+    let areaTexto = '';
+    const areaValue = currentUser.area ? String(currentUser.area).toLowerCase().trim() : '';
     
-    if (currentUser.area === 'conversion') {
+    if (areaValue === 'conversion') {
+        areaTexto = getUIText('area_conversion');
+    } else if (areaValue === 'retention') {
+        areaTexto = getUIText('area_retention');
+    } else if (areaValue === 'recovery') {
+        areaTexto = getUIText('area_recovery');
+    } else {
+        areaTexto = getUIText('no_area');
+    }
+    const areaLabel = getUIText('area');
+    
+    if (areaBadge) {
+        areaBadge.textContent = `${areaLabel}: ${areaTexto}`;
+        areaBadge.className = `area-badge area-${areaValue}`;
+    }
+    
+    if (areaValue === 'conversion') {
         document.getElementById('btnRegistroRapido').style.display = 'inline-block';
     }
 }
@@ -131,17 +340,17 @@ function mostrarAgentes(agentes) {
     }
     
     let headers = `
-        <th>Nombre</th>
-        <th>Área</th>
-        <th>Target del Mes</th>
-        <th>Depósitos del Mes</th>
+        <th>${window.i18n ? window.i18n.t('dashboard.table_name') : 'Nombre'}</th>
+        <th>${window.i18n ? window.i18n.t('dashboard.table_area') : 'Área'}</th>
+        <th>${window.i18n ? window.i18n.t('dashboard.table_target') : 'Target del Mes'}</th>
+        <th>${window.i18n ? window.i18n.t('dashboard.table_deposits') : 'Depósitos del Mes'}</th>
     `;
     
     if (currentUser.area === 'conversion') {
-        headers += '<th>Registros del Mes</th>';
+        headers += `<th>${window.i18n ? window.i18n.t('dashboard.table_registers') : 'Registros del Mes'}</th>`;
     }
     
-    headers += '<th>Acciones</th>';
+    headers += `<th>${window.i18n ? window.i18n.t('dashboard.table_actions') : 'Acciones'}</th>`;
     
     let html = `
         <table class="agentes-table">
@@ -176,17 +385,17 @@ function mostrarAgentes(agentes) {
         }
         
         let botones = `
-            <button class="btn-depositos" onclick="verDepositos('${agente.id}', '${agente.nombre}')">Depósitos</button>
+            <button class="btn-depositos" onclick="verDepositos('${agente.id}', '${agente.nombre}')">${getButtonText('buttons.deposits')}</button>
         `;
         
         if (currentUser.area === 'conversion') {
-            botones += `<button class="btn-registros" onclick="verRegistros('${agente.id}', '${agente.nombre}')">Registros</button>`;
+            botones += `<button class="btn-registros" onclick="verRegistros('${agente.id}', '${agente.nombre}')">${getButtonText('buttons.registers')}</button>`;
         }
         
         botones += `
-            <button class="btn-target" onclick="asignarTarget('${agente.id}', '${agente.nombre}')">Target</button>
-            <button class="btn-edit" onclick="editarAgente('${agente.id}')">Editar</button>
-            <button class="btn-delete" onclick="eliminarAgente('${agente.id}', '${agente.nombre}')">Eliminar</button>
+            <button class="btn-target" onclick="asignarTarget('${agente.id}', '${agente.nombre}')">${getButtonText('buttons.target')}</button>
+            <button class="btn-edit" onclick="editarAgente('${agente.id}')">${getButtonText('buttons.edit')}</button>
+            <button class="btn-delete" onclick="eliminarAgente('${agente.id}', '${agente.nombre}')">${getButtonText('buttons.delete')}</button>
         `;
         
         html += `
@@ -518,7 +727,9 @@ async function verDepositos(agenteId, agenteNombre) {
     depositosAgenteNombre = agenteNombre;
     
     document.getElementById('depositosModalTitle').textContent = `Depósitos de ${agenteNombre}`;
-    document.getElementById('depositosAgenteNombre').textContent = `Mes actual: ${new Date().toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}`;
+    const currentMonth = new Date().toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+    const mesActualLabel = window.i18n ? window.i18n.t('months.current_month') : 'Mes actual';
+    document.getElementById('depositosAgenteNombre').textContent = `${mesActualLabel}: ${currentMonth}`;
     
     document.getElementById('depositosModal').style.display = 'block';
     
@@ -785,7 +996,9 @@ async function verRegistros(agenteId, agenteNombre) {
     registrosAgenteNombre = agenteNombre;
     
     document.getElementById('registrosModalTitle').textContent = `Registros (Leads) de ${agenteNombre}`;
-    document.getElementById('registrosAgenteNombre').textContent = `Mes actual: ${new Date().toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}`;
+    const currentMonth = new Date().toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+    const mesActualLabel = window.i18n ? window.i18n.t('months.current_month') : 'Mes actual';
+    document.getElementById('registrosAgenteNombre').textContent = `${mesActualLabel}: ${currentMonth}`;
     
     document.getElementById('registrosModal').style.display = 'block';
     
@@ -977,7 +1190,7 @@ function abrirRankingTV() {
 }
 async function logout() {
     localStorage.removeItem('user');
-    window.location.href = '../index.html';
+    window.location.href = '/index.html';
 }
 
 
