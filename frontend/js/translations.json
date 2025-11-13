@@ -30,7 +30,10 @@
       "total_agents": "Total Agentes",
       "active_leaders": "Líderes Activos",
       "month_deposits": "Depósitos del Mes",
-      "total_income": "Total Ingresado"
+      "total_income": "Total Ingresado",
+      "users": "Gestión de Usuarios",
+      "add_leader": "+ Agregar Líder",
+      "add_admin": "⚡ Agregar Admin de Área"
     },
     "form": {
       "name": "Nombre completo",
@@ -158,7 +161,10 @@
       "total_agents": "Total Agents",
       "active_leaders": "Active Leaders",
       "month_deposits": "Month Deposits",
-      "total_income": "Total Income"
+      "total_income": "Total Income",
+      "users": "User Management",
+      "add_leader": "+ Add Leader",
+      "add_admin": "⚡ Add Area Admin"
     },
     "form": {
       "name": "Full name",
@@ -286,7 +292,10 @@
       "total_agents": "Total de Agentes",
       "active_leaders": "Líderes Ativos",
       "month_deposits": "Depósitos do Mês",
-      "total_income": "Receita Total"
+      "total_income": "Receita Total",
+      "users": "Gerenciamento de Usuários",
+      "add_leader": "+ Adicionar Líder",
+      "add_admin": "⚡ Adicionar Admin de Área"
     },
     "form": {
       "name": "Nome completo",

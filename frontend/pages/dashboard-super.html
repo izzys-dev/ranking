@@ -363,14 +363,15 @@
 
         <div class="card">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
-                <h2 style="margin: 0;" data-i18n="dashboard.users"></h2>
-                <button class="btn-ver-todos" onclick="verTodosLosRankings()"
-                    data-i18n="dashboard.show_ranking"></button>
+                <h2 style="margin: 0;" data-i18n="dashboard.users">Gestión de Usuarios</h2>
+                <button class="btn-ver-todos" onclick="verTodosLosRankings()" data-i18n="dashboard.show_ranking">📺
+                    Mostrar Ranking</button>
             </div>
 
-            <button class="btn-add" onclick="openModal('lider')" data-i18n="dashboard.add_leader"></button>
-            <button class="btn-add btn-add-admin" onclick="openModal('admin_area')"
-                data-i18n="dashboard.add_admin"></button>
+            <button class="btn-add" onclick="openModal('lider')" data-i18n="dashboard.add_leader">+ Agregar
+                Líder</button>
+            <button class="btn-add btn-add-admin" onclick="openModal('admin_area')" data-i18n="dashboard.add_admin">⚡
+                Agregar Admin de Área</button>
 
             <div id="usuariosContainer">
                 <div class="empty-state" data-i18n="dashboard.loading"></div>
