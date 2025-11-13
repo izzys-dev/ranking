@@ -128,6 +128,23 @@ window.addEventListener('languageChanged', async () => {
     const currentMonthLabel = window.i18n ? window.i18n.t('months.current_month') : 'Mes Actual';
     document.getElementById('mesActual').textContent = `📅 ${currentMonthLabel}: ${monthName} ${anioActual}`;
     
+    // Actualizar el badge de área
+    const currentUser = JSON.parse(localStorage.getItem('user'));
+    if (currentUser) {
+        let areaTexto = '';
+        if (currentUser.area === 'conversion') {
+            areaTexto = window.i18n ? window.i18n.t('dashboard.area_conversion') : 'Conversión';
+        } else if (currentUser.area === 'retention') {
+            areaTexto = window.i18n ? window.i18n.t('dashboard.area_retention') : 'Retención';
+        } else if (currentUser.area === 'recovery') {
+            areaTexto = window.i18n ? window.i18n.t('dashboard.area_recovery') : 'Recovery';
+        } else {
+            areaTexto = 'Sin área';
+        }
+        const areaLabel = window.i18n ? window.i18n.t('dashboard.area') : 'Área';
+        document.getElementById('areaBadge').textContent = `${areaLabel}: ${areaTexto}`;
+    }
+    
     await cargarAgentes();
 });
 
@@ -146,11 +163,21 @@ async function verificarAcceso() {
         return;
     }
     
-    document.getElementById('welcomeText').textContent = `Bienvenido, ${currentUser.nombre}`;
+    document.getElementById('welcomeText').textContent = `${window.i18n ? window.i18n.t('dashboard.welcome') : 'Bienvenido'}, ${currentUser.nombre}`;
     
     const areaBadge = document.getElementById('areaBadge');
-    const areaTexto = currentUser.area ? currentUser.area.charAt(0).toUpperCase() + currentUser.area.slice(1) : 'Sin área';
-    areaBadge.textContent = `Área: ${areaTexto}`;
+    let areaTexto = '';
+    if (currentUser.area === 'conversion') {
+        areaTexto = window.i18n ? window.i18n.t('dashboard.area_conversion') : 'Conversión';
+    } else if (currentUser.area === 'retention') {
+        areaTexto = window.i18n ? window.i18n.t('dashboard.area_retention') : 'Retención';
+    } else if (currentUser.area === 'recovery') {
+        areaTexto = window.i18n ? window.i18n.t('dashboard.area_recovery') : 'Recovery';
+    } else {
+        areaTexto = 'Sin área';
+    }
+    const areaLabel = window.i18n ? window.i18n.t('dashboard.area') : 'Área';
+    areaBadge.textContent = `${areaLabel}: ${areaTexto}`;
     areaBadge.classList.add(`area-${currentUser.area}`);
     
     if (currentUser.area === 'conversion') {
