@@ -208,34 +208,50 @@ async function verificarAcceso() {
         return;
     }
     
-    console.log('🔍 CurrentUser:', currentUser);
+    console.log('🔍 CurrentUser completo:', JSON.stringify(currentUser, null, 2));
+    console.log('📍 currentUser.area:', currentUser.area);
+    console.log('📍 currentUser.id:', currentUser.id);
     
     document.getElementById('welcomeText').textContent = `${getUIText('welcome')}, ${currentUser.nombre}`;
     
     // Si el líder no tiene área asignada, obtener del primer agente
-    if (!currentUser.area) {
-        console.log('⚠️ Líder sin área, buscando en agentes...');
-        const { data: agentes, error } = await supabaseClient
-            .from('agentes')
-            .select('area')
-            .eq('lider_id', currentUser.id)
-            .eq('activo', true)
-            .limit(1);
-        
-        console.log('📊 Agentes encontrados:', agentes, 'Error:', error);
-        
-        if (!error && agentes && agentes.length > 0) {
-            currentUser.area = agentes[0].area;
-            console.log('✅ Área obtenida del agente:', currentUser.area);
-            // Actualizar el localStorage con el área obtenida
-            localStorage.setItem('user', JSON.stringify(currentUser));
+    if (!currentUser.area && currentUser.id) {
+        console.log('⚠️ Líder sin área, buscando en agentes con lider_id:', currentUser.id);
+        try {
+            const { data: agentes, error } = await supabaseClient
+                .from('agentes')
+                .select('area, lider_id, id')
+                .eq('lider_id', currentUser.id)
+                .eq('activo', true)
+                .limit(1);
+            
+            console.log('📊 Query de agentes:', { agentes, error, lider_id: currentUser.id });
+            
+            if (error) {
+                console.error('❌ Error en query:', error);
+            }
+            
+            if (!error && agentes && agentes.length > 0) {
+                currentUser.area = agentes[0].area;
+                console.log('✅ Área obtenida del agente:', currentUser.area);
+                // Actualizar el localStorage con el área obtenida
+                localStorage.setItem('user', JSON.stringify(currentUser));
+            } else {
+                console.warn('⚠️ No se encontraron agentes para este líder');
+            }
+        } catch (err) {
+            console.error('❌ Error al buscar agentes:', err);
         }
+    } else if (currentUser.area) {
+        console.log('✅ Líder ya tiene área asignada:', currentUser.area);
     } else {
-        console.log('✅ Líder ya tiene área:', currentUser.area);
+        console.warn('⚠️ currentUser.id no está disponible');
     }
     
     const areaBadge = document.getElementById('areaBadge');
     let areaTexto = '';
+    console.log('🔍 Valor final de currentUser.area:', currentUser.area);
+    
     if (currentUser.area === 'conversion') {
         areaTexto = getUIText('area_conversion');
     } else if (currentUser.area === 'retention') {
@@ -246,7 +262,7 @@ async function verificarAcceso() {
         areaTexto = getUIText('no_area');
     }
     const areaLabel = getUIText('area');
-    console.log('🏷️ Badge area:', areaLabel, areaTexto);
+    console.log('🏷️ Badge final:', `${areaLabel}: ${areaTexto}`);
     areaBadge.textContent = `${areaLabel}: ${areaTexto}`;
     areaBadge.classList.add(`area-${currentUser.area}`);
     
