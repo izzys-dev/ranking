@@ -198,6 +198,22 @@ async function verificarAcceso() {
     
     document.getElementById('welcomeText').textContent = `${getUIText('welcome')}, ${currentUser.nombre}`;
     
+    // Si el líder no tiene área asignada, obtener del primer agente
+    if (!currentUser.area) {
+        const { data: agentes, error } = await supabaseClient
+            .from('agentes')
+            .select('area')
+            .eq('lider_id', currentUser.id)
+            .eq('activo', true)
+            .limit(1);
+        
+        if (!error && agentes && agentes.length > 0) {
+            currentUser.area = agentes[0].area;
+            // Actualizar el localStorage con el área obtenida
+            localStorage.setItem('user', JSON.stringify(currentUser));
+        }
+    }
+    
     const areaBadge = document.getElementById('areaBadge');
     let areaTexto = '';
     if (currentUser.area === 'conversion') {
