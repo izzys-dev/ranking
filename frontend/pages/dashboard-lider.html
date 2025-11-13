@@ -544,6 +544,8 @@
             await window.i18n.loadTranslations();
             await window.i18n.translatePage();
             console.log('✅ i18n inicializado');
+            // Disparar evento para que otros scripts sepan que i18n está listo
+            window.dispatchEvent(new CustomEvent('i18nReady', { detail: { ready: true } }));
         })();
     </script>
 

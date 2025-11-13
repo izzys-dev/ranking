@@ -18,13 +18,25 @@ const monthKeys = ['january', 'february', 'march', 'april', 'may', 'june',
 function updateMonthDisplay() {
     if (!mesActual) return;
     
-    const monthName = window.i18n?.t(`months.${monthKeys[mesActual - 1]}`) || 
+    console.log('🔄 updateMonthDisplay llamado');
+    console.log('🔍 window.i18n disponible:', !!window.i18n);
+    console.log('🔍 window.i18n.translations disponible:', !!window.i18n?.translations);
+    
+    if (!window.i18n?.translations) {
+        console.log('⚠️ Traducciones no disponibles aún');
+        return;
+    }
+    
+    const monthName = window.i18n.t(`months.${monthKeys[mesActual - 1]}`) || 
                       monthKeys[mesActual - 1];
-    const currentMonthLabel = window.i18n?.t('months.current_month') || 'Mes Actual';
+    const currentMonthLabel = window.i18n.t('months.current_month') || 'Mes Actual';
+    
+    console.log('✅ Mes recuperado:', { monthName, currentMonthLabel, mesActual });
     
     const mesActualElement = document.getElementById('mesActual');
     if (mesActualElement) {
         mesActualElement.textContent = `📅 ${currentMonthLabel}: ${monthName} ${anioActual}`;
+        console.log('✅ mesActual actualizado:', mesActualElement.textContent);
     }
 }
 
@@ -70,18 +82,16 @@ window.addEventListener('DOMContentLoaded', async () => {
     
     // Esperar a que i18n esté completamente cargado
     if (window.i18n && window.i18n.translations) {
-        console.log('✅ i18n ya está cargado');
+        console.log('✅ i18n ya está cargado en DOMContentLoaded');
+        updateMonthDisplay();
     } else {
-        console.log('⏳ Esperando a que i18n se cargue...');
-        // Esperar máximo 2 segundos
-        let contador = 0;
-        while (!window.i18n?.translations && contador < 20) {
-            await new Promise(resolve => setTimeout(resolve, 100));
-            contador++;
-        }
+        console.log('⏳ Esperando evento i18nReady...');
+        // Esperar el evento i18nReady
+        window.addEventListener('i18nReady', () => {
+            console.log('✅ i18nReady recibido, actualizando mes...');
+            updateMonthDisplay();
+        }, { once: true });
     }
-    
-    updateMonthDisplay();
     
     await verificarAcceso();
     await cargarAgentes();

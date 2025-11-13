@@ -127,8 +127,20 @@ window.addEventListener('DOMContentLoaded', async () => {
         window.SUPABASE_CONFIG.anonKey
     );
     
+    // Esperar a que i18n esté completamente cargado
+    if (window.i18n && window.i18n.translations) {
+        console.log('✅ i18n ya está cargado en DOMContentLoaded');
+        configurarMesActual();
+    } else {
+        console.log('⏳ Esperando evento i18nReady...');
+        // Esperar el evento i18nReady
+        window.addEventListener('i18nReady', () => {
+            console.log('✅ i18nReady recibido, configurando mes...');
+            configurarMesActual();
+        }, { once: true });
+    }
+    
     await verificarAcceso();
-    configurarMesActual();
     await cargarEstadisticas();
     await cargarAgentes();
     await cargarLideresEnSelect();
