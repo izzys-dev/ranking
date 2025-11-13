@@ -174,6 +174,21 @@ async function verificarAcceso() {
     
     document.getElementById('welcomeText').textContent = `${getUIText('welcome')}, ${currentUser.nombre}`;
     
+    // Si el admin no tiene área asignada, obtener del primer agente
+    if (!currentUser.area) {
+        const { data: agentes, error } = await supabaseClient
+            .from('agentes')
+            .select('area')
+            .eq('area', currentUser.area)
+            .eq('activo', true)
+            .limit(1);
+        
+        if (!error && agentes && agentes.length > 0) {
+            currentUser.area = agentes[0].area;
+            localStorage.setItem('user', JSON.stringify(currentUser));
+        }
+    }
+    
     const areaBadge = document.getElementById('areaBadge');
     let areaTexto = '';
     if (currentUser.area === 'conversion') {
@@ -200,21 +215,13 @@ function configurarMesActual() {
     mesActual = now.getMonth() + 1;
     anioActual = now.getFullYear();
     
-    // Obtener el idioma actual del i18n
-    const idioma = window.i18n ? window.i18n.getLanguage() : 'es';
-    
-    // Mapear idiomas a locales
-    const localeMap = {
-        'es': 'es-ES',
-        'en': 'en-US',
-        'pt': 'pt-BR'
-    };
-    
-    const locale = localeMap[idioma] || 'es-ES';
-    
-    // Usar Intl.DateTimeFormat para obtener el mes en el idioma correcto
-    const mesTexto = now.toLocaleDateString(locale, { month: 'long', year: 'numeric' });
-    document.getElementById('mesActual').textContent = mesTexto.charAt(0).toUpperCase() + mesTexto.slice(1);
+    const monthKeys = ['january', 'february', 'march', 'april', 'may', 'june', 
+                       'july', 'august', 'september', 'october', 'november', 'december'];
+    const monthName = window.i18n ? window.i18n.t(`months.${monthKeys[mesActual - 1]}`) : 
+                      ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
+                       'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'][mesActual - 1];
+    const currentMonthLabel = window.i18n ? window.i18n.t('months.current_month') : 'Mes Actual';
+    document.getElementById('mesActual').textContent = `📅 ${currentMonthLabel}: ${monthName} ${anioActual}`;
 }
 
 async function cargarEstadisticas() {
