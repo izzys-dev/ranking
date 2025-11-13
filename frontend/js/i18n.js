@@ -20,7 +20,7 @@ class I18n {
             const isInPages = currentPath.includes('/pages/');
             const translationsPath = isInPages 
                 ? '../js/translations.json' 
-                : 'js/translations.json';
+                : 'frontend/js/translations.json';
             
             const response = await fetch(translationsPath);
             if (!response.ok) {

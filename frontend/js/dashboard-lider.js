@@ -205,7 +205,7 @@ window.addEventListener('languageChanged', async () => {
 async function verificarAcceso() {
     const userStr = localStorage.getItem('user');
     if (!userStr) {
-        window.location.href = '../index.html';
+        window.location.href = '/index.html';
         return;
     }
     
@@ -213,7 +213,7 @@ async function verificarAcceso() {
     
     if (currentUser.rol !== 'lider') {
         alert('No tienes acceso a esta página');
-        window.location.href = '../index.html';
+        window.location.href = '/index.html';
         return;
     }
     
@@ -1190,7 +1190,7 @@ function abrirRankingTV() {
 }
 async function logout() {
     localStorage.removeItem('user');
-    window.location.href = '../index.html';
+    window.location.href = '/index.html';
 }
 
 

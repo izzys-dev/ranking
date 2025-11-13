@@ -171,7 +171,7 @@ window.addEventListener('languageChanged', async () => {
 async function verificarAcceso() {
     const userStr = localStorage.getItem('user');
     if (!userStr) {
-        window.location.href = '../index.html';
+        window.location.href = '/index.html';
         return;
     }
     
@@ -179,7 +179,7 @@ async function verificarAcceso() {
     
     if (currentUser.rol !== 'admin_area') {
         alert(getMessage('access_denied'));
-        window.location.href = '../index.html';
+        window.location.href = '/index.html';
         return;
     }
     
@@ -1291,6 +1291,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 async function logout() {
     localStorage.removeItem('user');
-    window.location.href = '../index.html';
+    window.location.href = '/index.html';
 }
 

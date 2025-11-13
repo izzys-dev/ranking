@@ -88,7 +88,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 async function verificarAcceso() {
     const userStr = localStorage.getItem('user');
     if (!userStr) {
-        window.location.href = '../index.html';
+        window.location.href = '/index.html';
         return;
     }
     
@@ -96,7 +96,7 @@ async function verificarAcceso() {
     
     if (currentUser.rol !== 'super') {
         alert('No tienes acceso a esta página');
-        window.location.href = '../index.html';
+        window.location.href = '/index.html';
         return;
     }
     
@@ -675,5 +675,5 @@ function cerrarAgentesLiderModal() {
 
 async function logout() {
     localStorage.removeItem('user');
-    window.location.href = '../index.html';
+    window.location.href = '/index.html';
 }
