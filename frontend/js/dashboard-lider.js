@@ -208,10 +208,13 @@ async function verificarAcceso() {
         return;
     }
     
+    console.log('🔍 CurrentUser:', currentUser);
+    
     document.getElementById('welcomeText').textContent = `${getUIText('welcome')}, ${currentUser.nombre}`;
     
     // Si el líder no tiene área asignada, obtener del primer agente
     if (!currentUser.area) {
+        console.log('⚠️ Líder sin área, buscando en agentes...');
         const { data: agentes, error } = await supabaseClient
             .from('agentes')
             .select('area')
@@ -219,11 +222,16 @@ async function verificarAcceso() {
             .eq('activo', true)
             .limit(1);
         
+        console.log('📊 Agentes encontrados:', agentes, 'Error:', error);
+        
         if (!error && agentes && agentes.length > 0) {
             currentUser.area = agentes[0].area;
+            console.log('✅ Área obtenida del agente:', currentUser.area);
             // Actualizar el localStorage con el área obtenida
             localStorage.setItem('user', JSON.stringify(currentUser));
         }
+    } else {
+        console.log('✅ Líder ya tiene área:', currentUser.area);
     }
     
     const areaBadge = document.getElementById('areaBadge');
@@ -238,6 +246,7 @@ async function verificarAcceso() {
         areaTexto = getUIText('no_area');
     }
     const areaLabel = getUIText('area');
+    console.log('🏷️ Badge area:', areaLabel, areaTexto);
     areaBadge.textContent = `${areaLabel}: ${areaTexto}`;
     areaBadge.classList.add(`area-${currentUser.area}`);
     
