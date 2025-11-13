@@ -11,6 +11,23 @@ let registrosAgenteNombre = null;
 let editingRegistroId = null;
 let mesActual, anioActual;
 
+const monthKeys = ['january', 'february', 'march', 'april', 'may', 'june', 
+                   'july', 'august', 'september', 'october', 'november', 'december'];
+
+// Función para actualizar el display del mes
+function updateMonthDisplay() {
+    if (!mesActual) return;
+    
+    const monthName = window.i18n?.t(`months.${monthKeys[mesActual - 1]}`) || 
+                      monthKeys[mesActual - 1];
+    const currentMonthLabel = window.i18n?.t('months.current_month') || 'Mes Actual';
+    
+    const mesActualElement = document.getElementById('mesActual');
+    if (mesActualElement) {
+        mesActualElement.textContent = `📅 ${currentMonthLabel}: ${monthName} ${anioActual}`;
+    }
+}
+
 // Función helper para obtener textos traducidos
 function getButtonText(key) {
     const translations = {
@@ -51,25 +68,20 @@ window.addEventListener('DOMContentLoaded', async () => {
     mesActual = now.getMonth() + 1;
     anioActual = now.getFullYear();
     
-    const monthKeys = ['january', 'february', 'march', 'april', 'may', 'june', 
-                       'july', 'august', 'september', 'october', 'november', 'december'];
-    
-    // Crear función para actualizar mes
-    const updateMonthDisplay = () => {
-        const monthName = window.i18n ? window.i18n.t(`months.${monthKeys[mesActual - 1]}`) : 
-                          ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
-                           'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'][mesActual - 1];
-        const currentMonthLabel = window.i18n ? window.i18n.t('months.current_month') : 'Mes Actual';
-        document.getElementById('mesActual').textContent = `📅 ${currentMonthLabel}: ${monthName} ${anioActual}`;
-    };
-    
-    // Actualizar mes cuando las traducciones estén listas
+    // Esperar a que i18n esté completamente cargado
     if (window.i18n && window.i18n.translations) {
-        updateMonthDisplay();
+        console.log('✅ i18n ya está cargado');
     } else {
-        // Fallback si i18n no está completamente cargado
-        document.getElementById('mesActual').textContent = `📅 Mes Actual: Noviembre ${anioActual}`;
+        console.log('⏳ Esperando a que i18n se cargue...');
+        // Esperar máximo 2 segundos
+        let contador = 0;
+        while (!window.i18n?.translations && contador < 20) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+            contador++;
+        }
     }
+    
+    updateMonthDisplay();
     
     await verificarAcceso();
     await cargarAgentes();
@@ -165,13 +177,7 @@ function getUIText(key) {
 // Listener para cambios de idioma
 window.addEventListener('languageChanged', async () => {
     // Actualizar el mes en el encabezado
-    const monthKeys = ['january', 'february', 'march', 'april', 'may', 'june', 
-                       'july', 'august', 'september', 'october', 'november', 'december'];
-    const monthName = window.i18n ? window.i18n.t(`months.${monthKeys[mesActual - 1]}`) : 
-                      ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
-                       'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'][mesActual - 1];
-    const currentMonthLabel = window.i18n ? window.i18n.t('months.current_month') : 'Mes Actual';
-    document.getElementById('mesActual').textContent = `📅 ${currentMonthLabel}: ${monthName} ${anioActual}`;
+    updateMonthDisplay();
     
     // Actualizar el badge de área
     const currentUser = JSON.parse(localStorage.getItem('user'));
@@ -189,7 +195,9 @@ window.addEventListener('languageChanged', async () => {
             areaTexto = getUIText('no_area');
         }
         const areaLabel = getUIText('area');
-        document.getElementById('areaBadge').textContent = `${areaLabel}: ${areaTexto}`;
+        const areaBadge = document.getElementById('areaBadge');
+        areaBadge.textContent = `${areaLabel}: ${areaTexto}`;
+        areaBadge.className = `area-badge area-${areaValue}`;
     }
     
     await cargarAgentes();
@@ -203,6 +211,14 @@ async function verificarAcceso() {
     }
     
     currentUser = JSON.parse(userStr);
+    
+    console.log('🔐 Usuario cargado de localStorage:', currentUser);
+    console.log('📍 RASTREO DE ÁREA - Origen:', {
+        'currentUser.area': currentUser.area,
+        'tipo': typeof currentUser.area,
+        'longitud': String(currentUser.area).length,
+        'caracteres': currentUser.area ? Array.from(String(currentUser.area)).map((c, i) => `[${i}]: '${c}' (código: ${c.charCodeAt(0)})`) : 'null'
+    });
     
     if (currentUser.rol !== 'lider') {
         alert('No tienes acceso a esta página');
@@ -224,6 +240,7 @@ async function verificarAcceso() {
             
             if (!error && agentes && agentes.length > 0) {
                 currentUser.area = agentes[0].area;
+                console.log('🔄 Área obtenida del primer agente:', agentes[0].area);
                 // Actualizar el localStorage con el área obtenida
                 localStorage.setItem('user', JSON.stringify(currentUser));
             }
@@ -236,6 +253,8 @@ async function verificarAcceso() {
     let areaTexto = '';
     const areaValue = currentUser.area ? String(currentUser.area).toLowerCase().trim() : '';
     
+    console.log('🔄 Área normalizada:', areaValue);
+    
     if (areaValue === 'conversion') {
         areaTexto = getUIText('area_conversion');
     } else if (areaValue === 'retention') {
@@ -247,7 +266,9 @@ async function verificarAcceso() {
     }
     const areaLabel = getUIText('area');
     areaBadge.textContent = `${areaLabel}: ${areaTexto}`;
-    areaBadge.classList.add(`area-${areaValue}`);
+    areaBadge.className = `area-badge area-${areaValue}`;
+    
+    console.log('✅ Área final:', { areaValue, areaTexto, className: `area-${areaValue}` });
     
     if (areaValue === 'conversion') {
         document.getElementById('btnRegistroRapido').style.display = 'inline-block';
@@ -292,6 +313,24 @@ async function cargarAgentes() {
             if (registrosError) throw registrosError;
             registros = registrosData || [];
         }
+        
+        // Crear diccionario de agentes desde BD
+        const agentesDict = {};
+        agentes?.forEach(agente => {
+            agentesDict[agente.id] = {
+                id: agente.id,
+                nombre: agente.nombre,
+                email: agente.email,
+                area: agente.area,
+                lider_id: agente.lider_id,
+                activo: agente.activo,
+                created_at: agente.created_at
+            };
+        });
+        
+        console.log('📚 DICCIONARIO DE AGENTES:', agentesDict);
+        console.log('📊 Total de agentes en BD:', agentes?.length || 0);
+        console.log('🔍 Agentes del líder:', currentUser.nombre);
         
         const agentesConDatos = agentes.map(agente => {
             const target = targets?.find(t => t.agente_id === agente.id);

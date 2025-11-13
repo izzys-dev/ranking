@@ -168,6 +168,14 @@ async function verificarAcceso() {
     
     currentUser = JSON.parse(userStr);
     
+    console.log('🔐 Usuario cargado de localStorage:', currentUser);
+    console.log('📍 RASTREO DE ÁREA - Origen:', {
+        'currentUser.area': currentUser.area,
+        'tipo': typeof currentUser.area,
+        'longitud': String(currentUser.area).length,
+        'caracteres': currentUser.area ? Array.from(String(currentUser.area)).map((c, i) => `[${i}]: '${c}' (código: ${c.charCodeAt(0)})`) : 'null'
+    });
+    
     if (currentUser.rol !== 'admin_area') {
         alert(getMessage('access_denied'));
         window.location.href = '../index.html';
@@ -179,6 +187,8 @@ async function verificarAcceso() {
     const areaBadge = document.getElementById('areaBadge');
     let areaTexto = '';
     const areaValue = currentUser.area ? String(currentUser.area).toLowerCase().trim() : '';
+    
+    console.log('🔄 Área normalizada:', areaValue);
     
     if (areaValue === 'conversion') {
         areaTexto = getUIText('area_conversion');
@@ -193,6 +203,8 @@ async function verificarAcceso() {
     areaBadge.textContent = `${areaLabel}: ${areaTexto}`;
     areaBadge.className = `area-badge area-${areaValue}`;
     
+    console.log('✅ Área final:', { areaValue, areaTexto, className: `area-${areaValue}` });
+    
     // Mostrar botón de registro rápido solo para conversión
     if (areaValue === 'conversion') {
         document.getElementById('btnRegistroRapido').style.display = 'inline-block';
@@ -204,21 +216,20 @@ function configurarMesActual() {
     mesActual = now.getMonth() + 1;
     anioActual = now.getFullYear();
     
-    // Obtener el idioma actual del i18n
-    const idioma = window.i18n ? window.i18n.getLanguage() : 'es';
+    const monthKeys = ['january', 'february', 'march', 'april', 'may', 'june', 
+                       'july', 'august', 'september', 'october', 'november', 'december'];
     
-    // Mapear idiomas a locales
-    const localeMap = {
-        'es': 'es-ES',
-        'en': 'en-US',
-        'pt': 'pt-BR'
-    };
+    // Intentar obtener mes traducido
+    const monthName = window.i18n?.t(`months.${monthKeys[mesActual - 1]}`) || 
+                      monthKeys[mesActual - 1];
+    const currentMonthLabel = window.i18n?.t('months.current_month') || 'Mes Actual';
     
-    const locale = localeMap[idioma] || 'es-ES';
-    
-    // Usar Intl.DateTimeFormat para obtener el mes en el idioma correcto
-    const mesTexto = now.toLocaleDateString(locale, { month: 'long', year: 'numeric' });
-    document.getElementById('mesActual').textContent = mesTexto.charAt(0).toUpperCase() + mesTexto.slice(1);
+    // Mostrar con capitalización
+    const displayText = `${currentMonthLabel}: ${monthName.charAt(0).toUpperCase() + monthName.slice(1)} ${anioActual}`;
+    const mesActualElement = document.getElementById('mesActual');
+    if (mesActualElement) {
+        mesActualElement.textContent = displayText;
+    }
 }
 
 async function cargarEstadisticas() {
@@ -293,14 +304,28 @@ async function cargarLideresEnSelect() {
             .eq('activo', true)
             .order('nombre');
         
-        console.log('👥 Líderes cargados:', lideres);
-        console.log('📊 Total de líderes:', lideres?.length || 0);
+        // Crear un diccionario/objeto con los líderes
+        const lideresDict = {};
+        lideres?.forEach(lider => {
+            lideresDict[lider.id] = {
+                id: lider.id,
+                nombre: lider.nombre,
+                email: lider.email,
+                area: lider.area,
+                rol: lider.rol,
+                activo: lider.activo,
+                created_at: lider.created_at
+            };
+        });
+        
+        console.log('📚 DICCIONARIO DE LÍDERES:', lideresDict);
+        console.log('📊 Total de líderes en BD:', lideres?.length || 0);
+        console.log('🔍 Líderes del área:', currentUser.area);
         
         const select = document.getElementById('liderSelect');
         select.innerHTML = '<option value="">-- Selecciona un líder --</option>';
         
         lideres?.forEach(lider => {
-            console.log('📋 Líder:', { id: lider.id, nombre: lider.nombre, area: lider.area, rol: lider.rol });
             const option = document.createElement('option');
             option.value = lider.id;
             option.textContent = lider.nombre;
