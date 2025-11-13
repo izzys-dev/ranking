@@ -60,7 +60,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 });
 
 // Listener para cambios de idioma
-document.addEventListener('languageChanged', async () => {
+window.addEventListener('languageChanged', async () => {
     await cargarAgentes();
 });
 
