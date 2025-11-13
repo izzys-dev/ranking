@@ -140,11 +140,13 @@ window.addEventListener('languageChanged', async () => {
     const currentUser = JSON.parse(localStorage.getItem('user'));
     if (currentUser) {
         let areaTexto = '';
-        if (currentUser.area === 'conversion') {
+        const areaValue = currentUser.area ? String(currentUser.area).toLowerCase().trim() : '';
+        
+        if (areaValue === 'conversion') {
             areaTexto = getUIText('area_conversion');
-        } else if (currentUser.area === 'retention') {
+        } else if (areaValue === 'retention') {
             areaTexto = getUIText('area_retention');
-        } else if (currentUser.area === 'recovery') {
+        } else if (areaValue === 'recovery') {
             areaTexto = getUIText('area_recovery');
         } else {
             areaTexto = getUIText('no_area');
@@ -176,11 +178,13 @@ async function verificarAcceso() {
     
     const areaBadge = document.getElementById('areaBadge');
     let areaTexto = '';
-    if (currentUser.area === 'conversion') {
+    const areaValue = currentUser.area ? String(currentUser.area).toLowerCase().trim() : '';
+    
+    if (areaValue === 'conversion') {
         areaTexto = getUIText('area_conversion');
-    } else if (currentUser.area === 'retention') {
+    } else if (areaValue === 'retention') {
         areaTexto = getUIText('area_retention');
-    } else if (currentUser.area === 'recovery') {
+    } else if (areaValue === 'recovery') {
         areaTexto = getUIText('area_recovery');
     } else {
         areaTexto = getUIText('no_area');
@@ -190,7 +194,7 @@ async function verificarAcceso() {
     areaBadge.className = `area-badge area-${currentUser.area}`;
     
     // Mostrar botón de registro rápido solo para conversión
-    if (currentUser.area === 'conversion') {
+    if (areaValue === 'conversion') {
         document.getElementById('btnRegistroRapido').style.display = 'inline-block';
     }
 }
