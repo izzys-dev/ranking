@@ -4,6 +4,36 @@ let currentUser;
 let mesActual, anioActual;
 let editingAgenteId = null;
 
+// Función helper para obtener textos traducidos
+function getButtonText(key) {
+    const translations = {
+        es: {
+            'buttons.deposits': 'Depósitos',
+            'buttons.registers': 'Registros',
+            'buttons.target': 'Target',
+            'buttons.edit': 'Editar',
+            'buttons.delete': 'Eliminar'
+        },
+        en: {
+            'buttons.deposits': 'Deposits',
+            'buttons.registers': 'Registers',
+            'buttons.target': 'Target',
+            'buttons.edit': 'Edit',
+            'buttons.delete': 'Delete'
+        },
+        pt: {
+            'buttons.deposits': 'Depósitos',
+            'buttons.registers': 'Registros',
+            'buttons.target': 'Meta',
+            'buttons.edit': 'Editar',
+            'buttons.delete': 'Deletar'
+        }
+    };
+    
+    const lang = window.i18n?.getLanguage?.() || 'es';
+    return translations[lang]?.[key] || key;
+}
+
 window.addEventListener('DOMContentLoaded', async () => {
     supabaseClient = createClient(
         window.SUPABASE_CONFIG.url,
@@ -18,8 +48,9 @@ window.addEventListener('DOMContentLoaded', async () => {
 });
 
 // Listener para cambios de idioma
-window.addEventListener('languageChanged', () => {
+window.addEventListener('languageChanged', async () => {
     configurarMesActual();
+    await cargarAgentes();
 });
 
 async function verificarAcceso() {
@@ -222,13 +253,13 @@ function mostrarAgentes(agentes, lideresMap) {
                 <td><span class="lider-badge">${liderNombre}</span></td>
                 <td><span class="target-info" id="target-${agente.id}">Cargando...</span></td>
                 <td>
-                    <button class="btn-target" onclick="abrirTargetModal('${agente.id}', '${agente.nombre}')">🎯 Target</button>
-                    <button class="btn-depositos" onclick="verDepositos('${agente.id}', '${agente.nombre}')">💰 Depósitos</button>
+                    <button class="btn-target" onclick="abrirTargetModal('${agente.id}', '${agente.nombre}')">${getButtonText('buttons.target')}</button>
+                    <button class="btn-depositos" onclick="verDepositos('${agente.id}', '${agente.nombre}')">${getButtonText('buttons.deposits')}</button>
                     ${currentUser.area === 'conversion' ? 
-                        `<button class="btn-registros" onclick="verRegistros('${agente.id}', '${agente.nombre}')">📝 Registros</button>` : ''
+                        `<button class="btn-registros" onclick="verRegistros('${agente.id}', '${agente.nombre}')">${getButtonText('buttons.registers')}</button>` : ''
                     }
-                    <button class="btn-edit" onclick="editarAgente('${agente.id}')">✏️</button>
-                    <button class="btn-delete" onclick="eliminarAgente('${agente.id}', '${agente.nombre}')">🗑️</button>
+                    <button class="btn-edit" onclick="editarAgente('${agente.id}')">${getButtonText('buttons.edit')}</button>
+                    <button class="btn-delete" onclick="eliminarAgente('${agente.id}', '${agente.nombre}')">${getButtonText('buttons.delete')}</button>
                 </td>
             </tr>
         `;

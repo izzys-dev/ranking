@@ -11,6 +11,36 @@ let registrosAgenteNombre = null;
 let editingRegistroId = null;
 let mesActual, anioActual;
 
+// Función helper para obtener textos traducidos
+function getButtonText(key) {
+    const translations = {
+        es: {
+            'buttons.deposits': 'Depósitos',
+            'buttons.registers': 'Registros',
+            'buttons.target': 'Target',
+            'buttons.edit': 'Editar',
+            'buttons.delete': 'Eliminar'
+        },
+        en: {
+            'buttons.deposits': 'Deposits',
+            'buttons.registers': 'Registers',
+            'buttons.target': 'Target',
+            'buttons.edit': 'Edit',
+            'buttons.delete': 'Delete'
+        },
+        pt: {
+            'buttons.deposits': 'Depósitos',
+            'buttons.registers': 'Registros',
+            'buttons.target': 'Meta',
+            'buttons.edit': 'Editar',
+            'buttons.delete': 'Deletar'
+        }
+    };
+    
+    const lang = window.i18n?.getLanguage?.() || 'es';
+    return translations[lang]?.[key] || key;
+}
+
 window.addEventListener('DOMContentLoaded', async () => {
     supabaseClient = createClient(
         window.SUPABASE_CONFIG.url,
@@ -26,6 +56,11 @@ window.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('mesActual').textContent = `📅 Mes Actual: ${meses[mesActual - 1]} ${anioActual}`;
     
     await verificarAcceso();
+    await cargarAgentes();
+});
+
+// Listener para cambios de idioma
+document.addEventListener('languageChanged', async () => {
     await cargarAgentes();
 });
 
@@ -176,17 +211,17 @@ function mostrarAgentes(agentes) {
         }
         
         let botones = `
-            <button class="btn-depositos" onclick="verDepositos('${agente.id}', '${agente.nombre}')">Depósitos</button>
+            <button class="btn-depositos" onclick="verDepositos('${agente.id}', '${agente.nombre}')">${getButtonText('buttons.deposits')}</button>
         `;
         
         if (currentUser.area === 'conversion') {
-            botones += `<button class="btn-registros" onclick="verRegistros('${agente.id}', '${agente.nombre}')">Registros</button>`;
+            botones += `<button class="btn-registros" onclick="verRegistros('${agente.id}', '${agente.nombre}')">${getButtonText('buttons.registers')}</button>`;
         }
         
         botones += `
-            <button class="btn-target" onclick="asignarTarget('${agente.id}', '${agente.nombre}')">Target</button>
-            <button class="btn-edit" onclick="editarAgente('${agente.id}')">Editar</button>
-            <button class="btn-delete" onclick="eliminarAgente('${agente.id}', '${agente.nombre}')">Eliminar</button>
+            <button class="btn-target" onclick="asignarTarget('${agente.id}', '${agente.nombre}')">${getButtonText('buttons.target')}</button>
+            <button class="btn-edit" onclick="editarAgente('${agente.id}')">${getButtonText('buttons.edit')}</button>
+            <button class="btn-delete" onclick="eliminarAgente('${agente.id}', '${agente.nombre}')">${getButtonText('buttons.delete')}</button>
         `;
         
         html += `
