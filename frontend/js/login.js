@@ -50,13 +50,13 @@ async function handleLogin(e) {
         // Redirigir según el rol
         if (data.rol === 'super') {
             console.log('Redirigiendo a dashboard-super...');
-            window.location.href = '/frontend/pages/dashboard-super.html';
+            window.location.href = window.PATHS.dashboard.super;
         } else if (data.rol === 'admin_area') {
             console.log('Redirigiendo a dashboard-admin-area...');
-            window.location.href = '/frontend/pages/dashboard-admin-area.html';
+            window.location.href = window.PATHS.dashboard.adminArea;
         } else if (data.rol === 'lider') {
             console.log('Redirigiendo a dashboard-lider...');
-            window.location.href = '/frontend/pages/dashboard-lider.html';
+            window.location.href = window.PATHS.dashboard.lider;
         } else {
             errorMessage.textContent = 'Rol de usuario no válido';
             errorMessage.style.display = 'block';
