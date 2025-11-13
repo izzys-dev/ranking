@@ -293,10 +293,14 @@ async function cargarLideresEnSelect() {
             .eq('activo', true)
             .order('nombre');
         
+        console.log('👥 Líderes cargados:', lideres);
+        console.log('📊 Total de líderes:', lideres?.length || 0);
+        
         const select = document.getElementById('liderSelect');
         select.innerHTML = '<option value="">-- Selecciona un líder --</option>';
         
         lideres?.forEach(lider => {
+            console.log('📋 Líder:', { id: lider.id, nombre: lider.nombre, area: lider.area, rol: lider.rol });
             const option = document.createElement('option');
             option.value = lider.id;
             option.textContent = lider.nombre;
