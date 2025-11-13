@@ -241,6 +241,7 @@ async function verificarAcceso() {
     // Si el líder no tiene área asignada, obtener del primer agente
     if (!currentUser.area && currentUser.id) {
         try {
+            console.log('⏳ Buscando área del líder en los agentes...');
             const { data: agentes, error } = await supabaseClient
                 .from('agentes')
                 .select('area, lider_id, id')
@@ -250,35 +251,50 @@ async function verificarAcceso() {
             
             if (!error && agentes && agentes.length > 0) {
                 currentUser.area = agentes[0].area;
-                console.log('🔄 Área obtenida del primer agente:', agentes[0].area);
+                console.log('✅ Área obtenida del primer agente:', agentes[0].area);
                 // Actualizar el localStorage con el área obtenida
                 localStorage.setItem('user', JSON.stringify(currentUser));
+            } else {
+                console.warn('⚠️ No se encontraron agentes para este líder');
             }
         } catch (err) {
-            console.error('Error al buscar agentes:', err);
+            console.error('❌ Error al buscar agentes:', err);
         }
     }
     
+    // Ahora aplicar el área al badge (después de asegurar que currentUser.area está actualizado)
     const areaBadge = document.getElementById('areaBadge');
     let areaTexto = '';
     const areaValue = currentUser.area ? String(currentUser.area).toLowerCase().trim() : '';
     
     console.log('🔄 Área normalizada:', areaValue);
+    console.log('🔍 i18n disponible:', !!window.i18n);
+    console.log('🔍 getUIText disponible:', typeof getUIText);
     
     if (areaValue === 'conversion') {
         areaTexto = getUIText('area_conversion');
+        console.log('✅ Conversión encontrada:', areaTexto);
     } else if (areaValue === 'retention') {
         areaTexto = getUIText('area_retention');
+        console.log('✅ Retención encontrada:', areaTexto);
     } else if (areaValue === 'recovery') {
         areaTexto = getUIText('area_recovery');
+        console.log('✅ Recovery encontrado:', areaTexto);
     } else {
         areaTexto = getUIText('no_area');
+        console.log('⚠️ Área no identificada, mostrando:', areaTexto);
     }
     const areaLabel = getUIText('area');
-    areaBadge.textContent = `${areaLabel}: ${areaTexto}`;
-    areaBadge.className = `area-badge area-${areaValue}`;
+    console.log('📝 Textos a mostrar:', { areaLabel, areaTexto, areaValue });
     
-    console.log('✅ Área final:', { areaValue, areaTexto, className: `area-${areaValue}` });
+    if (!areaBadge) {
+        console.error('❌ ERROR: No se encontró elemento areaBadge en el DOM');
+    } else {
+        areaBadge.textContent = `${areaLabel}: ${areaTexto}`;
+        areaBadge.className = `area-badge area-${areaValue}`;
+        console.log('✅ areaBadge actualizado:', areaBadge.textContent);
+        console.log('✅ Clase CSS aplicada:', areaBadge.className);
+    }
     
     if (areaValue === 'conversion') {
         document.getElementById('btnRegistroRapido').style.display = 'inline-block';
