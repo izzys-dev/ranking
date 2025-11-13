@@ -6,6 +6,66 @@ let editingUsuarioRol = null;
 let areaRankingActual = 'conversion';
 let mesActual, anioActual;
 
+// Función helper para obtener textos traducidos de botones
+function getButtonText(key) {
+    const translations = {
+        es: {
+            'buttons.deposits': 'Depósitos',
+            'buttons.registers': 'Registros',
+            'buttons.target': 'Target',
+            'buttons.edit': 'Editar',
+            'buttons.delete': 'Eliminar',
+            'buttons.view_agents': 'Ver Agentes'
+        },
+        en: {
+            'buttons.deposits': 'Deposits',
+            'buttons.registers': 'Registers',
+            'buttons.target': 'Target',
+            'buttons.edit': 'Edit',
+            'buttons.delete': 'Delete',
+            'buttons.view_agents': 'View Agents'
+        },
+        pt: {
+            'buttons.deposits': 'Depósitos',
+            'buttons.registers': 'Registros',
+            'buttons.target': 'Meta',
+            'buttons.edit': 'Editar',
+            'buttons.delete': 'Deletar',
+            'buttons.view_agents': 'Ver Agentes'
+        }
+    };
+    
+    const lang = window.i18n?.getLanguage?.() || 'es';
+    return translations[lang]?.[key] || key;
+}
+
+// Función helper para obtener mensajes traducidos
+function getMessage(key) {
+    const messages = {
+        es: {
+            'access_denied': 'No tienes acceso a esta página',
+            'load_agent_error': 'Error al cargar el agente',
+            'user_deleted': 'Usuario eliminado exitosamente',
+            'user_updated': 'Usuario actualizado exitosamente'
+        },
+        en: {
+            'access_denied': 'You do not have access to this page',
+            'load_agent_error': 'Error loading agent',
+            'user_deleted': 'User deleted successfully',
+            'user_updated': 'User updated successfully'
+        },
+        pt: {
+            'access_denied': 'Você não tem acesso a esta página',
+            'load_agent_error': 'Erro ao carregar agente',
+            'user_deleted': 'Usuário deletado com sucesso',
+            'user_updated': 'Usuário atualizado com sucesso'
+        }
+    };
+    
+    const lang = window.i18n?.getLanguage?.() || 'es';
+    return messages[lang]?.[key] || key;
+}
+
 // Inicializar mes y año actual
 const now = new Date();
 mesActual = now.getMonth() + 1;
@@ -19,6 +79,10 @@ window.addEventListener('DOMContentLoaded', async () => {
     
     await verificarAcceso();
     await cargarUsuarios();
+    
+    window.addEventListener('languageChanged', async () => {
+        await cargarUsuarios();
+    });
 });
 
 async function verificarAcceso() {
@@ -73,11 +137,11 @@ function mostrarUsuarios(usuarios) {
         <table class="usuarios-table">
             <thead>
                 <tr>
-                    <th>Nombre</th>
-                    <th>Email</th>
-                    <th>Rol</th>
-                    <th>Área</th>
-                    <th>Acciones</th>
+                    <th>${window.i18n ? window.i18n.t('users.table_name') : 'Nombre'}</th>
+                    <th>${window.i18n ? window.i18n.t('users.table_email') : 'Email'}</th>
+                    <th>${window.i18n ? window.i18n.t('users.table_role') : 'Rol'}</th>
+                    <th>${window.i18n ? window.i18n.t('users.table_area') : 'Área'}</th>
+                    <th>${window.i18n ? window.i18n.t('users.table_actions') : 'Acciones'}</th>
                 </tr>
             </thead>
             <tbody>
@@ -107,10 +171,10 @@ function mostrarUsuarios(usuarios) {
                 <td><span class="area-badge area-${usuario.area}">${areaTexto}</span></td>
                 <td>
                     ${usuario.rol === 'lider' || usuario.rol === 'admin_area' ? 
-                        `<button class="btn-ver-agentes" onclick="verAgentesUsuario('${usuario.id}', '${usuario.nombre}', '${usuario.area}', '${usuario.rol}')">👁️ Ver Agentes</button>` : ''
+                        `<button class="btn-ver-agentes" onclick="verAgentesUsuario('${usuario.id}', '${usuario.nombre}', '${usuario.area}', '${usuario.rol}')">${getButtonText('buttons.view_agents')}</button>` : ''
                     }
-                    <button class="btn-edit" onclick="editarUsuario('${usuario.id}', '${usuario.rol}')">✏️ Editar</button>
-                    <button class="btn-delete" onclick="eliminarUsuario('${usuario.id}', '${usuario.nombre}', '${usuario.rol}')">🗑️ Eliminar</button>
+                    <button class="btn-edit" onclick="editarUsuario('${usuario.id}', '${usuario.rol}')">${getButtonText('buttons.edit')}</button>
+                    <button class="btn-delete" onclick="eliminarUsuario('${usuario.id}', '${usuario.nombre}', '${usuario.rol}')">${getButtonText('buttons.delete')}</button>
                 </td>
             </tr>
         `;

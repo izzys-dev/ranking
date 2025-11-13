@@ -33,7 +33,13 @@
       "total_income": "Total Ingresado",
       "users": "Gestión de Usuarios",
       "add_leader": "+ Agregar Líder",
-      "add_admin": "⚡ Agregar Admin de Área"
+      "add_admin": "⚡ Agregar Admin de Área",
+      "table_name": "Nombre",
+      "table_area": "Área",
+      "table_target": "Target del Mes",
+      "table_deposits": "Depósitos del Mes",
+      "table_registers": "Registros del Mes",
+      "table_actions": "Acciones"
     },
     "form": {
       "name": "Nombre completo",
@@ -113,7 +119,12 @@
       "leader": "Líder",
       "admin_area": "Admin de Área",
       "loading": "Cargando usuarios...",
-      "empty": "No hay usuarios registrados"
+      "empty": "No hay usuarios registrados",
+      "table_name": "Nombre",
+      "table_email": "Email",
+      "table_role": "Rol",
+      "table_area": "Área",
+      "table_actions": "Acciones"
     },
     "areas": {
       "conversion": "Conversión",
@@ -177,7 +188,13 @@
       "total_income": "Total Income",
       "users": "User Management",
       "add_leader": "+ Add Leader",
-      "add_admin": "⚡ Add Area Admin"
+      "add_admin": "⚡ Add Area Admin",
+      "table_name": "Name",
+      "table_area": "Area",
+      "table_target": "Month Target",
+      "table_deposits": "Month Deposits",
+      "table_registers": "Month Registers",
+      "table_actions": "Actions"
     },
     "form": {
       "name": "Full name",
@@ -257,7 +274,12 @@
       "leader": "Leader",
       "admin_area": "Area Admin",
       "loading": "Loading users...",
-      "empty": "No users registered"
+      "empty": "No users registered",
+      "table_name": "Name",
+      "table_email": "Email",
+      "table_role": "Role",
+      "table_area": "Area",
+      "table_actions": "Actions"
     },
     "areas": {
       "conversion": "Conversion",
@@ -321,7 +343,13 @@
       "total_income": "Receita Total",
       "users": "Gerenciamento de Usuários",
       "add_leader": "+ Adicionar Líder",
-      "add_admin": "⚡ Adicionar Admin de Área"
+      "add_admin": "⚡ Adicionar Admin de Área",
+      "table_name": "Nome",
+      "table_area": "Área",
+      "table_target": "Meta do Mês",
+      "table_deposits": "Depósitos do Mês",
+      "table_registers": "Registros do Mês",
+      "table_actions": "Ações"
     },
     "form": {
       "name": "Nome completo",
@@ -401,7 +429,12 @@
       "leader": "Líder",
       "admin_area": "Admin de Área",
       "loading": "Carregando usuários...",
-      "empty": "Nenhum usuário registrado"
+      "empty": "Nenhum usuário registrado",
+      "table_name": "Nome",
+      "table_email": "Email",
+      "table_role": "Função",
+      "table_area": "Área",
+      "table_actions": "Ações"
     },
     "areas": {
       "conversion": "Conversão",

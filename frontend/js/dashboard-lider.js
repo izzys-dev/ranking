@@ -220,17 +220,17 @@ function mostrarAgentes(agentes) {
     }
     
     let headers = `
-        <th>Nombre</th>
-        <th>Área</th>
-        <th>Target del Mes</th>
-        <th>Depósitos del Mes</th>
+        <th>${window.i18n ? window.i18n.t('dashboard.table_name') : 'Nombre'}</th>
+        <th>${window.i18n ? window.i18n.t('dashboard.table_area') : 'Área'}</th>
+        <th>${window.i18n ? window.i18n.t('dashboard.table_target') : 'Target del Mes'}</th>
+        <th>${window.i18n ? window.i18n.t('dashboard.table_deposits') : 'Depósitos del Mes'}</th>
     `;
     
     if (currentUser.area === 'conversion') {
-        headers += '<th>Registros del Mes</th>';
+        headers += `<th>${window.i18n ? window.i18n.t('dashboard.table_registers') : 'Registros del Mes'}</th>`;
     }
     
-    headers += '<th>Acciones</th>';
+    headers += `<th>${window.i18n ? window.i18n.t('dashboard.table_actions') : 'Acciones'}</th>`;
     
     let html = `
         <table class="agentes-table">
