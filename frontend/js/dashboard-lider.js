@@ -18,12 +18,7 @@ const monthKeys = ['january', 'february', 'march', 'april', 'may', 'june',
 function updateMonthDisplay() {
     if (!mesActual) return;
     
-    console.log('🔄 updateMonthDisplay llamado');
-    console.log('🔍 window.i18n disponible:', !!window.i18n);
-    console.log('🔍 window.i18n.translations disponible:', !!window.i18n?.translations);
-    
     if (!window.i18n?.translations) {
-        console.log('⚠️ Traducciones no disponibles aún');
         return;
     }
     
@@ -31,12 +26,9 @@ function updateMonthDisplay() {
                       monthKeys[mesActual - 1];
     const currentMonthLabel = window.i18n.t('months.current_month') || 'Mes Actual';
     
-    console.log('✅ Mes recuperado:', { monthName, currentMonthLabel, mesActual });
-    
     const mesActualElement = document.getElementById('mesActual');
     if (mesActualElement) {
         mesActualElement.textContent = `📅 ${currentMonthLabel}: ${monthName} ${anioActual}`;
-        console.log('✅ mesActual actualizado:', mesActualElement.textContent);
     }
 }
 
@@ -82,13 +74,10 @@ window.addEventListener('DOMContentLoaded', async () => {
     
     // Esperar a que i18n esté completamente cargado
     if (window.i18n && window.i18n.translations) {
-        console.log('✅ i18n ya está cargado en DOMContentLoaded');
         updateMonthDisplay();
     } else {
-        console.log('⏳ Esperando evento i18nReady...');
         // Esperar el evento i18nReady
         window.addEventListener('i18nReady', () => {
-            console.log('✅ i18nReady recibido, actualizando mes...');
             updateMonthDisplay();
         }, { once: true });
     }
@@ -222,14 +211,6 @@ async function verificarAcceso() {
     
     currentUser = JSON.parse(userStr);
     
-    console.log('🔐 Usuario cargado de localStorage:', currentUser);
-    console.log('📍 RASTREO DE ÁREA - Origen:', {
-        'currentUser.area': currentUser.area,
-        'tipo': typeof currentUser.area,
-        'longitud': String(currentUser.area).length,
-        'caracteres': currentUser.area ? Array.from(String(currentUser.area)).map((c, i) => `[${i}]: '${c}' (código: ${c.charCodeAt(0)})`) : 'null'
-    });
-    
     if (currentUser.rol !== 'lider') {
         alert('No tienes acceso a esta página');
         window.location.href = '../index.html';
@@ -241,7 +222,6 @@ async function verificarAcceso() {
     // Si el líder no tiene área asignada, obtener del primer agente
     if (!currentUser.area && currentUser.id) {
         try {
-            console.log('⏳ Buscando área del líder en los agentes...');
             const { data: agentes, error } = await supabaseClient
                 .from('agentes')
                 .select('area, lider_id, id')
@@ -251,14 +231,11 @@ async function verificarAcceso() {
             
             if (!error && agentes && agentes.length > 0) {
                 currentUser.area = agentes[0].area;
-                console.log('✅ Área obtenida del primer agente:', agentes[0].area);
                 // Actualizar el localStorage con el área obtenida
                 localStorage.setItem('user', JSON.stringify(currentUser));
-            } else {
-                console.warn('⚠️ No se encontraron agentes para este líder');
             }
         } catch (err) {
-            console.error('❌ Error al buscar agentes:', err);
+            console.error('Error al buscar agentes:', err);
         }
     }
     
@@ -267,33 +244,20 @@ async function verificarAcceso() {
     let areaTexto = '';
     const areaValue = currentUser.area ? String(currentUser.area).toLowerCase().trim() : '';
     
-    console.log('🔄 Área normalizada:', areaValue);
-    console.log('🔍 i18n disponible:', !!window.i18n);
-    console.log('🔍 getUIText disponible:', typeof getUIText);
-    
     if (areaValue === 'conversion') {
         areaTexto = getUIText('area_conversion');
-        console.log('✅ Conversión encontrada:', areaTexto);
     } else if (areaValue === 'retention') {
         areaTexto = getUIText('area_retention');
-        console.log('✅ Retención encontrada:', areaTexto);
     } else if (areaValue === 'recovery') {
         areaTexto = getUIText('area_recovery');
-        console.log('✅ Recovery encontrado:', areaTexto);
     } else {
         areaTexto = getUIText('no_area');
-        console.log('⚠️ Área no identificada, mostrando:', areaTexto);
     }
     const areaLabel = getUIText('area');
-    console.log('📝 Textos a mostrar:', { areaLabel, areaTexto, areaValue });
     
-    if (!areaBadge) {
-        console.error('❌ ERROR: No se encontró elemento areaBadge en el DOM');
-    } else {
+    if (areaBadge) {
         areaBadge.textContent = `${areaLabel}: ${areaTexto}`;
         areaBadge.className = `area-badge area-${areaValue}`;
-        console.log('✅ areaBadge actualizado:', areaBadge.textContent);
-        console.log('✅ Clase CSS aplicada:', areaBadge.className);
     }
     
     if (areaValue === 'conversion') {
@@ -339,24 +303,6 @@ async function cargarAgentes() {
             if (registrosError) throw registrosError;
             registros = registrosData || [];
         }
-        
-        // Crear diccionario de agentes desde BD
-        const agentesDict = {};
-        agentes?.forEach(agente => {
-            agentesDict[agente.id] = {
-                id: agente.id,
-                nombre: agente.nombre,
-                email: agente.email,
-                area: agente.area,
-                lider_id: agente.lider_id,
-                activo: agente.activo,
-                created_at: agente.created_at
-            };
-        });
-        
-        console.log('📚 DICCIONARIO DE AGENTES:', agentesDict);
-        console.log('📊 Total de agentes en BD:', agentes?.length || 0);
-        console.log('🔍 Agentes del líder:', currentUser.nombre);
         
         const agentesConDatos = agentes.map(agente => {
             const target = targets?.find(t => t.agente_id === agente.id);

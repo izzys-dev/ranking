@@ -129,13 +129,10 @@ window.addEventListener('DOMContentLoaded', async () => {
     
     // Esperar a que i18n esté completamente cargado
     if (window.i18n && window.i18n.translations) {
-        console.log('✅ i18n ya está cargado en DOMContentLoaded');
         configurarMesActual();
     } else {
-        console.log('⏳ Esperando evento i18nReady...');
         // Esperar el evento i18nReady
         window.addEventListener('i18nReady', () => {
-            console.log('✅ i18nReady recibido, configurando mes...');
             configurarMesActual();
         }, { once: true });
     }
@@ -180,14 +177,6 @@ async function verificarAcceso() {
     
     currentUser = JSON.parse(userStr);
     
-    console.log('🔐 Usuario cargado de localStorage:', currentUser);
-    console.log('📍 RASTREO DE ÁREA - Origen:', {
-        'currentUser.area': currentUser.area,
-        'tipo': typeof currentUser.area,
-        'longitud': String(currentUser.area).length,
-        'caracteres': currentUser.area ? Array.from(String(currentUser.area)).map((c, i) => `[${i}]: '${c}' (código: ${c.charCodeAt(0)})`) : 'null'
-    });
-    
     if (currentUser.rol !== 'admin_area') {
         alert(getMessage('access_denied'));
         window.location.href = '../index.html';
@@ -199,8 +188,6 @@ async function verificarAcceso() {
     const areaBadge = document.getElementById('areaBadge');
     let areaTexto = '';
     const areaValue = currentUser.area ? String(currentUser.area).toLowerCase().trim() : '';
-    
-    console.log('🔄 Área normalizada:', areaValue);
     
     if (areaValue === 'conversion') {
         areaTexto = getUIText('area_conversion');
@@ -214,8 +201,6 @@ async function verificarAcceso() {
     const areaLabel = getUIText('area');
     areaBadge.textContent = `${areaLabel}: ${areaTexto}`;
     areaBadge.className = `area-badge area-${areaValue}`;
-    
-    console.log('✅ Área final:', { areaValue, areaTexto, className: `area-${areaValue}` });
     
     // Mostrar botón de registro rápido solo para conversión
     if (areaValue === 'conversion') {
@@ -315,24 +300,6 @@ async function cargarLideresEnSelect() {
             .eq('area', currentUser.area)
             .eq('activo', true)
             .order('nombre');
-        
-        // Crear un diccionario/objeto con los líderes
-        const lideresDict = {};
-        lideres?.forEach(lider => {
-            lideresDict[lider.id] = {
-                id: lider.id,
-                nombre: lider.nombre,
-                email: lider.email,
-                area: lider.area,
-                rol: lider.rol,
-                activo: lider.activo,
-                created_at: lider.created_at
-            };
-        });
-        
-        console.log('📚 DICCIONARIO DE LÍDERES:', lideresDict);
-        console.log('📊 Total de líderes en BD:', lideres?.length || 0);
-        console.log('🔍 Líderes del área:', currentUser.area);
         
         const select = document.getElementById('liderSelect');
         select.innerHTML = '<option value="">-- Selecciona un líder --</option>';
