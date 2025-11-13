@@ -59,6 +59,60 @@ window.addEventListener('DOMContentLoaded', async () => {
     await cargarAgentes();
 });
 
+// Función helper para obtener mensajes traducidos
+function getMessage(key) {
+    const messages = {
+        es: {
+            'access_denied': 'No tienes acceso a esta página',
+            'load_agent_error': 'Error al cargar el agente',
+            'agent_updated': 'Agente actualizado exitosamente',
+            'agent_created': 'Agente creado exitosamente',
+            'agent_deleted': 'Agente eliminado exitosamente',
+            'confirm_delete_agent': '¿Estás seguro de que deseas eliminar este agente?',
+            'deposit_created': 'Depósito creado exitosamente',
+            'deposit_updated': 'Depósito actualizado exitosamente',
+            'deposit_deleted': 'Depósito eliminado exitosamente',
+            'register_created': 'Registro creado exitosamente',
+            'register_updated': 'Registro actualizado exitosamente',
+            'register_deleted': 'Registro eliminado exitosamente',
+            'target_assigned': 'Target asignado exitosamente'
+        },
+        en: {
+            'access_denied': 'You do not have access to this page',
+            'load_agent_error': 'Error loading agent',
+            'agent_updated': 'Agent updated successfully',
+            'agent_created': 'Agent created successfully',
+            'agent_deleted': 'Agent deleted successfully',
+            'confirm_delete_agent': 'Are you sure you want to delete this agent?',
+            'deposit_created': 'Deposit created successfully',
+            'deposit_updated': 'Deposit updated successfully',
+            'deposit_deleted': 'Deposit deleted successfully',
+            'register_created': 'Register created successfully',
+            'register_updated': 'Register updated successfully',
+            'register_deleted': 'Register deleted successfully',
+            'target_assigned': 'Target assigned successfully'
+        },
+        pt: {
+            'access_denied': 'Você não tem acesso a esta página',
+            'load_agent_error': 'Erro ao carregar agente',
+            'agent_updated': 'Agente atualizado com sucesso',
+            'agent_created': 'Agente criado com sucesso',
+            'agent_deleted': 'Agente deletado com sucesso',
+            'confirm_delete_agent': 'Tem certeza que deseja deletar este agente?',
+            'deposit_created': 'Depósito criado com sucesso',
+            'deposit_updated': 'Depósito atualizado com sucesso',
+            'deposit_deleted': 'Depósito deletado com sucesso',
+            'register_created': 'Registro criado com sucesso',
+            'register_updated': 'Registro atualizado com sucesso',
+            'register_deleted': 'Registro deletado com sucesso',
+            'target_assigned': 'Meta atribuída com sucesso'
+        }
+    };
+    
+    const lang = window.i18n?.getLanguage?.() || 'es';
+    return messages[lang]?.[key] || key;
+}
+
 // Listener para cambios de idioma
 window.addEventListener('languageChanged', async () => {
     await cargarAgentes();

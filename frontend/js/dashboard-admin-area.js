@@ -34,6 +34,60 @@ function getButtonText(key) {
     return translations[lang]?.[key] || key;
 }
 
+// Función helper para obtener mensajes traducidos
+function getMessage(key) {
+    const messages = {
+        es: {
+            'access_denied': 'No tienes acceso a esta página',
+            'load_agent_error': 'Error al cargar el agente',
+            'agent_updated': 'Agente actualizado exitosamente',
+            'agent_created': 'Agente creado exitosamente',
+            'agent_deleted': 'Agente eliminado exitosamente',
+            'confirm_delete_agent': '¿Estás seguro de que deseas eliminar este agente?',
+            'deposit_created': 'Depósito creado exitosamente',
+            'deposit_updated': 'Depósito actualizado exitosamente',
+            'deposit_deleted': 'Depósito eliminado exitosamente',
+            'register_created': 'Registro creado exitosamente',
+            'register_updated': 'Registro actualizado exitosamente',
+            'register_deleted': 'Registro eliminado exitosamente',
+            'target_assigned': 'Target asignado exitosamente'
+        },
+        en: {
+            'access_denied': 'You do not have access to this page',
+            'load_agent_error': 'Error loading agent',
+            'agent_updated': 'Agent updated successfully',
+            'agent_created': 'Agent created successfully',
+            'agent_deleted': 'Agent deleted successfully',
+            'confirm_delete_agent': 'Are you sure you want to delete this agent?',
+            'deposit_created': 'Deposit created successfully',
+            'deposit_updated': 'Deposit updated successfully',
+            'deposit_deleted': 'Deposit deleted successfully',
+            'register_created': 'Register created successfully',
+            'register_updated': 'Register updated successfully',
+            'register_deleted': 'Register deleted successfully',
+            'target_assigned': 'Target assigned successfully'
+        },
+        pt: {
+            'access_denied': 'Você não tem acesso a esta página',
+            'load_agent_error': 'Erro ao carregar agente',
+            'agent_updated': 'Agente atualizado com sucesso',
+            'agent_created': 'Agente criado com sucesso',
+            'agent_deleted': 'Agente deletado com sucesso',
+            'confirm_delete_agent': 'Tem certeza que deseja deletar este agente?',
+            'deposit_created': 'Depósito criado com sucesso',
+            'deposit_updated': 'Depósito atualizado com sucesso',
+            'deposit_deleted': 'Depósito deletado com sucesso',
+            'register_created': 'Registro criado com sucesso',
+            'register_updated': 'Registro atualizado com sucesso',
+            'register_deleted': 'Registro deletado com sucesso',
+            'target_assigned': 'Meta atribuída com sucesso'
+        }
+    };
+    
+    const lang = window.i18n?.getLanguage?.() || 'es';
+    return messages[lang]?.[key] || key;
+}
+
 window.addEventListener('DOMContentLoaded', async () => {
     supabaseClient = createClient(
         window.SUPABASE_CONFIG.url,
@@ -63,7 +117,7 @@ async function verificarAcceso() {
     currentUser = JSON.parse(userStr);
     
     if (currentUser.rol !== 'admin_area') {
-        alert('No tienes acceso a esta página');
+        alert(getMessage('access_denied'));
         window.location.href = '../index.html';
         return;
     }
@@ -575,7 +629,7 @@ async function editarAgente(id) {
         
     } catch (error) {
         console.error('Error:', error);
-        alert('Error al cargar el agente: ' + error.message);
+        alert(getMessage('load_agent_error') + ': ' + error.message);
     }
 }
 
@@ -606,7 +660,7 @@ document.getElementById('agenteForm').addEventListener('submit', async (e) => {
             
             if (error) throw error;
             
-            alert('Agente actualizado exitosamente');
+            alert(getMessage('agent_updated'));
             
         } else {
             const { data: existingAgente } = await supabaseClient
@@ -626,7 +680,7 @@ document.getElementById('agenteForm').addEventListener('submit', async (e) => {
                     
                     if (reactivateError) throw reactivateError;
                     
-                    alert('Agente reactivado exitosamente ✅');
+                    alert(getMessage('agent_updated'));
                 } else {
                     throw new Error('Este agente ya existe y está activo');
                 }
@@ -641,7 +695,7 @@ document.getElementById('agenteForm').addEventListener('submit', async (e) => {
                 
                 if (dbError) throw dbError;
                 
-                alert('Agente creado exitosamente ✅');
+                alert(getMessage('agent_created'));
             }
         }
         
@@ -668,7 +722,7 @@ async function eliminarAgente(id, nombre) {
         
         if (error) throw error;
         
-        alert('Agente desactivado');
+        alert(getMessage('agent_deleted'));
         await cargarAgentes();
         
     } catch (error) {
@@ -798,7 +852,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 closeTargetModal();
                 await cargarAgentes();
-                alert('Target guardado exitosamente ✅');
+                alert(getMessage('target_assigned'));
                 
             } catch (error) {
                 console.error('Error:', error);
@@ -844,7 +898,7 @@ async function openDepositoRapido() {
         
     } catch (error) {
         console.error('Error:', error);
-        alert('Error al cargar agentes');
+        alert(getMessage('load_agent_error'));
     }
 }
 
@@ -882,7 +936,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 if (error) throw error;
                 
-                alert('Depósito registrado exitosamente ✅');
+                alert(getMessage('deposit_created'));
                 closeDepositoRapido();
                 await cargarAgentes();
                 
@@ -930,7 +984,7 @@ async function openRegistroRapido() {
         
     } catch (error) {
         console.error('Error:', error);
-        alert('Error al cargar agentes');
+        alert(getMessage('load_agent_error'));
     }
 }
 
@@ -966,7 +1020,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 if (error) throw error;
                 
-                alert('Registro (Lead) registrado exitosamente ✅');
+                alert(getMessage('register_created'));
                 closeRegistroRapido();
                 await cargarAgentes();
                 
