@@ -98,7 +98,6 @@ window.addEventListener('DOMContentLoaded', async () => {
     configurarMesActual();
     await cargarEstadisticas();
     await cargarAgentes();
-    inicializarFiltrosTop5();
     await cargarLideresEnSelect();
 });
 
@@ -249,18 +248,35 @@ async function cargarEstadisticas() {
 
 async function cargarLideresEnSelect() {
     try {
-        const { data: lideres } = await supabaseClient
+        console.log('Cargando líderes para área:', currentUser.area);
+        
+        // Cargar líderes del área actual
+        const { data: lideres, error } = await supabaseClient
             .from('usuarios')
-            .select('*')
+            .select('id, nombre, area, rol')
             .eq('rol', 'lider')
             .eq('area', currentUser.area)
-            .eq('activo', true)
             .order('nombre');
+        
+        console.log('Líderes encontrados:', lideres?.length || 0, lideres);
+        
+        if (error) {
+            console.error('Error al cargar líderes:', error);
+            return;
+        }
         
         const select = document.getElementById('liderSelect');
         select.innerHTML = '<option value="">-- Selecciona un líder --</option>';
         
-        lideres?.forEach(lider => {
+        if (!lideres || lideres.length === 0) {
+            const option = document.createElement('option');
+            option.textContent = 'No hay líderes disponibles en ' + currentUser.area;
+            option.disabled = true;
+            select.appendChild(option);
+            return;
+        }
+        
+        lideres.forEach(lider => {
             const option = document.createElement('option');
             option.value = lider.id;
             option.textContent = lider.nombre;
