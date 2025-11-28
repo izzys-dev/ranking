@@ -98,6 +98,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     configurarMesActual();
     await cargarEstadisticas();
     await cargarAgentes();
+    inicializarFiltrosTop5();
     await cargarLideresEnSelect();
 });
 
@@ -1243,6 +1244,11 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+// Función para abrir el ranking en pantalla aparte
+function abrirRankingTop5() {
+    window.location.href = './ranking-top5.html';
+}
 
 async function logout() {
     localStorage.removeItem('user');

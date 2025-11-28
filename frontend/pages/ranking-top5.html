@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ranking Top 5</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            opacity: 0.1;
+            background-image:
+                radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.2) 0%, transparent 50%);
+        }
+
+        body.conversion {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%);
+        }
+
+        body.retencion {
+            background: linear-gradient(135deg, #10b981 0%, #14b8a6 50%, #06b6d4 100%);
+        }
+
+        body.recovery {
+            background: linear-gradient(135deg, #f59e0b 0%, #ef4444 50%, #ec4899 100%);
+        }
+
+        .container {
+            padding: 25px 60px;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .logo {
+            font-size: 40px;
+            filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.3));
+        }
+
+        .fecha-hora {
+            color: white;
+            font-size: 18px;
+            opacity: 0.95;
+            font-weight: 600;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            padding: 8px 20px;
+            border-radius: 12px;
+        }
+
+        .header h1 {
+            font-size: 48px;
+            font-weight: 900;
+            text-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            margin-bottom: 8px;
+            letter-spacing: -2px;
+        }
+
+        .header .subtitle {
+            font-size: 24px;
+            opacity: 0.95;
+            font-weight: 700;
+        }
+
+        .ranking-container {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .ranking-item {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 20px 30px;
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            position: relative;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+            height: 120px;
+        }
+
+        .ranking-item:hover {
+            transform: translateX(10px);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+        }
+
+        .posicion-badge {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            font-weight: 900;
+            color: white;
+            flex-shrink: 0;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        }
+
+        .top-1 .posicion-badge {
+            background: linear-gradient(135deg, #f59e0b, #fbbf24);
+            box-shadow: 0 8px 24px rgba(245, 158, 11, 0.5);
+        }
+
+        .top-2 .posicion-badge {
+            background: linear-gradient(135deg, #9ca3af, #d1d5db);
+            box-shadow: 0 8px 24px rgba(156, 163, 175, 0.5);
+        }
+
+        .top-3 .posicion-badge {
+            background: linear-gradient(135deg, #ef4444, #f87171);
+            box-shadow: 0 8px 24px rgba(239, 68, 68, 0.5);
+        }
+
+        .posicion-badge.other {
+            background: linear-gradient(135deg, #64748b, #94a3b8);
+            box-shadow: 0 8px 24px rgba(100, 116, 139, 0.5);
+        }
+
+        .agente-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .agente-nombre {
+            font-size: 28px;
+            font-weight: 900;
+            color: #0f172a;
+            margin-bottom: 5px;
+            letter-spacing: -1px;
+            word-break: break-word;
+        }
+
+        .agente-stats {
+            display: flex;
+            gap: 15px;
+            font-size: 14px;
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        .medal {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 40px;
+            filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
+        }
+
+        .stats-grid {
+            display: flex;
+            gap: 15px;
+            margin-left: auto;
+            flex-shrink: 0;
+        }
+
+        .stat-box {
+            background: #f8fafc;
+            padding: 15px 20px;
+            border-radius: 14px;
+            text-align: center;
+            min-width: 120px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #94a3b8;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 900;
+            color: #0f172a;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 100px 20px;
+            color: white;
+            font-size: 42px;
+            font-weight: 700;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            background: rgba(255, 255, 255, 0.25);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            background: rgba(255, 255, 255, 0.4);
+            border-color: white;
+            transform: scale(1.05);
+        }
+
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+            z-index: 100;
+            font-size: 14px;
+        }
+
+        .back-button:hover {
+            background: white;
+            transform: translateX(-5px);
+        }
+
+        .fullscreen-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+            z-index: 100;
+            font-size: 14px;
+        }
+
+        .fullscreen-btn:hover {
+            background: white;
+            transform: scale(1.05);
+        }
+
+        .actualizacion {
+            text-align: center;
+            color: white;
+            font-size: 16px;
+            margin-top: 15px;
+            font-weight: 600;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            padding: 10px 24px;
+            border-radius: 16px;
+        }
+
+        .live-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            background: #ef4444;
+            border-radius: 50%;
+            margin-right: 10px;
+            animation: pulse 2s infinite;
+            box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+            }
+
+            50% {
+                box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+            }
+        }
+
+        .ranking-container::-webkit-scrollbar {
+            width: 12px;
+        }
+
+        .ranking-container::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+        }
+
+        .ranking-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 6px;
+            transition: background 0.3s;
+        }
+
+        .ranking-container::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+    </style>
+</head>
+
+<body>
+    <button class="back-button" onclick="volverAlDashboard()">← Volver</button>
+    <button class="fullscreen-btn" onclick="toggleFullscreen()">⛶ Pantalla Completa</button>
+
+    <div class="container">
+        <div class="header">
+            <div class="header-top">
+                <div class="logo">🏆</div>
+                <div class="fecha-hora" id="fechaHora"></div>
+            </div>
+            <h1 id="areaTitle">TOP 5</h1>
+            <div class="subtitle" id="mesActual"></div>
+
+            <div class="filter-buttons">
+                <button class="filter-btn active" id="btnRecovery" onclick="cambiarMetrica('recovery')"
+                    style="display:none;">🔄 Recovery</button>
+                <button class="filter-btn" id="btnConversion" onclick="cambiarMetrica('conversion')"
+                    style="display:none;">💰 Conversión</button>
+                <button class="filter-btn" id="btnRetencion" onclick="cambiarMetrica('retencion')"
+                    style="display:none;">📊 Retención</button>
+            </div>
+        </div>
+
+        <div class="ranking-container" id="rankingContainer">
+            <div class="loading">⏳ Cargando ranking...</div>
+        </div>
+
+        <div class="actualizacion">
+            <span class="live-indicator"></span>EN VIVO • Última actualización: <span id="ultimaActualizacion"></span>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../../config/config.js"></script>
+    <script src="../../config/config.local.js"></script>
+    <script>
+        const { createClient } = supabase;
+        let supabaseClient;
+        let currentUser;
+        let areaActual;
+        let metricaActual = 'recovery';
+        let mesActual, anioActual;
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            supabaseClient = createClient(
+                window.SUPABASE_CONFIG.url,
+                window.SUPABASE_CONFIG.anonKey
+            );
+
+            // Verificar acceso
+            const userStr = localStorage.getItem('user');
+            if (!userStr) {
+                window.location.href = '../index.html';
+                return;
+            }
+
+            currentUser = JSON.parse(userStr);
+
+            if (currentUser.rol !== 'admin_area') {
+                alert('No tienes acceso a esta página');
+                window.location.href = '../index.html';
+                return;
+            }
+
+            areaActual = currentUser.area;
+
+            // Configurar estilos según área
+            document.body.classList.add(areaActual);
+
+            // Actualizar título según área
+            const titulos = {
+                'conversion': '🎯 TOP 5 CONVERSIÓN',
+                'retencion': '🔄 TOP 5 RETENCIÓN',
+                'recovery': '💰 TOP 5 RECOVERY'
+            };
+
+            document.getElementById('areaTitle').textContent = titulos[areaActual];
+
+            // Mostrar solo el botón de su área
+            if (areaActual === 'recovery') {
+                document.getElementById('btnRecovery').style.display = 'inline-block';
+                metricaActual = 'recovery';
+            } else if (areaActual === 'conversion') {
+                document.getElementById('btnConversion').style.display = 'inline-block';
+                metricaActual = 'conversion';
+            } else if (areaActual === 'retencion') {
+                document.getElementById('btnRetencion').style.display = 'inline-block';
+                metricaActual = 'retencion';
+            }
+
+            // Configurar mes
+            const now = new Date();
+            mesActual = now.getMonth() + 1;
+            anioActual = now.getFullYear();
+
+            const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+                'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+            document.getElementById('mesActual').textContent = `${meses[mesActual - 1]} ${anioActual}`;
+
+            // Actualizar fecha
+            actualizarFechaHora();
+            setInterval(actualizarFechaHora, 1000);
+
+            // Cargar ranking con la métrica del área
+            await cargarRanking();
+        });
+
+        function actualizarFechaHora() {
+            const ahora = new Date();
+            const opciones = {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            };
+            document.getElementById('fechaHora').textContent = ahora.toLocaleDateString('es-ES', opciones);
+            document.getElementById('ultimaActualizacion').textContent = ahora.toLocaleTimeString('es-ES');
+        }
+
+        async function cargarRanking() {
+            try {
+                // Cargar agentes del área
+                const { data: agentes, error: agentesError } = await supabaseClient
+                    .from('agentes')
+                    .select('*')
+                    .eq('area', areaActual)
+                    .eq('activo', true);
+
+                if (agentesError) {
+                    throw new Error(`Error agentes: ${agentesError.message}`);
+                }
+
+                // Cargar depósitos (sin filtrar por tipo, como en tv-ranking.js)
+
+                const { data: depositos, error: depositosError } = await supabaseClient
+                    .from('depositos')
+                    .select('*')
+                    .eq('mes', mesActual)
+                    .eq('anio', anioActual);
+
+                if (depositosError) {
+                    throw new Error(`Error depósitos: ${depositosError.message}`);
+                }
+
+                // Cargar targets
+                const { data: targets, error: targetsError } = await supabaseClient
+                    .from('targets_mensuales')
+                    .select('*')
+                    .eq('mes', mesActual)
+                    .eq('anio', anioActual);
+
+                if (targetsError) {
+                    throw new Error(`Error targets: ${targetsError.message}`);
+                }
+
+                // Calcular totales según el área
+                const agentesConMetricas = (agentes || []).map(agente => {
+                    const depositosAgente = (depositos || [])
+                        .filter(d => d.agente_id === agente.id);
+
+                    const target = targets?.find(t => t.agente_id === agente.id);
+
+                    let totalMetrica = 0;
+
+                    if (areaActual === 'conversion') {
+                        // Para conversión: contar cantidad de depósitos
+                        totalMetrica = depositosAgente.length;
+                    } else {
+                        // Para recovery y retención: sumar montos
+                        totalMetrica = depositosAgente.reduce((sum, d) => sum + (parseFloat(d.monto) || 0), 0);
+                    }
+
+                    return {
+                        ...agente,
+                        total: totalMetrica,
+                        target: target
+                    };
+                });
+
+                // Filtrar solo top 5
+                const top5 = agentesConMetricas
+                    .filter(a => a.total > 0)
+                    .sort((a, b) => b.total - a.total)
+                    .slice(0, 5);
+
+                // Cargar líderes
+                const { data: lideres } = await supabaseClient
+                    .from('usuarios')
+                    .select('*')
+                    .eq('rol', 'lider')
+                    .eq('area', areaActual);
+
+                const lideresMap = {};
+                (lideres || []).forEach(l => {
+                    lideresMap[l.id] = l.nombre;
+                });
+
+                mostrarRanking(top5, lideresMap);
+
+            } catch (error) {
+                document.getElementById('rankingContainer').innerHTML =
+                    `<div class="loading">❌ Error al cargar: ${error.message}</div>`;
+            }
+        }
+
+        function mostrarRanking(agentes, lideresMap) {
+            const container = document.getElementById('rankingContainer');
+            const medallas = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣'];
+            const posicionesCss = ['top-1', 'top-2', 'top-3', '', ''];
+
+            if (!agentes || agentes.length === 0) {
+                container.innerHTML = '<div class="loading">Sin datos para mostrar</div>';
+                return;
+            }
+
+            let html = '';
+            agentes.forEach((agente, index) => {
+                const posicion = index + 1;
+                const posicionCss = posicionesCss[index] || '';
+                const medallaBadge = medallas[index];
+                const liderNombre = lideresMap[agente.lider_id] || 'Sin líder';
+
+                // Formatear el valor según el área
+                let valorFormato = '';
+                let labelFormato = '';
+                if (areaActual === 'conversion') {
+                    valorFormato = agente.total.toString();
+                    labelFormato = 'Depósitos';
+                } else {
+                    valorFormato = `$${agente.total.toFixed(0)}`;
+                    labelFormato = 'Monto Total';
+                }
+
+                html += `
+                    <div class="ranking-item ${posicionCss}">
+                        <div class="posicion-badge${posicionCss ? '' : ' other'}">${posicion}</div>
+                        <div class="agente-info">
+                            <div class="agente-nombre">${agente.nombre}</div>
+                            <div class="agente-stats">
+                                <span>👤 ${liderNombre}</span>
+                            </div>
+                        </div>
+                        <div class="stats-grid">
+                            <div class="stat-box">
+                                <div class="stat-label">${labelFormato}</div>
+                                <div class="stat-value">${valorFormato}</div>
+                            </div>
+                        </div>
+                        <div class="medal">${medallaBadge}</div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        async function cambiarMetrica(metrica) {
+            // Solo permitir cambiar si es la métrica del área del admin
+            if (metrica !== areaActual) {
+                console.warn('⚠️ No puedes cambiar a otra área');
+                return;
+            }
+
+            metricaActual = metrica;
+            console.log('📊 Cambiando a métrica:', metricaActual);
+
+            // Actualizar botones
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Recargar
+            await cargarRanking();
+        }
+
+        function volverAlDashboard() {
+            window.location.href = './dashboard-admin-area.html';
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    alert(`Error: ${err.message}`);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        }
+    </script>
+</body>
+
+</html>

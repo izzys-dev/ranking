@@ -342,16 +342,21 @@
         <div class="card">
             <h2 data-i18n="dashboard.all_agents"></h2>
             <div class="mes-actual" id="mesActual"></div>
-            <button class="btn-add" onclick="openModal()" data-i18n="dashboard.add_agent"></button>
-            <button class="btn-add btn-deposito-rapido" onclick="openDepositoRapido()"
-                data-i18n="dashboard.quick_deposit"></button>
-            <button class="btn-add btn-registro-rapido" onclick="openRegistroRapido()" id="btnRegistroRapido"
-                style="display: none;">📝 Registro Rápido</button>
-
-            <div id="agentesContainer">
-                <div class="empty-state">Cargando agentes...</div>
+            <div style="margin-bottom: 15px;">
+                <button class="btn-add" onclick="openModal()" data-i18n="dashboard.add_agent"></button>
+                <button class="btn-add btn-deposito-rapido" onclick="openDepositoRapido()"
+                    data-i18n="dashboard.quick_deposit"></button>
+                <button class="btn-add btn-registro-rapido" onclick="openRegistroRapido()" id="btnRegistroRapido"
+                    style="display: none;">📝 Registro Rápido</button>
+                <button class="btn-add" style="background: #8b5cf6; margin-left: 10px;" onclick="abrirRankingTop5()">🏆
+                    Ver Ranking Top 5</button>
             </div>
         </div>
+
+        <div id="agentesContainer">
+            <div class="empty-state">Cargando agentes...</div>
+        </div>
+    </div>
     </div>
 
     <!-- Modales (copiar los mismos del dashboard-lider.html) -->
