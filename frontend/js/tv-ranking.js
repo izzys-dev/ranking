@@ -514,7 +514,7 @@ function mostrarRanking(ranking, agenteIdNuevo = null) {
         
         if (areaActual === 'conversion') {
             targetTexto = `${agente.target}`;
-            actualTexto = `${agente.actual}`;
+            actualTexto = `${agente.actual} (${agente.totalDepositos > 0 ? `$${agente.totalDepositos.toFixed(0)}` : '$0'})`;
         } else {
             targetTexto = `$${agente.target.toFixed(0)}`;
             actualTexto = `$${agente.actual.toFixed(0)}`;
