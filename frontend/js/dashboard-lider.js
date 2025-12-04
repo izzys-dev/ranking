@@ -242,6 +242,10 @@ async function cargarAgentes() {
             };
         });
         
+        // Calcular total de ingresos
+        const totalIngresos = agentesConDatos.reduce((sum, agente) => sum + agente.totalDepositos, 0);
+        document.getElementById('totalIngresos').textContent = `$${totalIngresos.toFixed(2)}`;
+        
         mostrarAgentes(agentesConDatos);
         
     } catch (error) {

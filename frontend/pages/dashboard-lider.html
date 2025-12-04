@@ -317,6 +317,15 @@
         <div class="card">
             <h2 data-i18n="dashboard.my_agents"></h2>
             <div class="mes-actual" id="mesActual"></div>
+
+            <!-- Total de ingresos -->
+            <div
+                style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; text-align: center;">
+                <div style="font-size: 14px; opacity: 0.9; margin-bottom: 8px;" data-i18n="dashboard.total_income">Total
+                    de Ingresos</div>
+                <div style="font-size: 32px; font-weight: 900;" id="totalIngresos">$0</div>
+            </div>
+
             <button class="btn-add" onclick="openModal()" data-i18n="dashboard.add_agent"></button>
             <button class="btn-add btn-deposito-rapido" onclick="openDepositoRapido()"
                 data-i18n="dashboard.quick_deposit"></button>

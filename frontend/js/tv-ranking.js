@@ -455,7 +455,9 @@ async function cargarRanking(agenteIdNuevo = null) {
         // Ordenar por total ingresado/cantidad (del más alto al más bajo)
         ranking.sort((a, b) => b.actual - a.actual);
         
-        console.log('✅ Ranking procesado:', ranking.length, 'agentes');
+        // Calcular total de ingresos
+        const totalIngresos = ranking.reduce((sum, agente) => sum + agente.totalDepositos, 0);
+        document.getElementById('totalIngresos').textContent = `$${totalIngresos.toFixed(2)}`;
         
         mostrarRanking(ranking, agenteIdNuevo);
         
