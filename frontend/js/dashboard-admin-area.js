@@ -1263,7 +1263,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Función para abrir el ranking en pantalla aparte
 function abrirRankingTop5() {
-    window.location.href = './ranking-top5.html';
+    window.open('./ranking-top5.html', '_blank');
 }
 
 async function logout() {
