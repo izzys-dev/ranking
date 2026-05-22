@@ -267,7 +267,7 @@ function mostrarCelebracion(nombreAgente, monto) {
     // Eliminar después de la animación
     setTimeout(() => {
         notificacion.remove();
-    }, 3000);
+    }, 5000);
 }
 
 function mostrarCelebracionRegistro(nombreAgente) {
@@ -290,7 +290,7 @@ function mostrarCelebracionRegistro(nombreAgente) {
     
     setTimeout(() => {
         notificacion.remove();
-    }, 3000);
+    }, 5000);
 }
 
 // Función para reproducir sonido desde archivo MP3
@@ -317,7 +317,7 @@ function reproducirSonidoCelebracion() {
 }
 
 function lanzarConfetti() {
-    const duracion = 3000;
+    const duracion = 5000;
     const finalizacion = Date.now() + duracion;
     
     const intervalo = setInterval(() => {
