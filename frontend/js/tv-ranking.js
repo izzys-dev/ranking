@@ -4,9 +4,6 @@ let areaActual;
 let mesActual, anioActual;
 let agentesMap = {};
 let liderId = null; // ID del líder para filtrar agentes
-let rankingActual = []; // Ranking en memoria para obtener posiciones
-let notificacionQueue = []; // Cola de notificaciones pendientes
-let mostrandoNotificacion = false; // Flag de notificación activa
 
 window.addEventListener('DOMContentLoaded', async () => {
     console.log('🚀 Iniciando TV Ranking...');
@@ -152,6 +149,7 @@ function suscribirseACambios() {
                     .eq('id', nuevoDeposito.agente_id)
                     .eq('area', areaActual);
                 
+                // Si hay lider_id, verificar que el agente pertenece a este líder
                 if (liderId) {
                     queryAgente = queryAgente.eq('lider_id', liderId);
                 }
@@ -159,21 +157,16 @@ function suscribirseACambios() {
                 const { data: agente } = await queryAgente.single();
                 
                 if (agente) {
-                    console.log('🎉 Preparando celebración para:', agente.nombre);
+                    console.log('🎉 Mostrando celebración para:', agente.nombre);
                     
-                    // Recargar ranking primero para obtener la nueva posición
-                    await cargarRanking(nuevoDeposito.agente_id);
+                    // Mostrar celebración
+                    mostrarCelebracion(agente.nombre, nuevoDeposito.monto);
                     
-                    const posicion = obtenerPosicionAgente(agente.id);
-                    const porcentaje = obtenerPorcentajeAgente(agente.id);
-                    
-                    agregarNotificacionAQueue({
-                        tipo: 'deposito',
-                        nombreAgente: agente.nombre,
-                        monto: nuevoDeposito.monto,
-                        posicion,
-                        porcentaje
-                    });
+                    // Recargar ranking después de la animación
+                    setTimeout(() => {
+                        console.log('🔄 Recargando ranking...');
+                        cargarRanking(nuevoDeposito.agente_id);
+                    }, 1000);
                 } else {
                     console.log('⚠️ Depósito de otro líder o área');
                 }
@@ -204,6 +197,7 @@ function suscribirseACambios() {
                         .eq('id', nuevoRegistro.agente_id)
                         .eq('area', areaActual);
                     
+                    // Si hay lider_id, verificar que el agente pertenece a este líder
                     if (liderId) {
                         queryAgente = queryAgente.eq('lider_id', liderId);
                     }
@@ -211,17 +205,11 @@ function suscribirseACambios() {
                     const { data: agente } = await queryAgente.single();
                     
                     if (agente) {
-                        console.log('📝 Preparando celebración de registro para:', agente.nombre);
-                        await cargarRanking(nuevoRegistro.agente_id);
-                        const posicion = obtenerPosicionAgente(agente.id);
-                        const porcentaje = obtenerPorcentajeAgente(agente.id);
-                        agregarNotificacionAQueue({
-                            tipo: 'registro',
-                            nombreAgente: agente.nombre,
-                            monto: null,
-                            posicion,
-                            porcentaje
-                        });
+                        console.log('🎉 Mostrando celebración de registro para:', agente.nombre);
+                        mostrarCelebracionRegistro(agente.nombre);
+                        setTimeout(() => {
+                            cargarRanking(nuevoRegistro.agente_id);
+                        }, 1000);
                     }
                 }
             }
@@ -256,136 +244,53 @@ function suscribirseACambios() {
     });
 }
 
-// ── Helpers de ranking ──────────────────────────────────────────────────────
-function obtenerPosicionAgente(agenteId) {
-    const idx = rankingActual.findIndex(a => a.id === agenteId);
-    return idx >= 0 ? idx + 1 : null;
-}
-
-function obtenerPorcentajeAgente(agenteId) {
-    const agente = rankingActual.find(a => a.id === agenteId);
-    return agente ? agente.porcentaje : null;
-}
-
-// ── Cola de notificaciones ───────────────────────────────────────────────────
-function agregarNotificacionAQueue(config) {
-    notificacionQueue.push(config);
-    if (!mostrandoNotificacion) {
-        procesarSiguienteNotificacion();
-    }
-}
-
-function procesarSiguienteNotificacion() {
-    if (notificacionQueue.length === 0) {
-        mostrandoNotificacion = false;
-        return;
-    }
-    mostrandoNotificacion = true;
-    const config = notificacionQueue.shift();
-    mostrarNotificacionModal(config);
-}
-
-function mostrarNotificacionModal({ tipo, nombreAgente, monto, posicion, porcentaje }) {
-    const DURACION = 8000;
+function mostrarCelebracion(nombreAgente, monto) {
+    console.log('🎊 Lanzando celebración...');
     
-    // Colores según área activa
-    const temas = {
-        conversion: {
-            gradient: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%)',
-            glow:     'rgba(139,92,246,0.6)',
-            confetti: ['#6366f1','#8b5cf6','#d946ef','#a78bfa','#ffffff']
-        },
-        retencion: {
-            gradient: 'linear-gradient(135deg, #10b981 0%, #14b8a6 50%, #06b6d4 100%)',
-            glow:     'rgba(20,184,166,0.6)',
-            confetti: ['#10b981','#14b8a6','#06b6d4','#6ee7b7','#ffffff']
-        },
-        recovery: {
-            gradient: 'linear-gradient(135deg, #f59e0b 0%, #ef4444 50%, #ec4899 100%)',
-            glow:     'rgba(239,68,68,0.6)',
-            confetti: ['#f59e0b','#ef4444','#ec4899','#fbbf24','#ffffff']
-        }
-    };
-    const temaRegistro = {
-        gradient: 'linear-gradient(135deg, #3b82f6 0%, #6366f1 50%, #8b5cf6 100%)',
-        glow:     'rgba(59,130,246,0.6)',
-        confetti: ['#3b82f6','#6366f1','#93c5fd','#c4b5fd','#ffffff']
-    };
-    
-    const tema = tipo === 'registro' ? temaRegistro : (temas[areaActual] || temas.conversion);
-    const esPrimero = posicion === 1 && tipo !== 'registro';
-    
-    // Emoji y título según tipo y posición
-    let emoji, titulo, montoDisplay, posicionBadge;
-    
-    if (tipo === 'registro') {
-        emoji = '📝';
-        titulo = '¡NUEVO LEAD!';
-        montoDisplay = '+1 Lead Registrado';
-        posicionBadge = '';
-    } else {
-        montoDisplay = `$${parseFloat(monto).toFixed(2)}`;
-        if (esPrimero) {
-            emoji = '👑';
-            titulo = '¡NUEVO DEPÓSITO!';
-            posicionBadge = `<div class="posicion-nueva posicion-primera">🏆 ¡PRIMER LUGAR!</div>`;
-        } else if (posicion) {
-            emoji = '🎉';
-            titulo = '¡NUEVO DEPÓSITO!';
-            posicionBadge = `<div class="posicion-nueva">⬆️ Posición #${posicion}</div>`;
-        } else {
-            emoji = '🎉';
-            titulo = '¡NUEVO DEPÓSITO!';
-            posicionBadge = '';
-        }
-    }
-    
-    // Barra de progreso
-    let progressBar = '';
-    if (porcentaje !== null && tipo !== 'registro') {
-        const clase = porcentaje >= 100 ? 'excelente' : porcentaje >= 70 ? 'bueno' : 'bajo';
-        const w = Math.min(porcentaje, 100);
-        progressBar = `
-            <div class="modal-progress">
-                <div class="modal-progress-label">Progreso a meta: ${porcentaje}%</div>
-                <div class="modal-progress-bar">
-                    <div class="modal-progress-fill ${clase}" style="width:${w}%"></div>
-                </div>
-            </div>`;
-    }
-    
-    // Crear overlay
-    const overlay = document.createElement('div');
-    overlay.className = 'notificacion-overlay';
-    
-    // Crear modal
+    // Crear notificación
     const notificacion = document.createElement('div');
-    notificacion.className = `notificacion-deposito${tipo === 'registro' ? ' tipo-registro' : ''}${esPrimero ? ' posicion-uno' : ''}`;
-    notificacion.style.background = tema.gradient;
-    notificacion.style.boxShadow = `0 40px 100px rgba(0,0,0,0.5), 0 0 60px ${tema.glow}`;
+    notificacion.className = 'notificacion-deposito';
     notificacion.innerHTML = `
-        <div class="emoji">${emoji}</div>
-        <h2>${titulo}</h2>
+        <div class="emoji">🎉</div>
+        <h2>¡NUEVO DEPÓSITO!</h2>
         <p>${nombreAgente}</p>
-        <div class="monto">${montoDisplay}</div>
-        ${posicionBadge}
-        ${progressBar}
+        <div class="monto">$${parseFloat(monto).toFixed(2)}</div>
     `;
-    
-    document.body.appendChild(overlay);
     document.body.appendChild(notificacion);
     
+    // Reproducir sonido de celebración desde archivo
     reproducirSonidoCelebracion();
-    lanzarConfetti(tema.confetti, esPrimero);
     
-    // Limpiar y procesar siguiente en cola
+    // Confetti
+    lanzarConfetti();
+    
+    // Eliminar después de la animación
     setTimeout(() => {
-        overlay.remove();
         notificacion.remove();
-        procesarSiguienteNotificacion();
-    }, DURACION);
+    }, 5000);
+}
+
+function mostrarCelebracionRegistro(nombreAgente) {
+    console.log('📝 Lanzando celebración de registro...');
     
-    console.log(`🎊 Notificación mostrada: ${tipo} — ${nombreAgente} — pos #${posicion}`);
+    const notificacion = document.createElement('div');
+    notificacion.className = 'notificacion-deposito';
+    notificacion.innerHTML = `
+        <div class="emoji">📝</div>
+        <h2>¡NUEVO REGISTRO!</h2>
+        <p>${nombreAgente}</p>
+        <div class="monto">+1 Lead</div>
+    `;
+    document.body.appendChild(notificacion);
+    
+    // Reproducir sonido de celebración desde archivo
+    reproducirSonidoCelebracion();
+    
+    lanzarConfetti();
+    
+    setTimeout(() => {
+        notificacion.remove();
+    }, 5000);
 }
 
 // Función para reproducir sonido desde archivo MP3
@@ -411,27 +316,42 @@ function reproducirSonidoCelebracion() {
     }
 }
 
-function lanzarConfetti(colores = ['#10b981','#059669','#34d399'], intenso = false) {
-    const duracion = 5500;
+function lanzarConfetti() {
+    const duracion = 5000;
     const finalizacion = Date.now() + duracion;
-    const particulas = intenso ? 6 : 3;
     
     const intervalo = setInterval(() => {
-        if (Date.now() >= finalizacion) { clearInterval(intervalo); return; }
-        confetti({ particleCount: particulas, angle: 60,  spread: 55, origin: { x: 0 }, colors: colores });
-        confetti({ particleCount: particulas, angle: 120, spread: 55, origin: { x: 1 }, colors: colores });
+        const tiempoRestante = finalizacion - Date.now();
+        
+        if (tiempoRestante <= 0) {
+            clearInterval(intervalo);
+            return;
+        }
+        
+        confetti({
+            particleCount: 3,
+            angle: 60,
+            spread: 55,
+            origin: { x: 0 },
+            colors: ['#10b981', '#059669', '#34d399']
+        });
+        
+        confetti({
+            particleCount: 3,
+            angle: 120,
+            spread: 55,
+            origin: { x: 1 },
+            colors: ['#10b981', '#059669', '#34d399']
+        });
     }, 50);
     
     // Explosión central
-    confetti({ particleCount: intenso ? 200 : 100, spread: intenso ? 100 : 70, origin: { y: 0.6 }, colors: colores });
-    
-    // Explosiones laterales extra para el #1
-    if (intenso) {
-        setTimeout(() => {
-            confetti({ particleCount: 120, spread: 120, origin: { x: 0.2, y: 0.5 }, colors: colores });
-            confetti({ particleCount: 120, spread: 120, origin: { x: 0.8, y: 0.5 }, colors: colores });
-        }, 600);
-    }
+    confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ['#10b981', '#059669', '#34d399', '#6ee7b7']
+    });
 }
 
 async function cargarRanking(agenteIdNuevo = null) {
@@ -554,7 +474,6 @@ async function cargarRanking(agenteIdNuevo = null) {
 }
 
 function mostrarRanking(ranking, agenteIdNuevo = null) {
-    rankingActual = ranking || []; // Guardar en memoria para consultas de posición
     const container = document.getElementById('rankingContainer');
     
     if (!ranking || ranking.length === 0) {
